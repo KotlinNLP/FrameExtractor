@@ -12,6 +12,7 @@ import com.kotlinnlp.frameextractor.Intent
 import com.kotlinnlp.frameextractor.Slot
 import com.kotlinnlp.simplednn.core.neuralprocessor.NeuralProcessor
 import com.kotlinnlp.simplednn.core.neuralprocessor.feedforward.FeedforwardNeuralProcessor
+import com.kotlinnlp.simplednn.core.neuralprocessor.feedforward.FeedforwardNeuralProcessorsPool
 import com.kotlinnlp.simplednn.deeplearning.birnn.BiRNNEncoder
 import com.kotlinnlp.simplednn.simplemath.ndarray.Shape
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
@@ -129,10 +130,15 @@ class FrameClassifier(
   /**
    *
    */
-  private val slotsProcessor = FeedforwardNeuralProcessor<DenseNDArray>(
+  private val slotsProcessorPool = FeedforwardNeuralProcessorsPool<DenseNDArray>(
     neuralNetwork = this.model.intentNetwork,
     propagateToInput = true,
     useDropout = false)
+
+  /**
+   *
+   */
+  private lateinit var usedSlotsProcessors: List<FeedforwardNeuralProcessor<DenseNDArray>>
 
   /**
    *
@@ -175,7 +181,7 @@ class FrameClassifier(
     biRNN1Params = this.biRNNEncoder1.getParamsErrors(),
     biRNN2Params = this.biRNNEncoder2.getParamsErrors(),
     intentNetworkParams = this.intentProcessor.getParamsErrors(),
-    slotsNetworkParams = this.slotsProcessor.getParamsErrors()
+    slotsNetworkParams = this.usedSlotsProcessors.first().getParamsErrors()
   )
 
   /**
@@ -185,13 +191,16 @@ class FrameClassifier(
 
     var prevClass: Int? = null
 
-    return slotsInputs.map { slotsInput ->
+    this.slotsProcessorPool.releaseAll()
+    this.usedSlotsProcessors = List(size = slotsInputs.size, init = { this.slotsProcessorPool.getItem() })
+
+    return slotsInputs.zip(this.usedSlotsProcessors).map { (slotsInput, processor) ->
 
       val prevClassBinary: DenseNDArray = prevClass?.let {
         DenseNDArrayFactory.oneHotEncoder(length = this.model.slotsNetwork.outputSize, oneAt = it)
       } ?: DenseNDArrayFactory.zeros(shape = Shape(this.model.slotsNetwork.outputSize))
 
-      val classification: DenseNDArray = this.slotsProcessor.forward(prevClassBinary.concatV(slotsInput))
+      val classification: DenseNDArray = processor.forward(prevClassBinary.concatV(slotsInput))
 
       prevClass = classification.argMaxIndex()
 
