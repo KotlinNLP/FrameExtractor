@@ -11,7 +11,11 @@ import com.kotlinnlp.frameextractor.IOBTag
 import com.kotlinnlp.frameextractor.Intent
 import com.kotlinnlp.frameextractor.Slot
 import com.kotlinnlp.simplednn.core.neuralprocessor.NeuralProcessor
+import com.kotlinnlp.simplednn.core.neuralprocessor.feedforward.FeedforwardNeuralProcessor
+import com.kotlinnlp.simplednn.deeplearning.birnn.BiRNNEncoder
+import com.kotlinnlp.simplednn.simplemath.ndarray.Shape
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
+import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArrayFactory
 
 /**
  * The frame classifier.
@@ -98,19 +102,100 @@ class FrameClassifier(
     }
   }
 
+  /**
+   *
+   */
+  private val biRNNEncoder1 = BiRNNEncoder<DenseNDArray>(
+    network = this.model.biRNN1,
+    propagateToInput = false,
+    useDropout = false)
+
+  /**
+   *
+   */
+  private val biRNNEncoder2 = BiRNNEncoder<DenseNDArray>(
+    network = this.model.biRNN2,
+    propagateToInput = false,
+    useDropout = false)
+
+  /**
+   *
+   */
+  private val intentProcessor = FeedforwardNeuralProcessor<DenseNDArray>(
+    neuralNetwork = this.model.intentNetwork,
+    propagateToInput = true,
+    useDropout = false)
+
+  /**
+   *
+   */
+  private val slotsProcessor = FeedforwardNeuralProcessor<DenseNDArray>(
+    neuralNetwork = this.model.intentNetwork,
+    propagateToInput = true,
+    useDropout = false)
+
+  /**
+   *
+   */
   override fun forward(input: List<DenseNDArray>): Output {
-    TODO("not implemented")
+
+    val h1List: List<DenseNDArray> = this.biRNNEncoder1.forward(input)
+    val h2List: List<DenseNDArray> = this.biRNNEncoder2.forward(input)
+
+    val h1IntentInput: DenseNDArray = this.biRNNEncoder1.getLastOutput(copy = false).let { it.first.concatV(it.second) }
+    val h2IntentInput: DenseNDArray = this.biRNNEncoder2.getLastOutput(copy = false).let { it.first.concatV(it.second) }
+
+    val h1SlotsInputs: List<DenseNDArray> = h1List.zip(h2List).map { it.first.concatH(it.second) }
+    val h2SlotsInputs: List<DenseNDArray> = h1List.zip(h2List).map { it.second.concatH(it.first) }
+
+    return Output(
+      intentsDistribution = this.intentProcessor.forward(h1IntentInput.concatV(h2IntentInput)),
+      slotsClassifications = this.classifySlots(h1SlotsInputs.zip(h2SlotsInputs) { h1s, h2s -> h1s.concatV(h2s) })
+    )
   }
 
+  /**
+   *
+   */
   override fun backward(outputErrors: Output) {
     TODO("not implemented")
   }
 
+  /**
+   *
+   */
   override fun getInputErrors(copy: Boolean): List<DenseNDArray> {
     TODO("not implemented")
   }
 
-  override fun getParamsErrors(copy: Boolean): FrameClassifierParameters {
-    TODO("not implemented")
+  /**
+   *
+   */
+  override fun getParamsErrors(copy: Boolean) = FrameClassifierParameters(
+    biRNN1Params = this.biRNNEncoder1.getParamsErrors(),
+    biRNN2Params = this.biRNNEncoder2.getParamsErrors(),
+    intentNetworkParams = this.intentProcessor.getParamsErrors(),
+    slotsNetworkParams = this.slotsProcessor.getParamsErrors()
+  )
+
+  /**
+   *
+   */
+  private fun classifySlots(slotsInputs: List<DenseNDArray>): List<DenseNDArray> {
+
+    var prevClass: Int? = null
+
+    return slotsInputs.map { slotsInput ->
+
+      val prevClassBinary: DenseNDArray = prevClass?.let {
+        DenseNDArrayFactory.oneHotEncoder(length = this.model.slotsNetwork.outputSize, oneAt = it)
+      } ?: DenseNDArrayFactory.zeros(shape = Shape(this.model.slotsNetwork.outputSize))
+
+      val classification: DenseNDArray = this.slotsProcessor.forward(prevClassBinary.concatV(slotsInput))
+
+      prevClass = classification.argMaxIndex()
+
+      classification
+    }
   }
 }
