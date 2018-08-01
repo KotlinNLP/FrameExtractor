@@ -10,9 +10,11 @@ package com.kotlinnlp.frameextractor.classifier
 import com.kotlinnlp.frameextractor.IOBTag
 import com.kotlinnlp.frameextractor.Intent
 import com.kotlinnlp.frameextractor.Slot
+import com.kotlinnlp.simplednn.core.neuralnetwork.NetworkParameters
 import com.kotlinnlp.simplednn.core.neuralprocessor.NeuralProcessor
 import com.kotlinnlp.simplednn.core.neuralprocessor.feedforward.FeedforwardNeuralProcessor
 import com.kotlinnlp.simplednn.core.neuralprocessor.feedforward.FeedforwardNeuralProcessorsPool
+import com.kotlinnlp.simplednn.core.optimizer.ParamsErrorsAccumulator
 import com.kotlinnlp.simplednn.deeplearning.birnn.BiRNNEncoder
 import com.kotlinnlp.simplednn.simplemath.ndarray.Shape
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
@@ -143,6 +145,11 @@ class FrameClassifier(
   /**
    *
    */
+  private val slotsParamsErrorsAccumulator = ParamsErrorsAccumulator<NetworkParameters>()
+
+  /**
+   *
+   */
   override fun forward(input: List<DenseNDArray>): Output {
 
     val h1List: List<DenseNDArray> = this.biRNNEncoder1.forward(input)
@@ -164,8 +171,55 @@ class FrameClassifier(
    *
    */
   override fun backward(outputErrors: Output) {
-    TODO("not implemented")
+
+    val intentInputErrors: Pair<DenseNDArray, DenseNDArray> = this.intentProcessor.let {
+      it.backward(outputErrors.intentsDistribution)
+      it.getInputErrors(copy = false).halfSplit()
+    }
+
+    val (h1IntentErrorsL2R, h1IntentErrorsR2L) = intentInputErrors.first.halfSplit()
+    val (h2IntentErrorsL2R, h2IntentErrorsR2L) = intentInputErrors.second.halfSplit()
+
+    val (h1Errors, h2Errors) = this.backwardSlotsErrors(outputErrors.slotsClassifications)
+
+    h1Errors.last().assignSum(h1IntentErrorsL2R)
+    h1Errors.first().assignSum(h1IntentErrorsR2L)
+
+    h2Errors.last().assignSum(h2IntentErrorsL2R)
+    h2Errors.first().assignSum(h2IntentErrorsR2L)
+
+    this.biRNNEncoder1.backward(h1Errors)
+    this.biRNNEncoder2.backward(h2Errors)
   }
+
+  /**
+   *
+   */
+  private fun backwardSlotsErrors(slotsErrors: List<DenseNDArray>): Pair<List<DenseNDArray>, List<DenseNDArray>> {
+
+    this.slotsParamsErrorsAccumulator.reset()
+
+    val slotsInputSize: Int = this.model.biRNN1.outputSize + this.model.biRNN2.outputSize
+    val slotsInputErrors: List<Pair<DenseNDArray, DenseNDArray>> =
+      slotsErrors.zip(this.usedSlotsProcessors).map { (errors, processor) ->
+
+        processor.backward(errors)
+
+        this.slotsParamsErrorsAccumulator.accumulate(processor.getParamsErrors(copy = false))
+
+        processor.getInputErrors(copy = false).splitV(this.model.slotsNetwork.outputSize, slotsInputSize)[1].halfSplit()
+      }
+
+    this.slotsParamsErrorsAccumulator.averageErrors()
+
+    return slotsInputErrors.unzip()
+  }
+
+  /**
+   *
+   */
+  private fun DenseNDArray.halfSplit(): Pair<DenseNDArray, DenseNDArray> =
+    this.splitV(this.length / 2).let { it[0] to it[1] }
 
   /**
    *
@@ -178,10 +232,10 @@ class FrameClassifier(
    *
    */
   override fun getParamsErrors(copy: Boolean) = FrameClassifierParameters(
-    biRNN1Params = this.biRNNEncoder1.getParamsErrors(),
-    biRNN2Params = this.biRNNEncoder2.getParamsErrors(),
-    intentNetworkParams = this.intentProcessor.getParamsErrors(),
-    slotsNetworkParams = this.usedSlotsProcessors.first().getParamsErrors()
+    biRNN1Params = this.biRNNEncoder1.getParamsErrors(copy),
+    biRNN2Params = this.biRNNEncoder2.getParamsErrors(copy),
+    intentNetworkParams = this.intentProcessor.getParamsErrors(copy),
+    slotsNetworkParams = this.slotsParamsErrorsAccumulator.getParamsErrors(copy)
   )
 
   /**
