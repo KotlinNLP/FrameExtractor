@@ -31,6 +31,8 @@ class FrameExtractor(private val classifier: FrameClassifier) {
     val tokenEncodings: List<DenseNDArray> = lss.contextVectors.zip(lss.latentHeads).map { it.first.concatH(it.second) }
     val classifierOutput: FrameClassifier.Output = this.classifier.forward(tokenEncodings)
 
-    return classifierOutput.buildIntent(tokenForms = lss.sentence.tokens.map { it.form })
+    return classifierOutput.buildIntent(
+      tokenForms = lss.sentence.tokens.map { it.form },
+      intentsConfig = this.classifier.model.intentsConfiguration)
   }
 }
