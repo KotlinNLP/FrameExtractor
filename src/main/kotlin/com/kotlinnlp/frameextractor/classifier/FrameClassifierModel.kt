@@ -14,7 +14,6 @@ import com.kotlinnlp.simplednn.core.functionalities.activations.Tanh
 import com.kotlinnlp.simplednn.core.layers.LayerInterface
 import com.kotlinnlp.simplednn.core.layers.LayerType
 import com.kotlinnlp.simplednn.core.layers.models.merge.mergeconfig.ConcatMerge
-import com.kotlinnlp.simplednn.core.layers.models.merge.mergeconfig.MergeConfiguration
 import com.kotlinnlp.simplednn.core.neuralnetwork.NeuralNetwork
 import com.kotlinnlp.simplednn.deeplearning.birnn.BiRNN
 import com.kotlinnlp.utils.Serializer
@@ -32,8 +31,7 @@ class FrameClassifierModel(
   tokenEncodingSize: Int,
   hiddenSize: Int,
   hiddenActivation: ActivationFunction? = Tanh(),
-  recurrentConnectionType: LayerType.Connection = LayerType.Connection.LSTM,
-  biRNNMergeConfiguration: MergeConfiguration = ConcatMerge()
+  recurrentConnectionType: LayerType.Connection = LayerType.Connection.LSTM
 ) : Serializable {
 
   companion object {
@@ -64,7 +62,7 @@ class FrameClassifierModel(
     hiddenActivation = hiddenActivation,
     recurrentConnectionType = recurrentConnectionType,
     dropout = 0.0, // the input is an encoding, it makes sense as complete numerical vector
-    outputMergeConfiguration = biRNNMergeConfiguration)
+    outputMergeConfiguration = ConcatMerge())
 
   /**
    *
@@ -76,7 +74,7 @@ class FrameClassifierModel(
     hiddenActivation = hiddenActivation,
     recurrentConnectionType = recurrentConnectionType,
     dropout = 0.0, // the input is an encoding, it makes sense as complete numerical vector
-    outputMergeConfiguration = biRNNMergeConfiguration)
+    outputMergeConfiguration = ConcatMerge())
 
   /**
    *
