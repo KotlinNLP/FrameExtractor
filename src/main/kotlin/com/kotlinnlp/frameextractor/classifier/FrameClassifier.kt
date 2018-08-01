@@ -55,20 +55,25 @@ class FrameClassifier(
 
       val intentIndex: Int = this.intentsDistribution.argMaxIndex()
       val intentConfig: Intent.Configuration = intentsConfig[intentIndex]
+      val slotsOffset: Int = if (intentIndex > 0)
+        intentsConfig.subList(0, intentIndex - 1).sumBy { it.slots.size }
+      else
+        0
 
       return Intent(
         name = intentConfig.name,
-        slots = this.buildSlots(tokenForms = tokenForms, intentConfig = intentConfig)
+        slots = this.buildSlots(tokenForms = tokenForms, intentConfig = intentConfig, slotsOffset = slotsOffset)
       )
     }
 
     /**
      * @param tokenForms the list of tokens forms
      * @param intentConfig the intent configuration from which to extract the slots information
+     * @param slotsOffset the offset of slots indices from which this intent starts in the whole list
      *
      * @return the list of slots interpreted from this output
      */
-    private fun buildSlots(tokenForms: List<String>, intentConfig: Intent.Configuration): List<Slot> {
+    private fun buildSlots(tokenForms: List<String>, intentConfig: Intent.Configuration, slotsOffset: Int): List<Slot> {
 
       val slotsFound = mutableListOf<Triple<Int, Int, StringBuffer>>()
 
@@ -87,7 +92,9 @@ class FrameClassifier(
           }
       }
 
-      return slotsFound.map { Slot(name = intentConfig.slotNames[it.second], value = it.third.toString()) }
+      return slotsFound.map {
+        Slot(name = intentConfig.slotNames[it.second - slotsOffset], value = it.third.toString())
+      }
     }
   }
 
