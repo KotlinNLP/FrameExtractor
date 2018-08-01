@@ -8,12 +8,24 @@
 package com.kotlinnlp.frameextractor.classifier
 
 import com.kotlinnlp.simplednn.core.arrays.UpdatableArray
+import com.kotlinnlp.simplednn.core.neuralnetwork.NetworkParameters
 import com.kotlinnlp.simplednn.core.optimizer.IterableParams
+import com.kotlinnlp.simplednn.deeplearning.birnn.BiRNNParameters
 
 /**
- * The [FrameClassifier] parameters.
+ * The [FrameClassifierModel] parameters.
+ *
+ * @property biRNN1Params
+ * @property biRNN2Params
+ * @property intentNetworkParams
+ * @property slotsNetworkParams
  */
-class FrameClassifierParameters : IterableParams<FrameClassifierParameters>() {
+class FrameClassifierParameters(
+  val biRNN1Params: BiRNNParameters,
+  val biRNN2Params: BiRNNParameters,
+  val intentNetworkParams: NetworkParameters,
+  val slotsNetworkParams: NetworkParameters
+) : IterableParams<FrameClassifierParameters>() {
 
   companion object {
 
@@ -24,10 +36,22 @@ class FrameClassifierParameters : IterableParams<FrameClassifierParameters>() {
     private const val serialVersionUID: Long = 1L
   }
 
-  override val paramsList: List<UpdatableArray<*>>
-    get() = TODO("not implemented")
+  /**
+   * The list of all the parameters of a [FrameClassifierModel].
+   */
+  override val paramsList: List<UpdatableArray<*>> =
+    this.biRNN1Params.paramsList +
+      this.biRNN2Params.paramsList +
+      this.intentNetworkParams.paramsList +
+      this.slotsNetworkParams.paramsList
 
-  override fun copy(): FrameClassifierParameters {
-    TODO("not implemented")
-  }
+  /**
+   * @return new [FrameClassifierParameters] containing a copy of all the values of this
+   */
+  override fun copy() = FrameClassifierParameters(
+    biRNN1Params = this.biRNN1Params.copy(),
+    biRNN2Params = this.biRNN2Params.copy(),
+    intentNetworkParams = this.intentNetworkParams.copy(),
+    slotsNetworkParams = this.slotsNetworkParams.copy()
+  )
 }

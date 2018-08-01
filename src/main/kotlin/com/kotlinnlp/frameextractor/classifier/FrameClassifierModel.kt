@@ -8,6 +8,15 @@
 package com.kotlinnlp.frameextractor.classifier
 
 import com.kotlinnlp.frameextractor.Intent
+import com.kotlinnlp.simplednn.core.functionalities.activations.ActivationFunction
+import com.kotlinnlp.simplednn.core.functionalities.activations.Softmax
+import com.kotlinnlp.simplednn.core.functionalities.activations.Tanh
+import com.kotlinnlp.simplednn.core.layers.LayerInterface
+import com.kotlinnlp.simplednn.core.layers.LayerType
+import com.kotlinnlp.simplednn.core.layers.models.merge.mergeconfig.ConcatMerge
+import com.kotlinnlp.simplednn.core.layers.models.merge.mergeconfig.MergeConfiguration
+import com.kotlinnlp.simplednn.core.neuralnetwork.NeuralNetwork
+import com.kotlinnlp.simplednn.deeplearning.birnn.BiRNN
 import com.kotlinnlp.utils.Serializer
 import java.io.InputStream
 import java.io.OutputStream
@@ -18,7 +27,14 @@ import java.io.Serializable
  *
  * @property intentsConfiguration the list of all the possible intents managed by this classifier
  */
-class FrameClassifierModel(val intentsConfiguration: List<Intent.Configuration>) : Serializable {
+class FrameClassifierModel(
+  val intentsConfiguration: List<Intent.Configuration>,
+  tokenEncodingSize: Int,
+  hiddenSize: Int,
+  hiddenActivation: ActivationFunction? = Tanh(),
+  recurrentConnectionType: LayerType.Connection = LayerType.Connection.LSTM,
+  biRNNMergeConfiguration: MergeConfiguration = ConcatMerge()
+) : Serializable {
 
   companion object {
 
@@ -36,6 +52,79 @@ class FrameClassifierModel(val intentsConfiguration: List<Intent.Configuration>)
      * @return the [FrameClassifierModel] read from [inputStream] and decoded
      */
     fun load(inputStream: InputStream): FrameClassifierModel = Serializer.deserialize(inputStream)
+  }
+
+  /**
+   *
+   */
+  val biRNN1 = BiRNN(
+    inputType = LayerType.Input.Dense,
+    inputSize = tokenEncodingSize,
+    hiddenSize = hiddenSize,
+    hiddenActivation = hiddenActivation,
+    recurrentConnectionType = recurrentConnectionType,
+    dropout = 0.0, // the input is an encoding, it makes sense as complete numerical vector
+    outputMergeConfiguration = biRNNMergeConfiguration)
+
+  /**
+   *
+   */
+  val biRNN2 = BiRNN(
+    inputType = LayerType.Input.Dense,
+    inputSize = tokenEncodingSize,
+    hiddenSize = hiddenSize,
+    hiddenActivation = hiddenActivation,
+    recurrentConnectionType = recurrentConnectionType,
+    dropout = 0.0, // the input is an encoding, it makes sense as complete numerical vector
+    outputMergeConfiguration = biRNNMergeConfiguration)
+
+  /**
+   *
+   */
+  val intentNetwork = NeuralNetwork(
+    layersConfiguration = listOf(
+      LayerInterface(
+        size = 2 * this.biRNN1.hiddenSize + 2 * this.biRNN2.hiddenSize, // always the concatenation of the last outputs
+        type = LayerType.Input.Dense),
+      LayerInterface(
+        size = this.intentsConfiguration.size,
+        connectionType = LayerType.Connection.Feedforward,
+        activationFunction = Softmax())
+    )
+  )
+
+  /**
+   *
+   */
+  val slotsNetwork: NeuralNetwork
+
+  /**
+   *
+   */
+  val params: FrameClassifierParameters
+
+  init {
+
+    // There is a 2 x factor because it includes Beginning + Inside for each slot class.
+    val slotsNetworkOutputSize: Int = 2 * this.intentsConfiguration.sumBy { it.slots.size }
+
+    this.slotsNetwork = NeuralNetwork(
+      layersConfiguration = listOf(
+        LayerInterface(
+          size = slotsNetworkOutputSize + this.biRNN1.outputSize + this.biRNN2.outputSize,
+          type = LayerType.Input.Dense),
+        LayerInterface(
+          size = slotsNetworkOutputSize,
+          connectionType = LayerType.Connection.Feedforward,
+          activationFunction = Softmax())
+      ))
+
+    this.params = FrameClassifierParameters(
+      biRNN1Params = this.biRNN1.model,
+      biRNN2Params = this.biRNN2.model,
+      intentNetworkParams = this.intentNetwork.model,
+      slotsNetworkParams = this.slotsNetwork.model
+    )
   }
 
   /**
