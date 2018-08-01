@@ -70,7 +70,7 @@ class FrameClassifier(
      */
     private fun buildSlots(tokenForms: List<String>, intentConfig: Intent.Configuration): List<Slot> {
 
-      val slotsFound = mutableListOf<Triple<Int, StringBuffer, Int>>()
+      val slotsFound = mutableListOf<Triple<Int, Int, StringBuffer>>()
 
       this.slotsClassifications.forEachIndexed { tokenIndex, classification ->
 
@@ -80,14 +80,14 @@ class FrameClassifier(
         val slotIOB: IOBTag = if (argMaxIndex % 2 == 0) IOBTag.Beginning else IOBTag.Inside
 
         if (slotIOB == IOBTag.Beginning)
-          slotsFound.add(Triple(slotIndex, StringBuffer(tokenForm), tokenIndex))
+          slotsFound.add(Triple(tokenIndex, slotIndex, StringBuffer(tokenForm)))
         else
           slotsFound.lastOrNull()?.let {
-            if (it.first == slotIndex && it.third == tokenIndex - 1) it.second.append(" $tokenForm")
+            if (it.first == tokenIndex - 1 && it.second == slotIndex) it.third.append(" $tokenForm")
           }
       }
 
-      return slotsFound.map { Slot(name = intentConfig.slotNames[it.first], value = it.second.toString()) }
+      return slotsFound.map { Slot(name = intentConfig.slotNames[it.second], value = it.third.toString()) }
     }
   }
 
