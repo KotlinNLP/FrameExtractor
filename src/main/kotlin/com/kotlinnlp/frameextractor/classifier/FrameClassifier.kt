@@ -131,7 +131,7 @@ class FrameClassifier(
     useDropout = false)
 
   /**
-   *
+   * The FF neural processor that decodes the intent.
    */
   private val intentProcessor = FeedforwardNeuralProcessor<DenseNDArray>(
     neuralNetwork = this.model.intentNetwork,
@@ -139,7 +139,7 @@ class FrameClassifier(
     useDropout = false)
 
   /**
-   *
+   * The FF batch processor that decodes the slots of an intent.
    */
   private val slotsProcessor = BatchFeedforwardProcessor<DenseNDArray>(
     neuralNetwork = this.model.slotsNetwork,
@@ -147,7 +147,11 @@ class FrameClassifier(
     useDropout = false)
 
   /**
+   * Calculate the distribution scores of the intents and the slots.
    *
+   * @param input a list of the token encodings of a sentence
+   *
+   * @return a data class containing the distribution scores of the intents and the slots
    */
   override fun forward(input: List<DenseNDArray>): Output {
 
@@ -167,7 +171,9 @@ class FrameClassifier(
   }
 
   /**
+   * Execute the backward of the neural components given the output errors.
    *
+   * @param outputErrors a data class containing the errors of the intent and slots distribution scores
    */
   override fun backward(outputErrors: Output) {
 
@@ -246,7 +252,13 @@ class FrameClassifier(
   }
 
   /**
+   * Execute the backward of the slots processor.
+   * Return a pair containing two lists of input errors, which are parallel and are split in the two components (h2 and
+   * h1 respectively) that compose the inputs.
    *
+   * @param slotsErrors the list of slots distributions errors
+   *
+   * @return a pair containing two parallel lists of slots processor input errors (h2, h1)
    */
   private fun backwardSlotsErrors(slotsErrors: List<DenseNDArray>): Pair<List<DenseNDArray>, List<DenseNDArray>> {
 
@@ -260,13 +272,17 @@ class FrameClassifier(
   }
 
   /**
+   * Split this dense array in two components, each with halved length.
    *
+   * @return the two half components of this dense array
    */
   private fun DenseNDArray.halfSplit(): Pair<DenseNDArray, DenseNDArray> =
     this.splitV(this.length / 2).let { it[0] to it[1] }
 
   /**
+   * @param slotsInputs the input array used to classify the intent slots, one per token
    *
+   * @return the list of intent slots classification
    */
   private fun classifySlots(slotsInputs: List<DenseNDArray>): List<DenseNDArray> {
 
