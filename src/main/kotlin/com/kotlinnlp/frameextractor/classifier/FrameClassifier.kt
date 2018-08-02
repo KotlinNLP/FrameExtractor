@@ -179,13 +179,13 @@ class FrameClassifier(
     val (h1IntentErrorsL2R, h1IntentErrorsR2L) = intentInputErrors.first.halfSplit()
     val (h2IntentErrorsL2R, h2IntentErrorsR2L) = intentInputErrors.second.halfSplit()
 
-    val (h1Errors, h2Errors) = this.backwardSlotsErrors(outputErrors.slotsClassifications)
+    val (h2Errors, h1Errors) = this.backwardSlotsErrors(outputErrors.slotsClassifications) // [h2, h1] inverted order!
 
-    h1Errors.last().assignSum(h1IntentErrorsL2R)
-    h1Errors.first().assignSum(h1IntentErrorsR2L)
+    this.partialSum(h1Errors.last(), h1IntentErrorsL2R)
+    this.partialSum(h1Errors.first(), h1IntentErrorsR2L, fromEnd = true)
 
-    h2Errors.last().assignSum(h2IntentErrorsL2R)
-    h2Errors.first().assignSum(h2IntentErrorsR2L)
+    this.partialSum(h2Errors.last(), h2IntentErrorsL2R)
+    this.partialSum(h2Errors.first(), h2IntentErrorsR2L, fromEnd = true)
 
     this.biRNNEncoder1.backward(h1Errors)
     this.biRNNEncoder2.backward(h2Errors)
