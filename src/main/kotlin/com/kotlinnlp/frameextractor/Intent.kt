@@ -7,6 +7,7 @@
 
 package com.kotlinnlp.frameextractor
 
+import com.beust.klaxon.JsonArray
 import com.beust.klaxon.JsonObject
 import com.beust.klaxon.json
 import java.io.Serializable
@@ -15,12 +16,34 @@ import java.io.Serializable
  * An intent.
  *
  * @property name the intent name
- * @property slots
+ * @property slots the list of slots of the intent
+ * @property distribution the distribution of the prediction scores used to select this intent during its generation
  */
-data class Intent(val name: String, val slots: List<Slot>) {
+data class Intent(val name: String, val slots: List<Slot>, val distribution: Distribution) {
 
   /**
-   * An intent configuration.
+   * The distribution of the prediction scores used to select this intent during its generation.
+   *
+   * @property map a map of intent names associated to the related prediction scores
+   */
+  data class Distribution(val map: Map<String, Double>) {
+
+    /**
+     * @return a JSON representation of this intent distribution
+     */
+    fun toJSON(): JsonArray<JsonObject> = json {
+      @Suppress("UNCHECKED_CAST")
+      array(
+        this@Distribution.map.entries
+          .sortedByDescending { it.value }
+          .map { obj("score" to it.value, "name" to it.key) }
+      ) as JsonArray<JsonObject>
+    }
+  }
+
+  /**
+   * The configuration of an [Intent].
+   * It describes its name and its possible slots.
    *
    * @property name the intent name
    * @property slots the list of configurations of all the possible slots that can be associated to this intent
@@ -40,6 +63,13 @@ data class Intent(val name: String, val slots: List<Slot>) {
      * The list of all the possible slots names of this intent.
      */
     val slotNames: List<String> by lazy { this.slots.map { it.name } }
+
+    /**
+     * @param slotName the name of a possible slot of this intent
+     *
+     * @return the index of the slot with the given name within the possible slots defined in this configuration
+     */
+    fun getSlotIndex(slotName: String): Int = this.slots.indexOfFirst { it.name == slotName }
   }
 
   /**
