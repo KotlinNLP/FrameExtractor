@@ -9,6 +9,7 @@ package com.kotlinnlp.frameextractor
 
 import com.beust.klaxon.JsonObject
 import com.beust.klaxon.json
+import java.io.Serializable
 
 /**
  * An intent.
@@ -24,7 +25,16 @@ data class Intent(val name: String, val slots: List<Slot>) {
    * @property name the intent name
    * @property slots the list of configurations of all the possible slots that can be associated to this intent
    */
-  data class Configuration(val name: String, val slots: List<Slot.Configuration>) {
+  data class Configuration(val name: String, val slots: List<Slot.Configuration>) : Serializable {
+
+    companion object {
+
+      /**
+       * Private val used to serialize the class (needed by Serializable).
+       */
+      @Suppress("unused")
+      private const val serialVersionUID: Long = 1L
+    }
 
     /**
      * The list of all the possible slots names of this intent.

@@ -7,6 +7,8 @@
 
 package com.kotlinnlp.frameextractor
 
+import java.io.Serializable
+
 /**
  * A slot of an [Intent].
  *
@@ -22,5 +24,15 @@ data class Slot(val name: String, val value: String) {
    * @property required whether this slot is required or not
    * @property default the default value of this slot in case it is not required
    */
-  data class Configuration(val name: String, val required: Boolean, val default: Any? = null)
+  data class Configuration(val name: String, val required: Boolean, val default: Any? = null) : Serializable {
+
+    companion object {
+
+      /**
+       * Private val used to serialize the class (needed by Serializable).
+       */
+      @Suppress("unused")
+      private const val serialVersionUID: Long = 1L
+    }
+  }
 }
