@@ -33,6 +33,16 @@ data class Slot(val name: String, val value: String) {
        */
       @Suppress("unused")
       private const val serialVersionUID: Long = 1L
+
+      /**
+       * The name used to generate the slot for tokens that actually do not represent a slot of the intent.
+       */
+      const val NO_SLOT_NAME = "NoSlot"
+
+      /**
+       * The slot of tokens that actually do not represent a slot of the intent.
+       */
+      val noSlot: Configuration get() = Configuration(name = NO_SLOT_NAME, required = false)
     }
   }
 }
