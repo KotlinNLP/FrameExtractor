@@ -20,6 +20,7 @@ data class Slot(val name: String, val value: String) {
    *
    * @property name the slot name
    * @property required whether this slot is required or not
+   * @property default the default value of this slot in case it is not required
    */
-  data class Configuration(val name: String, val required: Boolean)
+  data class Configuration(val name: String, val required: Boolean, val default: Any? = null)
 }
