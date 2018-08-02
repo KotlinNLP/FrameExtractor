@@ -62,10 +62,7 @@ class FrameClassifier(
 
       val intentIndex: Int = this.intentsDistribution.argMaxIndex()
       val intentConfig: Intent.Configuration = intentsConfig[intentIndex]
-      val slotsOffset: Int = if (intentIndex > 0)
-        intentsConfig.subList(0, intentIndex - 1).sumBy { it.slots.size }
-      else
-        0
+      val slotsOffset: Int = if (intentIndex > 0) intentsConfig.subList(0, intentIndex).sumBy { it.slots.size } else 0
 
       return Intent(
         name = intentConfig.name,
