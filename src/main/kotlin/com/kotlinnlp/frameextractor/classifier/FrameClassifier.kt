@@ -23,11 +23,14 @@ import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArrayFactory
  * It is a neural processor that given an encoded sentence (as list of encoded tokens) calculates a probability
  * distribution of the intents expressed by the sentence, together with the slot classifications associated to the
  * tokens.
+ *
+ * @property model the frame classifier model
+ * @property propagateToInput whether to propagate errors to the input during the backward (default = false)
+ * @property id an identifier of this frame classifier (useful when included in a pool, default = 0)
  */
 class FrameClassifier(
   val model: FrameClassifierModel,
-  override val useDropout: Boolean,
-  override val propagateToInput: Boolean,
+  override val propagateToInput: Boolean = false,
   override val id: Int = 0
 ) : NeuralProcessor<
   List<DenseNDArray>, // InputType
@@ -101,19 +104,19 @@ class FrameClassifier(
   }
 
   /**
-   *
+   * The BiRNN1 encoder.
    */
   private val biRNNEncoder1 = BiRNNEncoder<DenseNDArray>(
     network = this.model.biRNN1,
-    propagateToInput = false,
+    propagateToInput = this.propagateToInput,
     useDropout = false)
 
   /**
-   *
+   * The BiRNN2 encoder.
    */
   private val biRNNEncoder2 = BiRNNEncoder<DenseNDArray>(
     network = this.model.biRNN2,
-    propagateToInput = false,
+    propagateToInput = this.propagateToInput,
     useDropout = false)
 
   /**
