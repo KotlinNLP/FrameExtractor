@@ -10,11 +10,9 @@ package com.kotlinnlp.frameextractor.classifier
 import com.kotlinnlp.frameextractor.IOBTag
 import com.kotlinnlp.frameextractor.Intent
 import com.kotlinnlp.frameextractor.Slot
-import com.kotlinnlp.simplednn.core.neuralnetwork.NetworkParameters
 import com.kotlinnlp.simplednn.core.neuralprocessor.NeuralProcessor
+import com.kotlinnlp.simplednn.core.neuralprocessor.batchfeedforward.BatchFeedforwardProcessor
 import com.kotlinnlp.simplednn.core.neuralprocessor.feedforward.FeedforwardNeuralProcessor
-import com.kotlinnlp.simplednn.core.neuralprocessor.feedforward.FeedforwardNeuralProcessorsPool
-import com.kotlinnlp.simplednn.core.optimizer.ParamsErrorsAccumulator
 import com.kotlinnlp.simplednn.deeplearning.birnn.BiRNNEncoder
 import com.kotlinnlp.simplednn.simplemath.ndarray.Shape
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
@@ -129,20 +127,10 @@ class FrameClassifier(
   /**
    *
    */
-  private val slotsProcessorPool = FeedforwardNeuralProcessorsPool<DenseNDArray>(
-    neuralNetwork = this.model.intentNetwork,
+  private val slotsProcessor = BatchFeedforwardProcessor<DenseNDArray>(
+    neuralNetwork = this.model.slotsNetwork,
     propagateToInput = true,
     useDropout = false)
-
-  /**
-   *
-   */
-  private lateinit var usedSlotsProcessors: List<FeedforwardNeuralProcessor<DenseNDArray>>
-
-  /**
-   *
-   */
-  private val slotsParamsErrorsAccumulator = ParamsErrorsAccumulator<NetworkParameters>()
 
   /**
    *
@@ -155,12 +143,12 @@ class FrameClassifier(
     val h1IntentInput: DenseNDArray = this.biRNNEncoder1.getLastOutput(copy = false).let { it.first.concatV(it.second) }
     val h2IntentInput: DenseNDArray = this.biRNNEncoder2.getLastOutput(copy = false).let { it.first.concatV(it.second) }
 
-    val h1SlotsInputs: List<DenseNDArray> = h1List.zip(h2List).map { it.first.concatV(it.second) }
-    val h2SlotsInputs: List<DenseNDArray> = h1List.zip(h2List).map { it.second.concatV(it.first) }
+    // Attention: [h2, h1] inverted order!
+    val slotsInputs: List<DenseNDArray> = h1List.zip(h2List).map { it.second.concatV(it.first) }
 
     return Output(
       intentsDistribution = this.intentProcessor.forward(h1IntentInput.concatV(h2IntentInput)),
-      slotsClassifications = this.classifySlots(h1SlotsInputs.zip(h2SlotsInputs) { h1s, h2s -> h1s.concatV(h2s) })
+      slotsClassifications = this.classifySlots(slotsInputs)
     )
   }
 
@@ -194,22 +182,13 @@ class FrameClassifier(
    */
   private fun backwardSlotsErrors(slotsErrors: List<DenseNDArray>): Pair<List<DenseNDArray>, List<DenseNDArray>> {
 
-    this.slotsParamsErrorsAccumulator.reset()
-
     val slotsInputSize: Int = this.model.biRNN1.outputSize + this.model.biRNN2.outputSize
-    val slotsInputErrors: List<Pair<DenseNDArray, DenseNDArray>> =
-      slotsErrors.zip(this.usedSlotsProcessors).map { (errors, processor) ->
 
-        processor.backward(errors)
+    this.slotsProcessor.backward(slotsErrors)
 
-        this.slotsParamsErrorsAccumulator.accumulate(processor.getParamsErrors(copy = false))
-
-        processor.getInputErrors(copy = false).splitV(this.model.slotsNetwork.outputSize, slotsInputSize)[1].halfSplit()
-      }
-
-    this.slotsParamsErrorsAccumulator.averageErrors()
-
-    return slotsInputErrors.unzip()
+    return this.slotsProcessor.getInputErrors(copy = false)
+      .map { it.splitV(this.model.slotsNetwork.outputSize, slotsInputSize)[1].halfSplit() }
+      .unzip()
   }
 
   /**
@@ -242,16 +221,14 @@ class FrameClassifier(
 
     var prevClass: Int? = null
 
-    this.slotsProcessorPool.releaseAll()
-    this.usedSlotsProcessors = List(size = slotsInputs.size, init = { this.slotsProcessorPool.getItem() })
-
-    return slotsInputs.zip(this.usedSlotsProcessors).map { (slotsInput, processor) ->
+    return slotsInputs.mapIndexed { i, slotsInput ->
 
       val prevClassBinary: DenseNDArray = prevClass?.let {
         DenseNDArrayFactory.oneHotEncoder(length = this.model.slotsNetwork.outputSize, oneAt = it)
       } ?: DenseNDArrayFactory.zeros(shape = Shape(this.model.slotsNetwork.outputSize))
 
-      val classification: DenseNDArray = processor.forward(prevClassBinary.concatV(slotsInput))
+      val input: List<DenseNDArray> = listOf(prevClassBinary.concatV(slotsInput))
+      val classification: DenseNDArray = this.slotsProcessor.forward(input, continueBatch = i > 0).first()
 
       prevClass = classification.argMaxIndex()
 
