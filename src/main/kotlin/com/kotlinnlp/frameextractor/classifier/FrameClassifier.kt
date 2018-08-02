@@ -155,8 +155,8 @@ class FrameClassifier(
     val h1IntentInput: DenseNDArray = this.biRNNEncoder1.getLastOutput(copy = false).let { it.first.concatV(it.second) }
     val h2IntentInput: DenseNDArray = this.biRNNEncoder2.getLastOutput(copy = false).let { it.first.concatV(it.second) }
 
-    val h1SlotsInputs: List<DenseNDArray> = h1List.zip(h2List).map { it.first.concatH(it.second) }
-    val h2SlotsInputs: List<DenseNDArray> = h1List.zip(h2List).map { it.second.concatH(it.first) }
+    val h1SlotsInputs: List<DenseNDArray> = h1List.zip(h2List).map { it.first.concatV(it.second) }
+    val h2SlotsInputs: List<DenseNDArray> = h1List.zip(h2List).map { it.second.concatV(it.first) }
 
     return Output(
       intentsDistribution = this.intentProcessor.forward(h1IntentInput.concatV(h2IntentInput)),
