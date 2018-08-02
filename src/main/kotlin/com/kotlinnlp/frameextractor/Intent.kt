@@ -22,12 +22,12 @@ data class Intent(val name: String, val slots: List<Slot>) {
    * An intent configuration.
    *
    * @property name the intent name
-   * @property slots the list of configurations of slots associated to this intent
+   * @property slots the list of configurations of all the possible slots that can be associated to this intent
    */
   data class Configuration(val name: String, val slots: List<Slot.Configuration>) {
 
     /**
-     * The list of all the possible slots of this intent.
+     * The list of all the possible slots names of this intent.
      */
     val slotNames: List<String> by lazy { this.slots.map { it.name } }
   }
@@ -38,7 +38,8 @@ data class Intent(val name: String, val slots: List<Slot>) {
   fun toJSON(): JsonObject = json {
     obj(
       "name" to this@Intent.name,
-      "slots" to array(this@Intent.slots.map { obj(it.name to it.value) })
+      "slots" to array(this@Intent.slots.map { obj(it.name to it.value) }),
+      "distribution" to this@Intent.distribution.toJSON()
     )
   }
 }
