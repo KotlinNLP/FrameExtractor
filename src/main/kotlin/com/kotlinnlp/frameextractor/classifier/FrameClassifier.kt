@@ -192,6 +192,60 @@ class FrameClassifier(
   }
 
   /**
+   * Get the list of input errors (they are always a copy).
+   *
+   * @param copy parameter inherited from the [NeuralProcessor] but without effect actually
+   *
+   * @return the list of input errors
+   */
+  override fun getInputErrors(copy: Boolean): List<DenseNDArray> =
+    this.biRNNEncoder1.getInputErrors(copy = false)
+      .zip(this.biRNNEncoder2.getInputErrors(copy = false))
+      .map { it.first.sum(it.second) }
+
+  /**
+   * @param copy a Boolean indicating whether the returned errors must be a copy or a reference
+   *
+   * @return the errors of this classifiers parameters
+   */
+  override fun getParamsErrors(copy: Boolean) = FrameClassifierParameters(
+    biRNN1Params = this.biRNNEncoder1.getParamsErrors(copy),
+    biRNN2Params = this.biRNNEncoder2.getParamsErrors(copy),
+    intentNetworkParams = this.intentProcessor.getParamsErrors(copy),
+    slotsNetworkParams = this.slotsProcessor.getParamsErrors(copy)
+  )
+
+  /**
+   * Get the offset index from which the slots of a given intent start, within the concatenation of all the possibile
+   * intents slots.
+   *
+   * @param intentName the name of an intent
+   *
+   * @return the offset of the given intent slots
+   */
+  fun getSlotsOffset(intentName: String): Int =
+    this.model.intentsConfiguration.let { it.subList(0, it.indexOfFirst { it.name == intentName }) }
+      .sumBy { it.slots.size }
+
+  /**
+   * Sum a smaller dense array to a bigger dense array element-wise in-place, aligning them to the first or the last
+   * index.
+   *
+   * @param bigArray the bigger dense array
+   * @param smallArray the smaller dense array
+   * @param fromEnd align the arrays to the last index if true, otherwise to the first index (the default)
+   */
+  private fun partialSum(bigArray: DenseNDArray, smallArray: DenseNDArray, fromEnd: Boolean = false) {
+
+    (0 until smallArray.length).forEach { i ->
+
+      val bigIndex: Int = if (fromEnd) bigArray.length - i - 1 else i
+
+      bigArray[bigIndex] = bigArray[bigIndex] + smallArray[i]
+    }
+  }
+
+  /**
    *
    */
   private fun backwardSlotsErrors(slotsErrors: List<DenseNDArray>): Pair<List<DenseNDArray>, List<DenseNDArray>> {
@@ -210,23 +264,6 @@ class FrameClassifier(
    */
   private fun DenseNDArray.halfSplit(): Pair<DenseNDArray, DenseNDArray> =
     this.splitV(this.length / 2).let { it[0] to it[1] }
-
-  /**
-   *
-   */
-  override fun getInputErrors(copy: Boolean): List<DenseNDArray> {
-    TODO("not implemented")
-  }
-
-  /**
-   *
-   */
-  override fun getParamsErrors(copy: Boolean) = FrameClassifierParameters(
-    biRNN1Params = this.biRNNEncoder1.getParamsErrors(copy),
-    biRNN2Params = this.biRNNEncoder2.getParamsErrors(copy),
-    intentNetworkParams = this.intentProcessor.getParamsErrors(copy),
-    slotsNetworkParams = this.slotsParamsErrorsAccumulator.getParamsErrors(copy)
-  )
 
   /**
    *
