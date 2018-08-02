@@ -67,7 +67,10 @@ class FrameClassifier(
 
       return Intent(
         name = intentConfig.name,
-        slots = this.buildSlots(tokenForms = tokenForms, intentConfig = intentConfig, slotsOffset = slotsOffset)
+        slots = this.buildSlots(tokenForms = tokenForms, intentConfig = intentConfig, slotsOffset = slotsOffset),
+        distribution = Intent.Distribution(map = (0 until this.intentsDistribution.length).associate { i ->
+          intentsConfig[i].name to this.intentsDistribution[i]
+        })
       )
     }
 
@@ -81,6 +84,7 @@ class FrameClassifier(
     private fun buildSlots(tokenForms: List<String>, intentConfig: Intent.Configuration, slotsOffset: Int): List<Slot> {
 
       val slotsFound = mutableListOf<Triple<Int, Int, StringBuffer>>()
+      val slotsRange: IntRange = slotsOffset until (slotsOffset + intentConfig.slots.size)
 
       this.slotsClassifications.forEachIndexed { tokenIndex, classification ->
 
@@ -97,11 +101,18 @@ class FrameClassifier(
           }
       }
 
-      return slotsFound.map {
-        Slot(name = intentConfig.slotNames[it.second - slotsOffset], value = it.third.toString())
-      }
+      return slotsFound
+        .filter { it.second in slotsRange }
+        .map { Slot(name = intentConfig.slotNames[it.second - slotsOffset], value = it.third.toString()) }
+        .filter { it.name != Slot.Configuration.NO_SLOT_NAME }
     }
   }
+
+  /**
+   * The dropout is not useful for this processor because it has encodings as input and they make sense if used in
+   * their original form.
+   */
+  override val useDropout: Boolean = false
 
   /**
    * The BiRNN1 encoder.
