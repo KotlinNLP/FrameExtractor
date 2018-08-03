@@ -9,7 +9,6 @@ package com.kotlinnlp.frameextractor.classifier.helpers.dataset
 
 import com.beust.klaxon.Json
 import com.beust.klaxon.Klaxon
-import com.kotlinnlp.frameextractor.IOBTag
 import com.kotlinnlp.frameextractor.Intent
 import com.kotlinnlp.frameextractor.Slot as IntentSlot
 import java.io.File

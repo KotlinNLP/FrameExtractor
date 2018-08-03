@@ -7,7 +7,7 @@
 
 package com.kotlinnlp.frameextractor.classifier.helpers
 
-import com.kotlinnlp.frameextractor.IOBTag
+import com.kotlinnlp.frameextractor.classifier.helpers.dataset.IOBTag
 import com.kotlinnlp.frameextractor.Intent
 import com.kotlinnlp.frameextractor.classifier.FrameClassifier
 import com.kotlinnlp.frameextractor.classifier.FrameClassifierModel
