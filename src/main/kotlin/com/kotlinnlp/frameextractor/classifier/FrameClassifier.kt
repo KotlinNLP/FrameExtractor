@@ -166,7 +166,7 @@ class FrameClassifier(
     val slotsInputs: List<DenseNDArray> = h1List.zip(h2List).map { it.second.concatV(it.first) }
 
     return Output(
-      intentsDistribution = this.intentProcessor.forward(h1IntentInput.concatV(h2IntentInput)),
+      intentsDistribution = this.intentProcessor.forward(h1IntentInput.concatV(h2IntentInput)).copy(),
       slotsClassifications = this.classifySlots(slotsInputs)
     )
   }
@@ -300,7 +300,7 @@ class FrameClassifier(
 
       prevClass = classification.argMaxIndex()
 
-      classification
+      classification.copy()
     }
   }
 }
