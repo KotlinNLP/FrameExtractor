@@ -242,7 +242,7 @@ class Trainer(
 
       this.timer.reset()
 
-      println("Start validation...")
+      println("\nStart validation...")
     }
   }
 
