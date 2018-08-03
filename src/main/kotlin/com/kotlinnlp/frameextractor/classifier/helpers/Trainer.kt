@@ -156,7 +156,7 @@ class Trainer(
       val slotId: Int = slotsOffset + intentConfig.getSlotIndex(slot.name)
       val goldClassification: DenseNDArray = DenseNDArrayFactory.oneHotEncoder(
         length = classification.length,
-        oneAt = 2 * slotId + (if (slot.iobTag == IOBTag.Beginning) 0 else 1))
+        oneAt = 2 * slotId + (if (slot.iob == IOBTag.Beginning) 0 else 1))
 
       classification.sub(goldClassification)
     }

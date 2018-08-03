@@ -7,11 +7,10 @@
 
 package com.kotlinnlp.frameextractor.classifier.helpers.dataset
 
-import com.beust.klaxon.Json
-import com.beust.klaxon.Klaxon
+import com.beust.klaxon.JsonObject
+import com.beust.klaxon.Parser
 import com.kotlinnlp.frameextractor.Intent
 import com.kotlinnlp.frameextractor.Slot as IntentSlot
-import java.io.File
 
 /**
  * A dataset that can be read from a JSON file and it is used to create an [EncodedDataset].
@@ -20,7 +19,6 @@ import java.io.File
  * @property examples the list of examples
  */
 data class Dataset(
-  @Json(name = "intents")
   val configuration: List<Intent.Configuration>,
   val examples: List<Example>
 ) {
@@ -69,7 +67,7 @@ data class Dataset(
      * @property name the slot name
      * @property iob the IOB tag of the token within its slot ("B" beginning or "I" inside)
      */
-    data class Slot(val name: String, val iob: String) {
+    data class Slot(val name: String, val iob: IOBTag) {
 
       companion object {
 
@@ -77,17 +75,7 @@ data class Dataset(
          * The slot of tokens that actually do not represent a slot of the intent.
          * It is automatically created when a [Token] has null 'slot' property.
          */
-        val noSlot: Slot get() = Slot(name = IntentSlot.Configuration.NO_SLOT_NAME, iob = "B")
-      }
-
-      /**
-       * The IOB tag as enum class.
-       */
-      @Json(ignored = true)
-      val iobTag: IOBTag = when (iob) {
-        "B" -> IOBTag.Beginning
-        "I" -> IOBTag.Inside
-        else -> throw RuntimeException("Invalid IOB tag annotation: $iob")
+        val noSlot: Slot get() = Slot(name = IntentSlot.Configuration.NO_SLOT_NAME, iob = IOBTag.Beginning)
       }
     }
   }
@@ -130,7 +118,43 @@ data class Dataset(
      *
      * @return the dataset read from the given file
      */
-    fun fromFile(filePath: String): Dataset = Klaxon().parse<Dataset>(File(filePath))!!
+    fun fromFile(filePath: String): Dataset {
+
+      val jsonDataset: JsonObject = Parser().parse(filePath) as JsonObject
+
+      return Dataset(
+        configuration = jsonDataset.array<JsonObject>("intents")!!.map { intent ->
+          Intent.Configuration(
+            name = intent.string("name")!!,
+            slots = intent.array<JsonObject>("slots")!!.map { slot ->
+              IntentSlot.Configuration(
+                name = slot.string("name")!!,
+                required = slot.boolean("required")!!,
+                default = slot["default"])
+            })
+        },
+        examples = jsonDataset.array<JsonObject>("examples")!!.map { example ->
+          Example(
+            intent = example.string("intent")!!,
+            tokens = example.array<JsonObject>("tokens")!!.map { token ->
+              Example.Token(
+                form = token.string("form")!!,
+                slot = token.obj("slot")?.let { slot ->
+                  Example.Slot(
+                    name = slot.string("name")!!,
+                    iob = slot.string("iob")!!.let { iob ->
+                      when (iob) {
+                        "B" -> IOBTag.Beginning
+                        "I" -> IOBTag.Inside
+                        else -> throw RuntimeException("Invalid IOB tag annotation: $iob")
+                      }
+                    })
+                })
+            }
+          )
+        }
+      )
+    }
   }
 
   /**
