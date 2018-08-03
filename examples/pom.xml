@@ -12,11 +12,15 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <assembly-plugin.version>2.6</assembly-plugin.version>
         <kotlin.version>1.2.41</kotlin.version>
         <klaxon.version>3.0.5</klaxon.version>
         <frameextractor.version>0.1.0</frameextractor.version>
         <linguisticdescription.version>0.9.0</linguisticdescription.version>
+        <morphologicalanalyzer.version>0.3.0</morphologicalanalyzer.version>
         <neuralparser.version>0.4.0</neuralparser.version>
+        <neuraltokenizer.version>0.4.0</neuraltokenizer.version>
+        <simplednn.version>0.11.0</simplednn.version>
         <tokensencoder.version>0.3.0</tokensencoder.version>
     </properties>
 
@@ -92,8 +96,26 @@
 
         <dependency>
             <groupId>com.kotlinnlp</groupId>
+            <artifactId>morphologicalanalyzer</artifactId>
+            <version>${morphologicalanalyzer.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.kotlinnlp</groupId>
             <artifactId>neuralparser</artifactId>
             <version>${neuralparser.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.kotlinnlp</groupId>
+            <artifactId>neuraltokenizer</artifactId>
+            <version>${neuraltokenizer.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.kotlinnlp</groupId>
+            <artifactId>simplednn</artifactId>
+            <version>${simplednn.version}</version>
         </dependency>
 
         <dependency>
