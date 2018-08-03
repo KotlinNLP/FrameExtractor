@@ -57,7 +57,7 @@ data class Intent(val name: String, val slots: List<Slot>, val distribution: Dis
   fun toJSON(): JsonObject = json {
     obj(
       "name" to this@Intent.name,
-      "slots" to array(this@Intent.slots.map { obj(it.name to it.value) }),
+      "slots" to array(this@Intent.slots.map { it.toJSON() }),
       "distribution" to this@Intent.distribution.toJSON()
     )
   }
