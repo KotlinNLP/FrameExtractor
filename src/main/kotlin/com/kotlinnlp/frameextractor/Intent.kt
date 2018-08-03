@@ -16,9 +16,9 @@ import java.io.Serializable
  *
  * @property name the intent name
  * @property slots the list of slots of the intent
- * @property distribution the distribution of the prediction scores used to select this intent during its generation
+ * @property score the intent score (of prediction)
  */
-data class Intent(val name: String, val slots: List<Slot>, val distribution: Distribution) {
+data class Intent(val name: String, val slots: List<Slot>, val score: Double) {
 
   /**
    * The configuration of an [Intent].
@@ -58,7 +58,7 @@ data class Intent(val name: String, val slots: List<Slot>, val distribution: Dis
     obj(
       "name" to this@Intent.name,
       "slots" to array(this@Intent.slots.map { it.toJSON() }),
-      "distribution" to this@Intent.distribution.toJSON()
+      "score" to this@Intent.score
     )
   }
 }
