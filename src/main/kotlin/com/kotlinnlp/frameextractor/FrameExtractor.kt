@@ -24,20 +24,29 @@ class FrameExtractor(
 ) {
 
   /**
+   * A frame extracted.
+   *
+   * @property intent the intent frame extracted
+   * @property distribution the distribution of [intent] classification
+   */
+  data class Frame(val intent: Intent, val distribution: Distribution)
+
+  /**
    * Extract an intent frame from a given sentence.
    *
    * @param sentence the input sentence
    *
-   * @return the intent frame extracted
+   * @return the frame extracted
    */
-  fun extractFrame(sentence: Sentence<FormToken>): Intent {
+  fun extractFrame(sentence: Sentence<FormToken>): Frame {
 
     val tokensForms: List<String> = sentence.tokens.map { it.form }
     val tokenEncodings: List<DenseNDArray> = this.sentenceEncoder.encode(tokensForms)
     val classifierOutput: FrameClassifier.Output = this.classifier.forward(tokenEncodings)
 
-    return classifierOutput.buildIntent(
-      tokensForms = tokensForms,
-      intentsConfig = this.classifier.model.intentsConfiguration)
+    return Frame(
+      intent = classifierOutput.buildIntent(intentsConfig = this.classifier.model.intentsConfiguration),
+      distribution = classifierOutput.buildDistribution(intentsConfig = this.classifier.model.intentsConfiguration)
+    )
   }
 }
