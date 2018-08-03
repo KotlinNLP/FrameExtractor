@@ -60,6 +60,18 @@ class FrameClassifier(
     private data class TmpSlot(val index: Int, val tokens: MutableList<Slot.Token>)
 
     /**
+     * Build a [Distribution] from this classifier output.
+     *
+     * @param intentsConfig the intents configuration from which to extract the intents information
+     *
+     * @return the intents distribution
+     */
+    fun buildDistribution(intentsConfig: List<Intent.Configuration>): Distribution =
+      Distribution(map = (0 until this.intentsDistribution.length).associate { i ->
+        intentsConfig[i].name to this.intentsDistribution[i]
+      })
+
+    /**
      * Build an [Intent] from this classifier output.
      *
      * @param intentsConfig the intents configuration from which to extract the intents information
@@ -75,9 +87,7 @@ class FrameClassifier(
       return Intent(
         name = intentConfig.name,
         slots = this.buildSlots(intentConfig = intentConfig, slotsOffset = slotsOffset),
-        distribution = Distribution(map = (0 until this.intentsDistribution.length).associate { i ->
-          intentsConfig[i].name to this.intentsDistribution[i]
-        })
+        score = this.intentsDistribution[intentIndex]
       )
     }
 
