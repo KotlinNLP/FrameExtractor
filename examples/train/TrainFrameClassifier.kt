@@ -50,11 +50,17 @@ fun main(args: Array<String>) = mainBody {
       useDropout = false))
 
   val trainingDataset: EncodedDataset = EncodedDataset.fromDataset(
-    dataset = Dataset.fromFile(parsedArgs.trainingSetPath),
+    dataset = parsedArgs.trainingSetPath.let {
+      println("Loading training dataset from '$it'...")
+      Dataset.fromFile(it)
+    },
     sentenceEncoder = sentenceEncoder)
 
   val validationDataset: EncodedDataset = EncodedDataset.fromDataset(
-    dataset = Dataset.fromFile(parsedArgs.validationSetPath),
+    dataset = parsedArgs.validationSetPath.let {
+      println("Loading validation dataset from '$it'...")
+      Dataset.fromFile(it)
+    },
     sentenceEncoder = sentenceEncoder)
 
   val classifierModel = FrameClassifierModel(
