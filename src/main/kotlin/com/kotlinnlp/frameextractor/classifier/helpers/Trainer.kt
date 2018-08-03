@@ -86,8 +86,6 @@ class Trainer(
    */
   fun train(dataset: EncodedDataset, shuffler: Shuffler? = Shuffler(enablePseudoRandom = true, seed = 743)) {
 
-    println("Training over ${dataset.examples.size} examples.")
-
     (0 until this.epochs).forEach { i ->
 
       this.logTrainingStart(epochIndex = i)

@@ -72,6 +72,12 @@ fun main(args: Array<String>) = mainBody {
     "The training dataset and the validation dataset must have the same configuration."
   }
 
+  println()
+  println("Training examples: ${trainingDataset.examples.size}.")
+  println("Validation examples: ${validationDataset.examples.size}.")
+
+  println()
+
   Trainer(
     model = classifierModel,
     modelFilename = parsedArgs.modelPath,
