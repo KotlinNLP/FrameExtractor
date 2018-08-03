@@ -76,8 +76,6 @@ fun main(args: Array<String>) = mainBody {
   println("Training examples: ${trainingDataset.examples.size}.")
   println("Validation examples: ${validationDataset.examples.size}.")
 
-  println()
-
   Trainer(
     model = classifierModel,
     modelFilename = parsedArgs.modelPath,
