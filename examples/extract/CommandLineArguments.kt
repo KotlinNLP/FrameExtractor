@@ -15,7 +15,7 @@ import com.xenomachina.argparser.default
  *
  * @param args the array of command line arguments
  */
-class CommandLineArguments(args: Array<String>) {
+internal class CommandLineArguments(args: Array<String>) {
 
   /**
    * The parser of the string arguments.
