@@ -173,7 +173,9 @@ data class Dataset(
 
       example.tokens.forEach {
         if (it.slot != null && it.slot.name !in slotNamesByIntent.getValue(example.intent))
-          throw InvalidExample(index = exampleIndex, message = "Invalid slot name: '${it.slot.name}'")
+          throw InvalidExample(
+            index = exampleIndex,
+            message = "Invalid slot name for intent '${example.intent}': '${it.slot.name}'")
       }
     }
   }
