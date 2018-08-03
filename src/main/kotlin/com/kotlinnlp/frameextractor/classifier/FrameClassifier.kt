@@ -240,7 +240,7 @@ class FrameClassifier(
   )
 
   /**
-   * Get the offset index from which the slots of a given intent start, within the concatenation of all the possibile
+   * Get the offset index from which the slots of a given intent start, within the concatenation of all the possible
    * intents slots.
    *
    * @param intentName the name of an intent
