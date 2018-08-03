@@ -8,31 +8,37 @@
 package com.kotlinnlp.frameextractor
 
 import com.kotlinnlp.frameextractor.classifier.FrameClassifier
-import com.kotlinnlp.neuralparser.parsers.lhrparser.LatentSyntacticStructure
+import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 
 /**
  * The frame extractor.
  *
  * @param classifier a frame classifier
+ * @param tokenizer a neural tokenizer
+ * @param sentenceEncoder a sentence encoder
  */
-class FrameExtractor(private val classifier: FrameClassifier) {
+class FrameExtractor(
+  private val classifier: FrameClassifier,
+  private val tokenizer: NeuralTokenizer,
+  private val sentenceEncoder: SentenceEncoder
+) {
 
   /**
-   * Extract an intent frame from a given sentence that has been analyzed by a
-   * [com.kotlinnlp.neuralparser.parsers.lhrparser.LHRParser].
+   * Extract intent frames from a given text.
    *
-   * @param lss a latent syntactic structure of a sentence
+   * @param text the input text
    *
-   * @return the intent frame extracted
+   * @return the list of intent frames extracted
    */
-  fun extractFrame(lss: LatentSyntacticStructure): Intent {
+  fun extractFrames(text: String): List<Intent> =
 
-    val tokenEncodings: List<DenseNDArray> = lss.contextVectors.zip(lss.latentHeads).map { it.first.concatV(it.second) }
-    val classifierOutput: FrameClassifier.Output = this.classifier.forward(tokenEncodings)
+    this.tokenizer.tokenize(text).map { sentence ->
 
-    return classifierOutput.buildIntent(
-      tokenForms = lss.sentence.tokens.map { it.form },
-      intentsConfig = this.classifier.model.intentsConfiguration)
-  }
+      val tokensForms: List<String> = sentence.tokens.map { it.form }
+      val tokenEncodings: List<DenseNDArray> = this.sentenceEncoder.encode(tokensForms)
+      val classifierOutput: FrameClassifier.Output = this.classifier.forward(tokenEncodings)
+
+      classifierOutput.buildIntent(tokensForms = tokensForms, intentsConfig = this.classifier.model.intentsConfiguration)
+    }
 }
