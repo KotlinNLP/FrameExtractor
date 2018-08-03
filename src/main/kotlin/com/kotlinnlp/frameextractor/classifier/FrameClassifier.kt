@@ -54,12 +54,12 @@ class FrameClassifier(
     /**
      * Build an [Intent] from this classifier output.
      *
-     * @param tokenForms the list of tokens forms
+     * @param tokensForms the list of tokens forms of a sentence
      * @param intentsConfig the intents configuration from which to extract the intents information
      *
      * @return the intent interpreted from this output
      */
-    fun buildIntent(tokenForms: List<String>, intentsConfig: List<Intent.Configuration>): Intent {
+    fun buildIntent(tokensForms: List<String>, intentsConfig: List<Intent.Configuration>): Intent {
 
       val intentIndex: Int = this.intentsDistribution.argMaxIndex()
       val intentConfig: Intent.Configuration = intentsConfig[intentIndex]
@@ -67,7 +67,7 @@ class FrameClassifier(
 
       return Intent(
         name = intentConfig.name,
-        slots = this.buildSlots(tokenForms = tokenForms, intentConfig = intentConfig, slotsOffset = slotsOffset),
+        slots = this.buildSlots(tokensForms = tokensForms, intentConfig = intentConfig, slotsOffset = slotsOffset),
         distribution = Intent.Distribution(map = (0 until this.intentsDistribution.length).associate { i ->
           intentsConfig[i].name to this.intentsDistribution[i]
         })
@@ -75,20 +75,20 @@ class FrameClassifier(
     }
 
     /**
-     * @param tokenForms the list of tokens forms
+     * @param tokensForms the list of tokens forms of a sentence
      * @param intentConfig the intent configuration from which to extract the slots information
      * @param slotsOffset the offset of slots indices from which this intent starts in the whole list
      *
      * @return the list of slots interpreted from this output
      */
-    private fun buildSlots(tokenForms: List<String>, intentConfig: Intent.Configuration, slotsOffset: Int): List<Slot> {
+    private fun buildSlots(tokensForms: List<String>, intentConfig: Intent.Configuration, slotsOffset: Int): List<Slot> {
 
       val slotsFound = mutableListOf<Triple<Int, Int, StringBuffer>>()
       val slotsRange: IntRange = slotsOffset until (slotsOffset + intentConfig.slots.size)
 
       this.slotsClassifications.forEachIndexed { tokenIndex, classification ->
 
-        val tokenForm: String = tokenForms[tokenIndex]
+        val tokenForm: String = tokensForms[tokenIndex]
         val argMaxIndex: Int = classification.argMaxIndex()
         val slotIndex: Int = argMaxIndex / 2
         val slotIOB: IOBTag = if (argMaxIndex % 2 == 0) IOBTag.Beginning else IOBTag.Inside
