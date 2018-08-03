@@ -8,37 +8,36 @@
 package com.kotlinnlp.frameextractor
 
 import com.kotlinnlp.frameextractor.classifier.FrameClassifier
-import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
+import com.kotlinnlp.linguisticdescription.sentence.Sentence
+import com.kotlinnlp.linguisticdescription.sentence.token.FormToken
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 
 /**
  * The frame extractor.
  *
  * @param classifier a frame classifier
- * @param tokenizer a neural tokenizer
  * @param sentenceEncoder a sentence encoder
  */
 class FrameExtractor(
   private val classifier: FrameClassifier,
-  private val tokenizer: NeuralTokenizer,
   private val sentenceEncoder: SentenceEncoder
 ) {
 
   /**
-   * Extract intent frames from a given text.
+   * Extract an intent frame from a given sentence.
    *
-   * @param text the input text
+   * @param sentence the input sentence
    *
-   * @return the list of intent frames extracted
+   * @return the intent frame extracted
    */
-  fun extractFrames(text: String): List<Intent> =
+  fun extractFrame(sentence: Sentence<FormToken>): Intent {
 
-    this.tokenizer.tokenize(text).map { sentence ->
+    val tokensForms: List<String> = sentence.tokens.map { it.form }
+    val tokenEncodings: List<DenseNDArray> = this.sentenceEncoder.encode(tokensForms)
+    val classifierOutput: FrameClassifier.Output = this.classifier.forward(tokenEncodings)
 
-      val tokensForms: List<String> = sentence.tokens.map { it.form }
-      val tokenEncodings: List<DenseNDArray> = this.sentenceEncoder.encode(tokensForms)
-      val classifierOutput: FrameClassifier.Output = this.classifier.forward(tokenEncodings)
-
-      classifierOutput.buildIntent(tokensForms = tokensForms, intentsConfig = this.classifier.model.intentsConfiguration)
-    }
+    return classifierOutput.buildIntent(
+      tokensForms = tokensForms,
+      intentsConfig = this.classifier.model.intentsConfiguration)
+  }
 }
