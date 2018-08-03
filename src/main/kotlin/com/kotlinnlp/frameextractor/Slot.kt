@@ -7,15 +7,25 @@
 
 package com.kotlinnlp.frameextractor
 
+import com.beust.klaxon.JsonObject
+import com.beust.klaxon.json
 import java.io.Serializable
 
 /**
  * A slot of an [Intent].
  *
  * @property name the slot name
- * @property value the slot value
+ * @property tokens the list of tokens that compose this slot
  */
-data class Slot(val name: String, val value: String) {
+class Slot(val name: String, val tokens: List<Token>) {
+
+  /**
+   * A token that compose a slot.
+   *
+   * @property index the index of the token within the list of tokens of its sentence
+   * @property score the classification score of the token as part of the slot
+   */
+  data class Token(val index: Int, val score: Double)
 
   /**
    * A slot configuration.
@@ -44,5 +54,15 @@ data class Slot(val name: String, val value: String) {
        */
       val noSlot: Configuration get() = Configuration(name = NO_SLOT_NAME, required = false)
     }
+  }
+
+  /**
+   * @return the JSON representation of this slot
+   */
+  fun toJSON(): JsonObject = json {
+    obj(
+      "name" to this@Slot.name,
+      "tokens" to array(this@Slot.tokens.map { obj("index" to it.index, "score" to it.score) })
+    )
   }
 }
