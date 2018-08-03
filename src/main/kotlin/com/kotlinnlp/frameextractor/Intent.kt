@@ -7,7 +7,6 @@
 
 package com.kotlinnlp.frameextractor
 
-import com.beust.klaxon.JsonArray
 import com.beust.klaxon.JsonObject
 import com.beust.klaxon.json
 import java.io.Serializable
@@ -20,26 +19,6 @@ import java.io.Serializable
  * @property distribution the distribution of the prediction scores used to select this intent during its generation
  */
 data class Intent(val name: String, val slots: List<Slot>, val distribution: Distribution) {
-
-  /**
-   * The distribution of the prediction scores used to select this intent during its generation.
-   *
-   * @property map a map of intent names associated to the related prediction scores
-   */
-  data class Distribution(val map: Map<String, Double>) {
-
-    /**
-     * @return a JSON representation of this intent distribution
-     */
-    fun toJSON(): JsonArray<JsonObject> = json {
-      @Suppress("UNCHECKED_CAST")
-      array(
-        this@Distribution.map.entries
-          .sortedByDescending { it.value }
-          .map { obj("score" to it.value, "name" to it.key) }
-      ) as JsonArray<JsonObject>
-    }
-  }
 
   /**
    * The configuration of an [Intent].

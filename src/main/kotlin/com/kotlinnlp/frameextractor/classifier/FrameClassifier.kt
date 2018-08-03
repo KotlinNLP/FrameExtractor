@@ -7,6 +7,7 @@
 
 package com.kotlinnlp.frameextractor.classifier
 
+import com.kotlinnlp.frameextractor.Distribution
 import com.kotlinnlp.frameextractor.IOBTag
 import com.kotlinnlp.frameextractor.Intent
 import com.kotlinnlp.frameextractor.Slot
@@ -68,7 +69,7 @@ class FrameClassifier(
       return Intent(
         name = intentConfig.name,
         slots = this.buildSlots(tokensForms = tokensForms, intentConfig = intentConfig, slotsOffset = slotsOffset),
-        distribution = Intent.Distribution(map = (0 until this.intentsDistribution.length).associate { i ->
+        distribution = Distribution(map = (0 until this.intentsDistribution.length).associate { i ->
           intentsConfig[i].name to this.intentsDistribution[i]
         })
       )
