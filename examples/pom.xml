@@ -15,6 +15,9 @@
         <kotlin.version>1.2.41</kotlin.version>
         <klaxon.version>3.0.5</klaxon.version>
         <frameextractor.version>0.1.0</frameextractor.version>
+        <linguisticdescription.version>0.9.0</linguisticdescription.version>
+        <neuralparser.version>0.4.0</neuralparser.version>
+        <tokensencoder.version>0.3.0</tokensencoder.version>
     </properties>
 
     <repositories>
@@ -79,6 +82,24 @@
             <groupId>com.kotlinnlp</groupId>
             <artifactId>frameextractor</artifactId>
             <version>${frameextractor.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.kotlinnlp</groupId>
+            <artifactId>linguisticdescription</artifactId>
+            <version>${linguisticdescription.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.kotlinnlp</groupId>
+            <artifactId>neuralparser</artifactId>
+            <version>${neuralparser.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.kotlinnlp</groupId>
+            <artifactId>tokensencoder</artifactId>
+            <version>${tokensencoder.version}</version>
         </dependency>
     </dependencies>
 </project>
