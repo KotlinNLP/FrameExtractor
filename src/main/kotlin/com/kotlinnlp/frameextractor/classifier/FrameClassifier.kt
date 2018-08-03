@@ -8,7 +8,6 @@
 package com.kotlinnlp.frameextractor.classifier
 
 import com.kotlinnlp.frameextractor.Distribution
-import com.kotlinnlp.frameextractor.IOBTag
 import com.kotlinnlp.frameextractor.Intent
 import com.kotlinnlp.frameextractor.Slot
 import com.kotlinnlp.simplednn.core.neuralprocessor.NeuralProcessor
@@ -53,14 +52,21 @@ class FrameClassifier(
   ) {
 
     /**
+     * A temporary slot with a mutable list of tokens.
+     *
+     * @property index the slot index
+     * @property tokens the list of tokens that compose this slot
+     */
+    private data class TmpSlot(val index: Int, val tokens: MutableList<Slot.Token>)
+
+    /**
      * Build an [Intent] from this classifier output.
      *
-     * @param tokensForms the list of tokens forms of a sentence
      * @param intentsConfig the intents configuration from which to extract the intents information
      *
      * @return the intent interpreted from this output
      */
-    fun buildIntent(tokensForms: List<String>, intentsConfig: List<Intent.Configuration>): Intent {
+    fun buildIntent(intentsConfig: List<Intent.Configuration>): Intent {
 
       val intentIndex: Int = this.intentsDistribution.argMaxIndex()
       val intentConfig: Intent.Configuration = intentsConfig[intentIndex]
@@ -68,7 +74,7 @@ class FrameClassifier(
 
       return Intent(
         name = intentConfig.name,
-        slots = this.buildSlots(tokensForms = tokensForms, intentConfig = intentConfig, slotsOffset = slotsOffset),
+        slots = this.buildSlots(intentConfig = intentConfig, slotsOffset = slotsOffset),
         distribution = Distribution(map = (0 until this.intentsDistribution.length).associate { i ->
           intentsConfig[i].name to this.intentsDistribution[i]
         })
@@ -76,35 +82,36 @@ class FrameClassifier(
     }
 
     /**
-     * @param tokensForms the list of tokens forms of a sentence
      * @param intentConfig the intent configuration from which to extract the slots information
      * @param slotsOffset the offset of slots indices from which this intent starts in the whole list
      *
      * @return the list of slots interpreted from this output
      */
-    private fun buildSlots(tokensForms: List<String>, intentConfig: Intent.Configuration, slotsOffset: Int): List<Slot> {
+    private fun buildSlots(intentConfig: Intent.Configuration, slotsOffset: Int): List<Slot> {
 
-      val slotsFound = mutableListOf<Triple<Int, Int, StringBuffer>>()
+      val slotsFound = mutableListOf<TmpSlot>()
       val slotsRange: IntRange = slotsOffset until (slotsOffset + intentConfig.slots.size)
 
       this.slotsClassifications.forEachIndexed { tokenIndex, classification ->
 
-        val tokenForm: String = tokensForms[tokenIndex]
         val argMaxIndex: Int = classification.argMaxIndex()
         val slotIndex: Int = argMaxIndex / 2
-        val slotIOB: IOBTag = if (argMaxIndex % 2 == 0) IOBTag.Beginning else IOBTag.Inside
 
-        if (slotIOB == IOBTag.Beginning)
-          slotsFound.add(Triple(tokenIndex, slotIndex, StringBuffer(tokenForm)))
+        val token = Slot.Token(index = tokenIndex, score = classification[argMaxIndex])
+
+        if (argMaxIndex % 2 == 0)
+        // Beginning
+          slotsFound.add(TmpSlot(index = slotIndex, tokens = mutableListOf(token)))
         else
+        // Inside
           slotsFound.lastOrNull()?.let {
-            if (it.first == tokenIndex - 1 && it.second == slotIndex) it.third.append(" $tokenForm")
+            if (it.index == slotIndex && it.tokens.last().index == tokenIndex - 1) it.tokens.add(token)
           }
       }
 
       return slotsFound
-        .filter { it.second in slotsRange }
-        .map { Slot(name = intentConfig.slotNames[it.second - slotsOffset], value = it.third.toString()) }
+        .filter { it.index in slotsRange }
+        .map { Slot(name = intentConfig.slotNames[it.index - slotsOffset], tokens = it.tokens) }
         .filter { it.name != Slot.Configuration.NO_SLOT_NAME }
     }
   }
