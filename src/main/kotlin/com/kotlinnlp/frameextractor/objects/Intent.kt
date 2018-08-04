@@ -5,7 +5,7 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/.
  * ------------------------------------------------------------------*/
 
-package com.kotlinnlp.frameextractor
+package com.kotlinnlp.frameextractor.objects
 
 import com.beust.klaxon.JsonObject
 import com.beust.klaxon.json

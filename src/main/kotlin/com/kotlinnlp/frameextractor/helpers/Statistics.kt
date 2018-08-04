@@ -5,7 +5,7 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/.
  * ------------------------------------------------------------------*/
 
-package com.kotlinnlp.frameextractor.classifier.helpers
+package com.kotlinnlp.frameextractor.helpers
 
 /**
  * Evaluation statistics.

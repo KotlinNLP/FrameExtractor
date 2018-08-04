@@ -10,10 +10,11 @@ package train
 import utils.buildLSSEncoder
 import utils.buildSentencePreprocessor
 import utils.LSSEmbeddingsEncoder
-import com.kotlinnlp.frameextractor.classifier.FrameClassifierModel
-import com.kotlinnlp.frameextractor.classifier.helpers.*
-import com.kotlinnlp.frameextractor.classifier.helpers.dataset.Dataset
-import com.kotlinnlp.frameextractor.classifier.helpers.dataset.EncodedDataset
+import com.kotlinnlp.frameextractor.FrameClassifierModel
+import com.kotlinnlp.frameextractor.helpers.Trainer
+import com.kotlinnlp.frameextractor.helpers.Validator
+import com.kotlinnlp.frameextractor.helpers.dataset.Dataset
+import com.kotlinnlp.frameextractor.helpers.dataset.EncodedDataset
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRModel
 import com.kotlinnlp.neuralparser.parsers.lhrparser.utils.keyextractors.WordKeyExtractor
 import com.kotlinnlp.simplednn.core.embeddings.EMBDLoader

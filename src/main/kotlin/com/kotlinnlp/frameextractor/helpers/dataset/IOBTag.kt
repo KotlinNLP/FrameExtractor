@@ -5,7 +5,7 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/.
  * ------------------------------------------------------------------*/
 
-package com.kotlinnlp.frameextractor.classifier.helpers.dataset
+package com.kotlinnlp.frameextractor.helpers.dataset
 
 /**
  * The IOB tag.

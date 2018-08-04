@@ -5,11 +5,11 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/.
  * ------------------------------------------------------------------*/
 
-package com.kotlinnlp.frameextractor.classifier
+package com.kotlinnlp.frameextractor
 
-import com.kotlinnlp.frameextractor.Distribution
-import com.kotlinnlp.frameextractor.Intent
-import com.kotlinnlp.frameextractor.Slot
+import com.kotlinnlp.frameextractor.objects.Distribution
+import com.kotlinnlp.frameextractor.objects.Intent
+import com.kotlinnlp.frameextractor.objects.Slot
 import com.kotlinnlp.simplednn.core.neuralprocessor.NeuralProcessor
 import com.kotlinnlp.simplednn.core.neuralprocessor.batchfeedforward.BatchFeedforwardProcessor
 import com.kotlinnlp.simplednn.core.neuralprocessor.feedforward.FeedforwardNeuralProcessor

@@ -7,7 +7,7 @@
 
 package utils
 
-import com.kotlinnlp.frameextractor.classifier.helpers.dataset.SentenceEncoder
+import com.kotlinnlp.frameextractor.helpers.dataset.SentenceEncoder
 import com.kotlinnlp.linguisticdescription.sentence.Sentence
 import com.kotlinnlp.linguisticdescription.sentence.token.Token
 import com.kotlinnlp.linguisticdescription.sentence.token.properties.Position

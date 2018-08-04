@@ -5,9 +5,9 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/.
  * ------------------------------------------------------------------*/
 
-package com.kotlinnlp.frameextractor.classifier
+package com.kotlinnlp.frameextractor
 
-import com.kotlinnlp.frameextractor.Intent
+import com.kotlinnlp.frameextractor.objects.Intent
 import com.kotlinnlp.simplednn.core.functionalities.activations.ActivationFunction
 import com.kotlinnlp.simplednn.core.functionalities.activations.Softmax
 import com.kotlinnlp.simplednn.core.functionalities.activations.Tanh

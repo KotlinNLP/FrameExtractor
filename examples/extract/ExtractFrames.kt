@@ -10,8 +10,8 @@ package extract
 import utils.buildLSSEncoder
 import utils.buildSentencePreprocessor
 import utils.LSSEmbeddingsEncoder
-import com.kotlinnlp.frameextractor.classifier.FrameClassifier
-import com.kotlinnlp.frameextractor.classifier.FrameClassifierModel
+import com.kotlinnlp.frameextractor.FrameClassifier
+import com.kotlinnlp.frameextractor.FrameClassifierModel
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRModel
 import com.kotlinnlp.neuralparser.parsers.lhrparser.utils.keyextractors.WordKeyExtractor
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizer

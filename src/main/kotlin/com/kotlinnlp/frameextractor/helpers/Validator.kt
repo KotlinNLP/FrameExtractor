@@ -5,13 +5,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * ------------------------------------------------------------------*/
 
-package com.kotlinnlp.frameextractor.classifier.helpers
+package com.kotlinnlp.frameextractor.helpers
 
-import com.kotlinnlp.frameextractor.Intent
-import com.kotlinnlp.frameextractor.Slot
-import com.kotlinnlp.frameextractor.classifier.FrameClassifier
-import com.kotlinnlp.frameextractor.classifier.FrameClassifierModel
-import com.kotlinnlp.frameextractor.classifier.helpers.dataset.EncodedDataset
+import com.kotlinnlp.frameextractor.objects.Intent
+import com.kotlinnlp.frameextractor.objects.Slot
+import com.kotlinnlp.frameextractor.FrameClassifier
+import com.kotlinnlp.frameextractor.FrameClassifierModel
+import com.kotlinnlp.frameextractor.helpers.dataset.EncodedDataset
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 import com.kotlinnlp.utils.progressindicator.ProgressIndicatorBar
 

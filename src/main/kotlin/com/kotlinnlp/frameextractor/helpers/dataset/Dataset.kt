@@ -5,12 +5,12 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/.
  * ------------------------------------------------------------------*/
 
-package com.kotlinnlp.frameextractor.classifier.helpers.dataset
+package com.kotlinnlp.frameextractor.helpers.dataset
 
 import com.beust.klaxon.JsonObject
 import com.beust.klaxon.Parser
-import com.kotlinnlp.frameextractor.Intent
-import com.kotlinnlp.frameextractor.Slot as IntentSlot
+import com.kotlinnlp.frameextractor.objects.Intent
+import com.kotlinnlp.frameextractor.objects.Slot as IntentSlot
 
 /**
  * A dataset that can be read from a JSON file and it is used to create an [EncodedDataset].

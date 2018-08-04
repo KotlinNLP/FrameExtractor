@@ -5,14 +5,14 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/.
  * ------------------------------------------------------------------*/
 
-package com.kotlinnlp.frameextractor.classifier.helpers
+package com.kotlinnlp.frameextractor.helpers
 
-import com.kotlinnlp.frameextractor.classifier.helpers.dataset.IOBTag
-import com.kotlinnlp.frameextractor.Intent
-import com.kotlinnlp.frameextractor.classifier.FrameClassifier
-import com.kotlinnlp.frameextractor.classifier.FrameClassifierModel
-import com.kotlinnlp.frameextractor.classifier.helpers.dataset.Dataset
-import com.kotlinnlp.frameextractor.classifier.helpers.dataset.EncodedDataset
+import com.kotlinnlp.frameextractor.helpers.dataset.IOBTag
+import com.kotlinnlp.frameextractor.objects.Intent
+import com.kotlinnlp.frameextractor.FrameClassifier
+import com.kotlinnlp.frameextractor.FrameClassifierModel
+import com.kotlinnlp.frameextractor.helpers.dataset.Dataset
+import com.kotlinnlp.frameextractor.helpers.dataset.EncodedDataset
 import com.kotlinnlp.neuralparser.utils.Timer
 import com.kotlinnlp.simplednn.core.functionalities.updatemethods.UpdateMethod
 import com.kotlinnlp.simplednn.core.functionalities.updatemethods.adam.ADAMMethod
@@ -160,7 +160,7 @@ class Trainer(
     }
 
     this.classifier.backward(
-      outputErrors = FrameClassifier.Output(intentsDistribution = intentErrors, slotsClassifications = slotsErrors))
+      outputErrors = this.classifier.Output(intentsDistribution = intentErrors, slotsClassifications = slotsErrors))
 
     this.optimizer.accumulate(this.classifier.getParamsErrors(copy = false), copy = false)
     this.optimizer.update()

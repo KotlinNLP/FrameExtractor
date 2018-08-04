@@ -5,16 +5,16 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/.
  * ------------------------------------------------------------------*/
 
-package com.kotlinnlp.frameextractor.classifier.helpers.dataset
+package com.kotlinnlp.frameextractor.helpers.dataset
 
-import com.kotlinnlp.frameextractor.Intent
-import com.kotlinnlp.frameextractor.Slot
+import com.kotlinnlp.frameextractor.objects.Intent
+import com.kotlinnlp.frameextractor.objects.Slot
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 
 /**
  * A dataset with the same structure of the [Dataset] read from file, but with encodings instead of forms in the
  * tokens of its examples.
- * It is used to train and validate a [com.kotlinnlp.frameextractor.classifier.FrameClassifier].
+ * It is used to train and validate a [com.kotlinnlp.frameextractor.FrameClassifier].
  *
  * @property configuration the list of configurations of all the possible intents in this dataset
  * @property examples the list of examples
