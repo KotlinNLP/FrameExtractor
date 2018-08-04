@@ -4,6 +4,24 @@ FrameExtractor is a module for semantic frame parsing  that performs intent dete
 
 FrameExtractor is part of [KotlinNLP](http://kotlinnlp.com/ "KotlinNLP").
 
+
+## Getting Started
+
+### Import with Maven
+
+```xml
+<dependency>
+    <groupId>com.kotlinnlp</groupId>
+    <artifactId>frameextractor</artifactId>
+    <version>0.1.0</version>
+</dependency>
+```
+
+### Examples
+
+Try some examples of training and testing of the FrameExtractor running the files in the `examples` folder.
+
+
 ## License
 
 This software is released under the terms of the 
