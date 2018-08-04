@@ -7,9 +7,9 @@
 
 package train
 
-import buildLSSEncoder
-import buildSentencePreprocessor
-import com.kotlinnlp.frameextractor.SentenceEncoder
+import utils.buildLSSEncoder
+import utils.buildSentencePreprocessor
+import utils.LSSEmbeddingsEncoder
 import com.kotlinnlp.frameextractor.classifier.FrameClassifierModel
 import com.kotlinnlp.frameextractor.classifier.helpers.*
 import com.kotlinnlp.frameextractor.classifier.helpers.dataset.Dataset
@@ -40,7 +40,7 @@ fun main(args: Array<String>) = mainBody {
     EMBDLoader().load(filename = it)
   }
 
-  val sentenceEncoder = SentenceEncoder(
+  val sentenceEncoder = LSSEmbeddingsEncoder(
     preprocessor = buildSentencePreprocessor(
       morphoDictionaryPath = parsedArgs.morphoDictionaryPath,
       language = parserModel.language),
