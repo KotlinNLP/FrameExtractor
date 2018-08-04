@@ -32,7 +32,7 @@ import java.io.FileInputStream
 fun main(args: Array<String>) = mainBody {
 
   val parsedArgs = CommandLineArguments(args)
-  val frameExtractor: FrameExtractor = buildFrameExtractor(parsedArgs)
+  val textFramesExtractor: TextFramesExtractor = buildTextFramesExtractor(parsedArgs)
 
   @Suppress("UNCHECKED_CAST")
   while (true) {
@@ -45,7 +45,7 @@ fun main(args: Array<String>) = mainBody {
 
     } else {
 
-      frameExtractor.extractFrames(inputText).forEach { frame ->
+      textFramesExtractor.extractFrames(inputText).forEach { frame ->
         println()
         frame.print()
       }
@@ -70,9 +70,9 @@ private fun readValue(): String {
 /**
  * @param parsedArgs the command line parsed arguments
  *
- * @return the frame extractor
+ * @return the text frames extractor
  */
-private fun buildFrameExtractor(parsedArgs: CommandLineArguments): FrameExtractor {
+private fun buildTextFramesExtractor(parsedArgs: CommandLineArguments): TextFramesExtractor {
 
   val parserModel = LHRModel.load(FileInputStream(File(parsedArgs.parserModelPath)))
 
@@ -81,7 +81,7 @@ private fun buildFrameExtractor(parsedArgs: CommandLineArguments): FrameExtracto
     EMBDLoader().load(filename = it)
   }
 
-  return FrameExtractor(
+  return TextFramesExtractor(
     classifier = FrameClassifier(model = FrameClassifierModel.load(FileInputStream(File(parsedArgs.modelPath)))),
     tokenizer = NeuralTokenizer(NeuralTokenizerModel.load(FileInputStream(File(parsedArgs.tokenizerModelPath)))),
     sentenceEncoder = LSSEmbeddingsEncoder(
@@ -97,7 +97,7 @@ private fun buildFrameExtractor(parsedArgs: CommandLineArguments): FrameExtracto
 /**
  * Print this frame to the standard output.
  */
-private fun FrameExtractor.Frame.print() {
+private fun TextFramesExtractor.Frame.print() {
 
   println("Intent: ${this.intent.name}")
 

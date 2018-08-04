@@ -17,13 +17,13 @@ import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 
 /**
- * The frame extractor.
+ * The extractor of frames from a text.
  *
  * @param classifier a frame classifier
  * @param tokenizer a neural tokenizer
  * @param sentenceEncoder a sentence encoder
  */
-internal class FrameExtractor(
+internal class TextFramesExtractor(
   private val classifier: FrameClassifier,
   private val tokenizer: NeuralTokenizer,
   private val sentenceEncoder: LSSEmbeddingsEncoder
@@ -39,7 +39,7 @@ internal class FrameExtractor(
   data class Frame(val intent: Intent, val distribution: Distribution, val sentence: Sentence<FormToken>)
 
   /**
-   * Extract a intent frames from a text.
+   * Extract intent frames from a text.
    *
    * @param text the input text
    *
