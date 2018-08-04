@@ -41,48 +41,49 @@ class FrameClassifier(
   > {
 
   /**
+   * A temporary slot with a mutable list of tokens.
+   *
+   * @property index the slot index
+   * @property tokens the list of tokens that compose this slot
+   */
+  private data class TmpSlot(val index: Int, val tokens: MutableList<Slot.Token>)
+
+  /**
    * The [FrameClassifier] output.
    *
    * @property intentsDistribution the distribution array of the intents
    * @property slotsClassifications the list of classifications of the slots, one per token
    */
-  data class Output(
+  inner class Output(
     val intentsDistribution: DenseNDArray,
     val slotsClassifications: List<DenseNDArray>
   ) {
 
     /**
-     * A temporary slot with a mutable list of tokens.
-     *
-     * @property index the slot index
-     * @property tokens the list of tokens that compose this slot
+     * The list of intents configurations of the classifier related to this output.
      */
-    private data class TmpSlot(val index: Int, val tokens: MutableList<Slot.Token>)
+    private val intentsConfig: List<Intent.Configuration> = this@FrameClassifier.model.intentsConfiguration
 
     /**
-     * Build a [Distribution] from this classifier output.
-     *
-     * @param intentsConfig the intents configuration from which to extract the intents information
+     * Build a [Distribution] of the intents from this classifier output.
      *
      * @return the intents distribution
      */
-    fun buildDistribution(intentsConfig: List<Intent.Configuration>): Distribution =
+    fun buildDistribution(): Distribution =
       Distribution(map = (0 until this.intentsDistribution.length).associate { i ->
-        intentsConfig[i].name to this.intentsDistribution[i]
+        this.intentsConfig[i].name to this.intentsDistribution[i]
       })
 
     /**
      * Build an [Intent] from this classifier output.
      *
-     * @param intentsConfig the intents configuration from which to extract the intents information
-     *
      * @return the intent interpreted from this output
      */
-    fun buildIntent(intentsConfig: List<Intent.Configuration>): Intent {
+    fun buildIntent(): Intent {
 
       val intentIndex: Int = this.intentsDistribution.argMaxIndex()
-      val intentConfig: Intent.Configuration = intentsConfig[intentIndex]
-      val slotsOffset: Int = if (intentIndex > 0) intentsConfig.subList(0, intentIndex).sumBy { it.slots.size } else 0
+      val intentConfig: Intent.Configuration = this.intentsConfig[intentIndex]
+      val slotsOffset: Int = if (intentIndex > 0) this.intentsConfig.subList(0, intentIndex).sumBy { it.slots.size } else 0
 
       return Intent(
         name = intentConfig.name,
