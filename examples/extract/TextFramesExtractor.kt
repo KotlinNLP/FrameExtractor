@@ -7,9 +7,9 @@
 
 package extract
 
+import utils.LSSEmbeddingsEncoder
 import com.kotlinnlp.frameextractor.Distribution
 import com.kotlinnlp.frameextractor.Intent
-import com.kotlinnlp.frameextractor.LSSEmbeddingsEncoder
 import com.kotlinnlp.frameextractor.classifier.FrameClassifier
 import com.kotlinnlp.linguisticdescription.sentence.Sentence
 import com.kotlinnlp.linguisticdescription.sentence.token.FormToken
