@@ -13,19 +13,19 @@ import com.kotlinnlp.simplednn.core.optimizer.IterableParams
 import com.kotlinnlp.simplednn.deeplearning.birnn.BiRNNParameters
 
 /**
- * The [FrameClassifierModel] parameters.
+ * The [FrameExtractorModel] parameters.
  *
  * @property biRNN1Params
  * @property biRNN2Params
  * @property intentNetworkParams
  * @property slotsNetworkParams
  */
-class FrameClassifierParameters(
+class FrameExtractorParameters(
   val biRNN1Params: BiRNNParameters,
   val biRNN2Params: BiRNNParameters,
   val intentNetworkParams: NetworkParameters,
   val slotsNetworkParams: NetworkParameters
-) : IterableParams<FrameClassifierParameters>() {
+) : IterableParams<FrameExtractorParameters>() {
 
   companion object {
 
@@ -37,7 +37,7 @@ class FrameClassifierParameters(
   }
 
   /**
-   * The list of all the parameters of a [FrameClassifierModel].
+   * The list of all the parameters of a [FrameExtractorModel].
    */
   override val paramsList: List<UpdatableArray<*>> =
     this.biRNN1Params.paramsList +
@@ -46,9 +46,9 @@ class FrameClassifierParameters(
       this.slotsNetworkParams.paramsList
 
   /**
-   * @return new [FrameClassifierParameters] containing a copy of all the values of this
+   * @return new [FrameExtractorParameters] containing a copy of all the values of this
    */
-  override fun copy() = FrameClassifierParameters(
+  override fun copy() = FrameExtractorParameters(
     biRNN1Params = this.biRNN1Params.copy(),
     biRNN2Params = this.biRNN2Params.copy(),
     intentNetworkParams = this.intentNetworkParams.copy(),

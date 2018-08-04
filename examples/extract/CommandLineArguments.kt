@@ -23,12 +23,12 @@ internal class CommandLineArguments(args: Array<String>) {
   private val parser = ArgParser(args)
 
   /**
-   * The file path of the frame classifier serialized model.
+   * The file path of the frame extractor serialized model.
    */
   val modelPath: String by parser.storing(
     "-m",
     "--model-path",
-    help="the file path of the frame classifier serialized model"
+    help="the file path of the frame extractor serialized model"
   )
 
   /**

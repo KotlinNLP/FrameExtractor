@@ -19,25 +19,25 @@ import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArrayFactory
 
 /**
- * The frame classifier.
+ * The frame extractor.
  * It is a neural processor that given an encoded sentence (as list of encoded tokens) calculates a probability
  * distribution of the intents expressed by the sentence, together with the slot classifications associated to the
  * tokens.
  *
- * @property model the frame classifier model
+ * @property model the frame extractor model
  * @property propagateToInput whether to propagate errors to the input during the backward (default = false)
- * @property id an identifier of this frame classifier (useful when included in a pool, default = 0)
+ * @property id an identifier of this frame extractor (useful when included in a pool, default = 0)
  */
-class FrameClassifier(
-  val model: FrameClassifierModel,
+class FrameExtractor(
+  val model: FrameExtractorModel,
   override val propagateToInput: Boolean = false,
   override val id: Int = 0
 ) : NeuralProcessor<
   List<DenseNDArray>, // InputType
-  FrameClassifier.Output, // OutputType
-  FrameClassifier.Output, // ErrorsType
+  FrameExtractor.Output, // OutputType
+  FrameExtractor.Output, // ErrorsType
   List<DenseNDArray>, // InputErrorsType
-  FrameClassifierParameters // ParamsErrorsType
+  FrameExtractorParameters // ParamsErrorsType
   > {
 
   /**
@@ -49,7 +49,7 @@ class FrameClassifier(
   private data class TmpSlot(val index: Int, val tokens: MutableList<Slot.Token>)
 
   /**
-   * The [FrameClassifier] output.
+   * The [FrameExtractor] output.
    *
    * @property intentsDistribution the distribution array of the intents
    * @property slotsClassifications the list of classifications of the slots, one per token
@@ -60,12 +60,12 @@ class FrameClassifier(
   ) {
 
     /**
-     * The list of intents configurations of the classifier related to this output.
+     * The list of intents configurations of the frame extractor related to this output.
      */
-    private val intentsConfig: List<Intent.Configuration> = this@FrameClassifier.model.intentsConfiguration
+    private val intentsConfig: List<Intent.Configuration> = this@FrameExtractor.model.intentsConfiguration
 
     /**
-     * Build a [Distribution] of the intents from this classifier output.
+     * Build a [Distribution] of the intents from this frame extractor output.
      *
      * @return the intents distribution
      */
@@ -75,7 +75,7 @@ class FrameClassifier(
       })
 
     /**
-     * Build an [Intent] from this classifier output.
+     * Build an [Intent] from this frame extractor output.
      *
      * @return the intent interpreted from this output
      */
@@ -231,9 +231,9 @@ class FrameClassifier(
   /**
    * @param copy a Boolean indicating whether the returned errors must be a copy or a reference
    *
-   * @return the errors of this classifiers parameters
+   * @return the errors of this frame extractor parameters
    */
-  override fun getParamsErrors(copy: Boolean) = FrameClassifierParameters(
+  override fun getParamsErrors(copy: Boolean) = FrameExtractorParameters(
     biRNN1Params = this.biRNNEncoder1.getParamsErrors(copy),
     biRNN2Params = this.biRNNEncoder2.getParamsErrors(copy),
     intentNetworkParams = this.intentProcessor.getParamsErrors(copy),

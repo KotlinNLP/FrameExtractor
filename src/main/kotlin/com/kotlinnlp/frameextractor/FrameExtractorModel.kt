@@ -22,11 +22,11 @@ import java.io.OutputStream
 import java.io.Serializable
 
 /**
- * The [FrameClassifier] parameters.
+ * The [FrameExtractor] parameters.
  *
- * @property intentsConfiguration the list of all the possible intents managed by this classifier
+ * @property intentsConfiguration the list of all the possible intents managed by this frame extractor
  */
-class FrameClassifierModel(
+class FrameExtractorModel(
   val intentsConfiguration: List<Intent.Configuration>,
   tokenEncodingSize: Int,
   hiddenSize: Int,
@@ -43,13 +43,13 @@ class FrameClassifierModel(
     private const val serialVersionUID: Long = 1L
 
     /**
-     * Read a [FrameClassifierModel] (serialized) from an input stream and decode it.
+     * Read a [FrameExtractorModel] (serialized) from an input stream and decode it.
      *
-     * @param inputStream the [InputStream] from which to read the serialized [FrameClassifierModel]
+     * @param inputStream the [InputStream] from which to read the serialized [FrameExtractorModel]
      *
-     * @return the [FrameClassifierModel] read from [inputStream] and decoded
+     * @return the [FrameExtractorModel] read from [inputStream] and decoded
      */
-    fun load(inputStream: InputStream): FrameClassifierModel = Serializer.deserialize(inputStream)
+    fun load(inputStream: InputStream): FrameExtractorModel = Serializer.deserialize(inputStream)
   }
 
   /**
@@ -99,7 +99,7 @@ class FrameClassifierModel(
   /**
    *
    */
-  val params: FrameClassifierParameters
+  val params: FrameExtractorParameters
 
   init {
 
@@ -117,7 +117,7 @@ class FrameClassifierModel(
           activationFunction = Softmax())
       ))
 
-    this.params = FrameClassifierParameters(
+    this.params = FrameExtractorParameters(
       biRNN1Params = this.biRNN1.model,
       biRNN2Params = this.biRNN2.model,
       intentNetworkParams = this.intentNetwork.model,
@@ -126,9 +126,9 @@ class FrameClassifierModel(
   }
 
   /**
-   * Serialize this [FrameClassifierModel] and write it to an output stream.
+   * Serialize this [FrameExtractorModel] and write it to an output stream.
    *
-   * @param outputStream the [OutputStream] in which to write this serialized [FrameClassifierModel]
+   * @param outputStream the [OutputStream] in which to write this serialized [FrameExtractorModel]
    */
   fun dump(outputStream: OutputStream) = Serializer.serialize(this, outputStream)
 }

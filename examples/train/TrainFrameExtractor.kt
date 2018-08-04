@@ -10,7 +10,7 @@ package train
 import utils.buildLSSEncoder
 import utils.buildSentencePreprocessor
 import utils.LSSEmbeddingsEncoder
-import com.kotlinnlp.frameextractor.FrameClassifierModel
+import com.kotlinnlp.frameextractor.FrameExtractorModel
 import com.kotlinnlp.frameextractor.helpers.Trainer
 import com.kotlinnlp.frameextractor.helpers.Validator
 import com.kotlinnlp.frameextractor.helpers.dataset.Dataset
@@ -26,7 +26,7 @@ import java.io.File
 import java.io.FileInputStream
 
 /**
- * Train a [FrameClassifierModel].
+ * Train a [FrameExtractorModel].
  *
  * Launch with the '-h' option for help about the command line arguments.
  */
@@ -64,7 +64,7 @@ fun main(args: Array<String>) = mainBody {
     },
     sentenceEncoder = sentenceEncoder)
 
-  val classifierModel = FrameClassifierModel(
+  val extractorModel = FrameExtractorModel(
     intentsConfiguration = trainingDataset.configuration,
     tokenEncodingSize = sentenceEncoder.encodingSize,
     hiddenSize = 200)
@@ -78,9 +78,9 @@ fun main(args: Array<String>) = mainBody {
   println("Validation examples: ${validationDataset.examples.size}.")
 
   Trainer(
-    model = classifierModel,
+    model = extractorModel,
     modelFilename = parsedArgs.modelPath,
     epochs = 30,
-    validator = Validator(model = classifierModel, dataset = trainingDataset)
+    validator = Validator(model = extractorModel, dataset = trainingDataset)
   ).train(trainingDataset)
 }

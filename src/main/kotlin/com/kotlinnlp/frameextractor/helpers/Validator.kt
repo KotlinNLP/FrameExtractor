@@ -9,29 +9,29 @@ package com.kotlinnlp.frameextractor.helpers
 
 import com.kotlinnlp.frameextractor.objects.Intent
 import com.kotlinnlp.frameextractor.objects.Slot
-import com.kotlinnlp.frameextractor.FrameClassifier
-import com.kotlinnlp.frameextractor.FrameClassifierModel
+import com.kotlinnlp.frameextractor.FrameExtractor
+import com.kotlinnlp.frameextractor.FrameExtractorModel
 import com.kotlinnlp.frameextractor.helpers.dataset.EncodedDataset
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 import com.kotlinnlp.utils.progressindicator.ProgressIndicatorBar
 
 /**
- * A helper to evaluate a [FrameClassifierModel].
+ * A helper to evaluate a [FrameExtractorModel].
  *
  * @param model the model to evaluate
  * @param dataset the validation dataset
  * @param verbose whether to print info about the validation progress (default = true)
  */
 class Validator(
-  private val model: FrameClassifierModel,
+  private val model: FrameExtractorModel,
   private val dataset: EncodedDataset,
   private val verbose: Boolean = true
 ) {
 
   /**
-   * A frame classifier built with the given [model].
+   * A frame extractor built with the given [model].
    */
-  private val classifier = FrameClassifier(this.model)
+  private val extractor  = FrameExtractor(this.model)
 
   /**
    * The total number of intents in the validation dataset.
@@ -96,7 +96,7 @@ class Validator(
    */
   private fun validateExample(example: EncodedDataset.Example) {
 
-    val output: FrameClassifier.Output = this.classifier.forward(example.tokens.map { it.encoding })
+    val output: FrameExtractor.Output = this.extractor.forward(example.tokens.map { it.encoding })
 
     val bestIntentIndex: Int = output.intentsDistribution.argMaxIndex()
     val intentConfig: Intent.Configuration = this.model.intentsConfiguration[bestIntentIndex]
@@ -124,7 +124,7 @@ class Validator(
                             slotsConfig: List<Slot.Configuration>,
                             slotsClassifications: List<DenseNDArray>) {
 
-    val intentSlotsOffset: Int = this.classifier.getSlotsOffset(example.intent)
+    val intentSlotsOffset: Int = this.extractor.getSlotsOffset(example.intent)
     val intentSlotsRange = intentSlotsOffset until (intentSlotsOffset + slotsConfig.size)
 
     val predictedSlotsNames: List<String?> = slotsClassifications.map {

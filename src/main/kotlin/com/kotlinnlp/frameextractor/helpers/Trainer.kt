@@ -9,8 +9,8 @@ package com.kotlinnlp.frameextractor.helpers
 
 import com.kotlinnlp.frameextractor.helpers.dataset.IOBTag
 import com.kotlinnlp.frameextractor.objects.Intent
-import com.kotlinnlp.frameextractor.FrameClassifier
-import com.kotlinnlp.frameextractor.FrameClassifierModel
+import com.kotlinnlp.frameextractor.FrameExtractor
+import com.kotlinnlp.frameextractor.FrameExtractorModel
 import com.kotlinnlp.frameextractor.helpers.dataset.Dataset
 import com.kotlinnlp.frameextractor.helpers.dataset.EncodedDataset
 import com.kotlinnlp.neuralparser.utils.Timer
@@ -28,7 +28,7 @@ import java.io.File
 import java.io.FileOutputStream
 
 /**
- * A helper to train a [FrameClassifierModel].
+ * A helper to train a [FrameExtractorModel].
  *
  * @param model the model to train
  * @param modelFilename the path of the file in which to save the serialized trained model
@@ -38,7 +38,7 @@ import java.io.FileOutputStream
  * @param verbose whether to print info about the training progress and timing (default = true)
  */
 class Trainer(
-  private val model: FrameClassifierModel,
+  private val model: FrameExtractorModel,
   private val modelFilename: String,
   private val epochs: Int,
   private val updateMethod: UpdateMethod<*> = ADAMMethod(stepSize = 0.001, beta1 = 0.9, beta2 = 0.999),
@@ -62,9 +62,9 @@ class Trainer(
   private var bestAccuracy: Double = -1.0 // -1 used as init value (all accuracy values are in the range [0.0, 1.0])
 
   /**
-   * A frame classifier built with the given [model].
+   * A frame extractor built with the given [model].
    */
-  private val classifier = FrameClassifier(this.model)
+  private val extractor = FrameExtractor(this.model)
 
   /**
    * The optimizer of the [model] parameters.
@@ -124,7 +124,7 @@ class Trainer(
         example = example,
         intentIndex = intentIndex,
         intentConfig = dataset.configuration[intentIndex],
-        slotsOffset = this.classifier.getSlotsOffset(example.intent))
+        slotsOffset = this.extractor.getSlotsOffset(example.intent))
     }
   }
 
@@ -142,7 +142,7 @@ class Trainer(
                            intentConfig: Intent.Configuration,
                            slotsOffset: Int) {
 
-    val output: FrameClassifier.Output = this.classifier.forward(example.tokens.map { it.encoding })
+    val output: FrameExtractor.Output = this.extractor.forward(example.tokens.map { it.encoding })
 
     val intentErrors: DenseNDArray = output.intentsDistribution.sub(
       DenseNDArrayFactory.oneHotEncoder(length = output.intentsDistribution.length, oneAt = intentIndex))
@@ -159,10 +159,10 @@ class Trainer(
       classification.sub(goldClassification)
     }
 
-    this.classifier.backward(
-      outputErrors = this.classifier.Output(intentsDistribution = intentErrors, slotsClassifications = slotsErrors))
+    this.extractor.backward(
+      outputErrors = this.extractor.Output(intentsDistribution = intentErrors, slotsClassifications = slotsErrors))
 
-    this.optimizer.accumulate(this.classifier.getParamsErrors(copy = false), copy = false)
+    this.optimizer.accumulate(this.extractor.getParamsErrors(copy = false), copy = false)
     this.optimizer.update()
   }
 

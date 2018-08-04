@@ -10,8 +10,8 @@ package extract
 import utils.buildLSSEncoder
 import utils.buildSentencePreprocessor
 import utils.LSSEmbeddingsEncoder
-import com.kotlinnlp.frameextractor.FrameClassifier
-import com.kotlinnlp.frameextractor.FrameClassifierModel
+import com.kotlinnlp.frameextractor.FrameExtractor
+import com.kotlinnlp.frameextractor.FrameExtractorModel
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRModel
 import com.kotlinnlp.neuralparser.parsers.lhrparser.utils.keyextractors.WordKeyExtractor
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
@@ -82,7 +82,7 @@ private fun buildTextFramesExtractor(parsedArgs: CommandLineArguments): TextFram
   }
 
   return TextFramesExtractor(
-    classifier = FrameClassifier(model = FrameClassifierModel.load(FileInputStream(File(parsedArgs.modelPath)))),
+    extractor = FrameExtractor(model = FrameExtractorModel.load(FileInputStream(File(parsedArgs.modelPath)))),
     tokenizer = NeuralTokenizer(NeuralTokenizerModel.load(FileInputStream(File(parsedArgs.tokenizerModelPath)))),
     sentenceEncoder = LSSEmbeddingsEncoder(
       preprocessor = buildSentencePreprocessor(

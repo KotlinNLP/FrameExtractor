@@ -14,7 +14,7 @@ import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 /**
  * A dataset with the same structure of the [Dataset] read from file, but with encodings instead of forms in the
  * tokens of its examples.
- * It is used to train and validate a [com.kotlinnlp.frameextractor.FrameClassifier].
+ * It is used to train and validate a [com.kotlinnlp.frameextractor.FrameExtractor].
  *
  * @property configuration the list of configurations of all the possible intents in this dataset
  * @property examples the list of examples

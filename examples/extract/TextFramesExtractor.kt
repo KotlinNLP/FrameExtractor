@@ -10,7 +10,7 @@ package extract
 import utils.LSSEmbeddingsEncoder
 import com.kotlinnlp.frameextractor.objects.Distribution
 import com.kotlinnlp.frameextractor.objects.Intent
-import com.kotlinnlp.frameextractor.FrameClassifier
+import com.kotlinnlp.frameextractor.FrameExtractor
 import com.kotlinnlp.linguisticdescription.sentence.Sentence
 import com.kotlinnlp.linguisticdescription.sentence.token.FormToken
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
@@ -19,12 +19,12 @@ import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 /**
  * The extractor of frames from a text.
  *
- * @param classifier a frame classifier
+ * @param extractor a frame extractor
  * @param tokenizer a neural tokenizer
  * @param sentenceEncoder a sentence encoder
  */
 internal class TextFramesExtractor(
-  private val classifier: FrameClassifier,
+  private val extractor: FrameExtractor,
   private val tokenizer: NeuralTokenizer,
   private val sentenceEncoder: LSSEmbeddingsEncoder
 ) {
@@ -52,11 +52,11 @@ internal class TextFramesExtractor(
 
       val sentence = it as Sentence<FormToken>
       val tokenEncodings: List<DenseNDArray> = this.sentenceEncoder.encode(tokensForms = sentence.tokens.map { it.form })
-      val classifierOutput: FrameClassifier.Output = this.classifier.forward(tokenEncodings)
+      val extractorOutput: FrameExtractor.Output = this.extractor.forward(tokenEncodings)
 
       Frame(
-        intent = classifierOutput.buildIntent(),
-        distribution = classifierOutput.buildDistribution(),
+        intent = extractorOutput.buildIntent(),
+        distribution = extractorOutput.buildDistribution(),
         sentence = sentence
       )
     }

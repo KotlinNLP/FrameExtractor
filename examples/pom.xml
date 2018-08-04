@@ -71,11 +71,11 @@
                         <phase>package</phase>
                         <goals> <goal>single</goal> </goals>
                         <configuration>
-                            <finalName>train-frame-classifier</finalName>
+                            <finalName>train-frame-extractor</finalName>
                             <archive>
                                 <manifest>
                                     <addClasspath>true</addClasspath>
-                                    <mainClass>train.TrainFrameClassifierKt</mainClass>
+                                    <mainClass>train.TrainFrameExtractorKt</mainClass>
                                 </manifest>
                             </archive>
                             <descriptorRefs>
