@@ -8,7 +8,6 @@
 package com.kotlinnlp.frameextractor.classifier.helpers.dataset
 
 import com.kotlinnlp.frameextractor.Intent
-import com.kotlinnlp.frameextractor.SentenceEncoder
 import com.kotlinnlp.frameextractor.Slot
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 
