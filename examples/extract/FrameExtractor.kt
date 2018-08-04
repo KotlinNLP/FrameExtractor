@@ -13,16 +13,19 @@ import com.kotlinnlp.frameextractor.LSSEmbeddingsEncoder
 import com.kotlinnlp.frameextractor.classifier.FrameClassifier
 import com.kotlinnlp.linguisticdescription.sentence.Sentence
 import com.kotlinnlp.linguisticdescription.sentence.token.FormToken
+import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 
 /**
  * The frame extractor.
  *
  * @param classifier a frame classifier
+ * @param tokenizer a neural tokenizer
  * @param sentenceEncoder a sentence encoder
  */
 internal class FrameExtractor(
   private val classifier: FrameClassifier,
+  private val tokenizer: NeuralTokenizer,
   private val sentenceEncoder: LSSEmbeddingsEncoder
 ) {
 
@@ -31,25 +34,30 @@ internal class FrameExtractor(
    *
    * @property intent the intent frame extracted
    * @property distribution the distribution of [intent] classification
+   * @property sentence the intent sentence
    */
-  data class Frame(val intent: Intent, val distribution: Distribution)
+  data class Frame(val intent: Intent, val distribution: Distribution, val sentence: Sentence<FormToken>)
 
   /**
-   * Extract an intent frame from a given sentence.
+   * Extract a intent frames from a text.
    *
-   * @param sentence the input sentence
+   * @param text the input text
    *
-   * @return the frame extracted
+   * @return the list of frames extracted
    */
-  fun extractFrame(sentence: Sentence<FormToken>): Frame {
+  @Suppress("UNCHECKED_CAST")
+  fun extractFrames(text: String): List<Frame> =
 
-    val tokensForms: List<String> = sentence.tokens.map { it.form }
-    val tokenEncodings: List<DenseNDArray> = this.sentenceEncoder.encode(tokensForms)
-    val classifierOutput: FrameClassifier.Output = this.classifier.forward(tokenEncodings)
+    this.tokenizer.tokenize(text).map {
 
-    return Frame(
-      intent = classifierOutput.buildIntent(),
-      distribution = classifierOutput.buildDistribution()
-    )
-  }
+      val sentence = it as Sentence<FormToken>
+      val tokenEncodings: List<DenseNDArray> = this.sentenceEncoder.encode(tokensForms = sentence.tokens.map { it.form })
+      val classifierOutput: FrameClassifier.Output = this.classifier.forward(tokenEncodings)
+
+      Frame(
+        intent = classifierOutput.buildIntent(),
+        distribution = classifierOutput.buildDistribution(),
+        sentence = sentence
+      )
+    }
 }

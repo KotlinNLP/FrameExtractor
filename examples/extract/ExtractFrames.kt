@@ -11,9 +11,7 @@ import buildLSSEncoder
 import buildSentencePreprocessor
 import com.kotlinnlp.frameextractor.classifier.FrameClassifier
 import com.kotlinnlp.frameextractor.classifier.FrameClassifierModel
-import com.kotlinnlp.frameextractor.SentenceEncoder
-import com.kotlinnlp.linguisticdescription.sentence.Sentence
-import com.kotlinnlp.linguisticdescription.sentence.token.FormToken
+import com.kotlinnlp.frameextractor.LSSEmbeddingsEncoder
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRModel
 import com.kotlinnlp.neuralparser.parsers.lhrparser.utils.keyextractors.WordKeyExtractor
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
@@ -35,7 +33,6 @@ fun main(args: Array<String>) = mainBody {
 
   val parsedArgs = CommandLineArguments(args)
   val frameExtractor: FrameExtractor = buildFrameExtractor(parsedArgs)
-  val tokenizer = NeuralTokenizer(NeuralTokenizerModel.load(FileInputStream(File(parsedArgs.tokenizerModelPath))))
 
   @Suppress("UNCHECKED_CAST")
   while (true) {
@@ -48,14 +45,9 @@ fun main(args: Array<String>) = mainBody {
 
     } else {
 
-      tokenizer.tokenize(inputText).forEach { sentence ->
-
-        sentence as Sentence<FormToken>
-
-        val frame: FrameExtractor.Frame = frameExtractor.extractFrame(sentence)
-
+      frameExtractor.extractFrames(inputText).forEach { frame ->
         println()
-        printFrame(frame = frame, sentence = sentence)
+        frame.print()
       }
     }
   }
@@ -91,7 +83,8 @@ private fun buildFrameExtractor(parsedArgs: CommandLineArguments): FrameExtracto
 
   return FrameExtractor(
     classifier = FrameClassifier(model = FrameClassifierModel.load(FileInputStream(File(parsedArgs.modelPath)))),
-    sentenceEncoder = SentenceEncoder(
+    tokenizer = NeuralTokenizer(NeuralTokenizerModel.load(FileInputStream(File(parsedArgs.tokenizerModelPath)))),
+    sentenceEncoder = LSSEmbeddingsEncoder(
       preprocessor = buildSentencePreprocessor(
         morphoDictionaryPath = parsedArgs.morphoDictionaryPath,
         language = parserModel.language),
@@ -102,25 +95,22 @@ private fun buildFrameExtractor(parsedArgs: CommandLineArguments): FrameExtracto
 }
 
 /**
- * Print a frame to the standard output.
- *
- * @param frame the frame
- * @param sentence the sentence from which the intent frame has been extracted
+ * Print this frame to the standard output.
  */
-private fun printFrame(frame: FrameExtractor.Frame, sentence: Sentence<FormToken>) {
+private fun FrameExtractor.Frame.print() {
 
-  println("Intent: ${frame.intent.name}")
+  println("Intent: ${this.intent.name}")
 
   println("Slots: %s".format(
-    if (frame.intent.slots.isNotEmpty())
-      frame.intent.slots.joinToString(", ") {
-        "(${it.name} ${it.tokens.joinToString(" ") { sentence.tokens[it.index].form }})"
+    if (this.intent.slots.isNotEmpty())
+      this.intent.slots.joinToString(", ") {
+        "(${it.name} ${it.tokens.joinToString(" ") { this.sentence.tokens[it.index].form }})"
       }
     else
       "None"))
 
   println("Distribution:")
-  frame.distribution.map.entries
+  this.distribution.map.entries
     .sortedByDescending { it.value }
     .forEach { println("\t[%5.2f %%] %s".format(100.0 * it.value, it.key)) }
 }
