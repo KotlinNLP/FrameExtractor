@@ -9,7 +9,6 @@ package extract
 
 import buildLSSEncoder
 import buildSentencePreprocessor
-import com.kotlinnlp.frameextractor.FrameExtractor
 import com.kotlinnlp.frameextractor.classifier.FrameClassifier
 import com.kotlinnlp.frameextractor.classifier.FrameClassifierModel
 import com.kotlinnlp.frameextractor.SentenceEncoder

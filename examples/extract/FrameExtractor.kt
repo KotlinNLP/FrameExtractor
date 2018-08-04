@@ -5,8 +5,11 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/.
  * ------------------------------------------------------------------*/
 
-package com.kotlinnlp.frameextractor
+package extract
 
+import com.kotlinnlp.frameextractor.Distribution
+import com.kotlinnlp.frameextractor.Intent
+import com.kotlinnlp.frameextractor.LSSEmbeddingsEncoder
 import com.kotlinnlp.frameextractor.classifier.FrameClassifier
 import com.kotlinnlp.linguisticdescription.sentence.Sentence
 import com.kotlinnlp.linguisticdescription.sentence.token.FormToken
@@ -18,9 +21,9 @@ import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
  * @param classifier a frame classifier
  * @param sentenceEncoder a sentence encoder
  */
-class FrameExtractor(
+internal class FrameExtractor(
   private val classifier: FrameClassifier,
-  private val sentenceEncoder: SentenceEncoder
+  private val sentenceEncoder: LSSEmbeddingsEncoder
 ) {
 
   /**
@@ -45,8 +48,8 @@ class FrameExtractor(
     val classifierOutput: FrameClassifier.Output = this.classifier.forward(tokenEncodings)
 
     return Frame(
-      intent = classifierOutput.buildIntent(intentsConfig = this.classifier.model.intentsConfiguration),
-      distribution = classifierOutput.buildDistribution(intentsConfig = this.classifier.model.intentsConfiguration)
+      intent = classifierOutput.buildIntent(),
+      distribution = classifierOutput.buildDistribution()
     )
   }
 }
