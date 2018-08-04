@@ -45,9 +45,10 @@ data class EncodedDataset(
   companion object {
 
     /**
-     * Build an [EncodedDataset] from a [Dataset], encoding the tokens of its examples with a [SentenceEncoder].
+     * Build an [EncodedDataset] from a [Dataset], encoding the tokens of its examples with a given [SentenceEncoder].
      *
      * @param dataset a dataset
+     * @param sentenceEncoder a sentence encoder
      *
      * @return an encoded dataset
      */
