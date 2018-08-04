@@ -16,12 +16,12 @@
         <kotlin.version>1.2.41</kotlin.version>
         <klaxon.version>3.0.5</klaxon.version>
         <frameextractor.version>0.1.0</frameextractor.version>
-        <linguisticdescription.version>0.9.0</linguisticdescription.version>
-        <morphologicalanalyzer.version>0.3.0</morphologicalanalyzer.version>
-        <neuralparser.version>0.4.0</neuralparser.version>
-        <neuraltokenizer.version>0.4.0</neuraltokenizer.version>
+        <linguisticdescription.version>0.9.1</linguisticdescription.version>
+        <morphologicalanalyzer.version>0.3.1</morphologicalanalyzer.version>
+        <neuralparser.version>0.4.1</neuralparser.version>
+        <neuraltokenizer.version>0.4.1</neuraltokenizer.version>
         <simplednn.version>0.11.0</simplednn.version>
-        <tokensencoder.version>0.3.0</tokensencoder.version>
+        <tokensencoder.version>0.3.1</tokensencoder.version>
     </properties>
 
     <repositories>
