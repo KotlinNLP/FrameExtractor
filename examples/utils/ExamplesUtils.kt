@@ -5,6 +5,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * ------------------------------------------------------------------*/
 
+package utils
+
 import com.kotlinnlp.linguisticdescription.language.Language
 import com.kotlinnlp.morphologicalanalyzer.MorphologicalAnalyzer
 import com.kotlinnlp.morphologicalanalyzer.dictionary.MorphologyDictionary

@@ -7,8 +7,8 @@
 
 package extract
 
-import buildLSSEncoder
-import buildSentencePreprocessor
+import utils.buildLSSEncoder
+import utils.buildSentencePreprocessor
 import com.kotlinnlp.frameextractor.classifier.FrameClassifier
 import com.kotlinnlp.frameextractor.classifier.FrameClassifierModel
 import com.kotlinnlp.frameextractor.LSSEmbeddingsEncoder
