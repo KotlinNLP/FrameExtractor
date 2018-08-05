@@ -8,7 +8,6 @@
 package com.kotlinnlp.frameextractor.helpers
 
 import com.kotlinnlp.frameextractor.objects.Intent
-import com.kotlinnlp.frameextractor.objects.Slot
 import com.kotlinnlp.frameextractor.FrameExtractor
 import com.kotlinnlp.frameextractor.FrameExtractorModel
 import com.kotlinnlp.frameextractor.helpers.dataset.EncodedDataset
@@ -108,7 +107,7 @@ class Validator(
 
       this.validateSlots(
         example = example,
-        slotsConfig = intentConfig.slots,
+        possibleSlots = intentConfig.slots,
         slotsClassifications = output.slotsClassifications)
     }
   }
@@ -117,21 +116,21 @@ class Validator(
    * Validate the slots classified.
    *
    * @param example the example from which the slots have been classified
-   * @param slotsConfig the list of slots configurations of the example intent
+   * @param possibleSlots the list of possible slot names that can be associated to the example intent
    * @param slotsClassifications the list of slots classifications
    */
   private fun validateSlots(example: EncodedDataset.Example,
-                            slotsConfig: List<Slot.Configuration>,
+                            possibleSlots: List<String>,
                             slotsClassifications: List<DenseNDArray>) {
 
     val intentSlotsOffset: Int = this.extractor.getSlotsOffset(example.intent)
-    val intentSlotsRange = intentSlotsOffset until (intentSlotsOffset + slotsConfig.size)
+    val intentSlotsRange = intentSlotsOffset until (intentSlotsOffset + possibleSlots.size)
 
     val predictedSlotsNames: List<String?> = slotsClassifications.map {
 
       val bestSlotIndex: Int = it.argMaxIndex() / 2
 
-      if (bestSlotIndex in intentSlotsRange) slotsConfig[bestSlotIndex - intentSlotsOffset].name else null
+      if (bestSlotIndex in intentSlotsRange) possibleSlots[bestSlotIndex - intentSlotsOffset] else null
     }
 
     predictedSlotsNames.zip(example.tokens).forEach { (predictedSlotName, token) ->

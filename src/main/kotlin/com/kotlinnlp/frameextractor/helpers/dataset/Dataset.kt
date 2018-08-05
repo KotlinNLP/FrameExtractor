@@ -75,7 +75,7 @@ data class Dataset(
          * The slot of tokens that actually do not represent a slot of the intent.
          * It is automatically created when a [Token] has null 'slot' property.
          */
-        val noSlot: Slot get() = Slot(name = IntentSlot.Configuration.NO_SLOT_NAME, iob = IOBTag.Beginning)
+        val noSlot: Slot get() = Slot(name = Intent.Configuration.NO_SLOT_NAME, iob = IOBTag.Beginning)
       }
     }
   }
@@ -126,9 +126,7 @@ data class Dataset(
         configuration = jsonDataset.array<JsonObject>("intents")!!.map { intent ->
           Intent.Configuration(
             name = intent.string("name")!!,
-            slots = intent.array<JsonObject>("slots")!!.map { slot ->
-              IntentSlot.Configuration(name = slot.string("name")!!)
-            })
+            slots = intent.array("slots")!!)
         },
         examples = jsonDataset.array<JsonObject>("examples")!!.map { example ->
           Example(
@@ -189,12 +187,12 @@ data class Dataset(
 
     val slotNamesByIntent: Map<String, Set<String>> = this.configuration.associate {
 
-      val slotNames: Set<String> = it.slots.map { slot -> slot.name }.toSet()
+      val slotsSet: Set<String> = it.slots.toSet()
 
-      if (slotNames.size != it.slots.size)
+      if (slotsSet.size != it.slots.size)
         throw InvalidIntentConfiguration("Intent '${it.name}': slot names must be unique.")
 
-      it.name to slotNames
+      it.name to slotsSet
     }
 
     if (slotNamesByIntent.keys.size != this.configuration.size)

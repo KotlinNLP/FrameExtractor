@@ -25,9 +25,9 @@ data class Intent(val name: String, val slots: List<Slot>, val score: Double) {
    * It describes its name and its possible slots.
    *
    * @property name the intent name
-   * @property slots the list of configurations of all the possible slots that can be associated to this intent
+   * @property slots the list of all the possible slot names that can be associated to this intent
    */
-  data class Configuration(val name: String, val slots: List<Slot.Configuration>) : Serializable {
+  data class Configuration(val name: String, val slots: List<String>) : Serializable {
 
     companion object {
 
@@ -36,19 +36,19 @@ data class Intent(val name: String, val slots: List<Slot>, val score: Double) {
        */
       @Suppress("unused")
       private const val serialVersionUID: Long = 1L
-    }
 
-    /**
-     * The list of all the possible slots names of this intent.
-     */
-    val slotNames: List<String> by lazy { this.slots.map { it.name } }
+      /**
+       * The name used to generate the slot for tokens that actually do not represent a slot of the intent.
+       */
+      const val NO_SLOT_NAME = "NoSlot"
+    }
 
     /**
      * @param slotName the name of a possible slot of this intent
      *
      * @return the index of the slot with the given name within the possible slots defined in this configuration
      */
-    fun getSlotIndex(slotName: String): Int = this.slots.indexOfFirst { it.name == slotName }
+    fun getSlotIndex(slotName: String): Int = this.slots.indexOfFirst { it == slotName }
   }
 
   /**

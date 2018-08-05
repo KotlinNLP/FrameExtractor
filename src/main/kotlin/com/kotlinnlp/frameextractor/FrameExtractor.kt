@@ -122,8 +122,8 @@ class FrameExtractor(
 
       return slotsFound
         .filter { it.index in slotsRange }
-        .map { Slot(name = intentConfig.slotNames[it.index - slotsOffset], tokens = it.tokens) }
-        .filter { it.name != Slot.Configuration.NO_SLOT_NAME }
+        .map { Slot(name = intentConfig.slots[it.index - slotsOffset], tokens = it.tokens) }
+        .filter { it.name != Intent.Configuration.NO_SLOT_NAME }
     }
   }
 

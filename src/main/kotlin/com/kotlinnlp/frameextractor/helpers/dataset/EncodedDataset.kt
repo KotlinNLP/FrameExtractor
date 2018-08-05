@@ -8,7 +8,6 @@
 package com.kotlinnlp.frameextractor.helpers.dataset
 
 import com.kotlinnlp.frameextractor.objects.Intent
-import com.kotlinnlp.frameextractor.objects.Slot
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 
 /**
@@ -55,7 +54,7 @@ data class EncodedDataset(
 
       EncodedDataset(
         configuration = dataset.configuration.map {
-          it.copy(slots = it.slots + Slot.Configuration.noSlot)
+          it.copy(slots = it.slots + Intent.Configuration.NO_SLOT_NAME)
         },
         examples = dataset.examples.map {
 

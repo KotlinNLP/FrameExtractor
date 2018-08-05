@@ -9,7 +9,6 @@ package com.kotlinnlp.frameextractor.objects
 
 import com.beust.klaxon.JsonObject
 import com.beust.klaxon.json
-import java.io.Serializable
 
 /**
  * A slot of an [Intent].
@@ -26,33 +25,6 @@ class Slot(val name: String, val tokens: List<Token>) {
    * @property score the classification score of the token as part of the slot
    */
   data class Token(val index: Int, val score: Double)
-
-  /**
-   * A slot configuration.
-   *
-   * @property name the slot name
-   */
-  data class Configuration(val name: String) : Serializable {
-
-    companion object {
-
-      /**
-       * Private val used to serialize the class (needed by Serializable).
-       */
-      @Suppress("unused")
-      private const val serialVersionUID: Long = 1L
-
-      /**
-       * The name used to generate the slot for tokens that actually do not represent a slot of the intent.
-       */
-      const val NO_SLOT_NAME = "NoSlot"
-
-      /**
-       * The slot of tokens that actually do not represent a slot of the intent.
-       */
-      val noSlot: Configuration get() = Configuration(name = NO_SLOT_NAME)
-    }
-  }
 
   /**
    * @return the JSON representation of this slot
