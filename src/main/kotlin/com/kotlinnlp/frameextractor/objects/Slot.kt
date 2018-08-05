@@ -31,10 +31,8 @@ class Slot(val name: String, val tokens: List<Token>) {
    * A slot configuration.
    *
    * @property name the slot name
-   * @property required whether this slot is required or not
-   * @property default the default value of this slot in case it is not required
    */
-  data class Configuration(val name: String, val required: Boolean, val default: Any? = null) : Serializable {
+  data class Configuration(val name: String) : Serializable {
 
     companion object {
 
@@ -52,7 +50,7 @@ class Slot(val name: String, val tokens: List<Token>) {
       /**
        * The slot of tokens that actually do not represent a slot of the intent.
        */
-      val noSlot: Configuration get() = Configuration(name = NO_SLOT_NAME, required = false)
+      val noSlot: Configuration get() = Configuration(name = NO_SLOT_NAME)
     }
   }
 

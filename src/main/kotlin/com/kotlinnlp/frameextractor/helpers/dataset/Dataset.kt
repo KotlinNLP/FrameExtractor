@@ -127,10 +127,7 @@ data class Dataset(
           Intent.Configuration(
             name = intent.string("name")!!,
             slots = intent.array<JsonObject>("slots")!!.map { slot ->
-              IntentSlot.Configuration(
-                name = slot.string("name")!!,
-                required = slot.boolean("required")!!,
-                default = slot["default"])
+              IntentSlot.Configuration(name = slot.string("name")!!)
             })
         },
         examples = jsonDataset.array<JsonObject>("examples")!!.map { example ->
