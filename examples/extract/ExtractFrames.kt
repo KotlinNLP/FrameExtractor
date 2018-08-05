@@ -12,6 +12,7 @@ import utils.buildSentencePreprocessor
 import utils.LSSEmbeddingsEncoder
 import com.kotlinnlp.frameextractor.FrameExtractor
 import com.kotlinnlp.frameextractor.FrameExtractorModel
+import com.kotlinnlp.neuralparser.helpers.preprocessors.SentencePreprocessor
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRModel
 import com.kotlinnlp.neuralparser.parsers.lhrparser.utils.keyextractors.WordKeyExtractor
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
@@ -81,6 +82,10 @@ private fun buildTextFramesExtractor(parsedArgs: CommandLineArguments): TextFram
     EMBDLoader().load(filename = it)
   }
 
+  val preprocessor: SentencePreprocessor = buildSentencePreprocessor(
+    morphoDictionaryPath = parsedArgs.morphoDictionaryPath,
+    language = parserModel.language)
+
   val model: FrameExtractorModel = FrameExtractorModel.load(FileInputStream(File(parsedArgs.modelPath)))
 
   println("\nFrame Extractor model: ${model.name}")
@@ -89,9 +94,7 @@ private fun buildTextFramesExtractor(parsedArgs: CommandLineArguments): TextFram
     extractor = FrameExtractor(model),
     tokenizer = NeuralTokenizer(NeuralTokenizerModel.load(FileInputStream(File(parsedArgs.tokenizerModelPath)))),
     sentenceEncoder = LSSEmbeddingsEncoder(
-      preprocessor = buildSentencePreprocessor(
-        morphoDictionaryPath = parsedArgs.morphoDictionaryPath,
-        language = parserModel.language),
+      preprocessor = preprocessor,
       lssEncoder = parserModel.buildLSSEncoder(),
       wordEmbeddingsEncoder = EmbeddingsEncoder(
         model = EmbeddingsEncoderModel(embeddingsMap = embeddingsMap, embeddingKeyExtractor = WordKeyExtractor),
