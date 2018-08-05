@@ -81,8 +81,12 @@ private fun buildTextFramesExtractor(parsedArgs: CommandLineArguments): TextFram
     EMBDLoader().load(filename = it)
   }
 
+  val model: FrameExtractorModel = FrameExtractorModel.load(FileInputStream(File(parsedArgs.modelPath)))
+
+  println("\nFrame Extractor model: ${model.name}")
+
   return TextFramesExtractor(
-    extractor = FrameExtractor(model = FrameExtractorModel.load(FileInputStream(File(parsedArgs.modelPath)))),
+    extractor = FrameExtractor(model),
     tokenizer = NeuralTokenizer(NeuralTokenizerModel.load(FileInputStream(File(parsedArgs.tokenizerModelPath)))),
     sentenceEncoder = LSSEmbeddingsEncoder(
       preprocessor = buildSentencePreprocessor(

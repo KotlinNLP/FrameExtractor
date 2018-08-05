@@ -24,9 +24,11 @@ import java.io.Serializable
 /**
  * The [FrameExtractor] parameters.
  *
+ * @property name the name of this model (it should be unique, used to distinguish it among more models)
  * @property intentsConfiguration the list of all the possible intents managed by this frame extractor
  */
 class FrameExtractorModel(
+  val name: String,
   val intentsConfiguration: List<Intent.Configuration>,
   tokenEncodingSize: Int,
   hiddenSize: Int,

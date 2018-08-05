@@ -65,6 +65,7 @@ fun main(args: Array<String>) = mainBody {
     sentenceEncoder = sentenceEncoder)
 
   val extractorModel = FrameExtractorModel(
+    name = parsedArgs.modelName,
     intentsConfiguration = trainingDataset.configuration,
     tokenEncodingSize = sentenceEncoder.encodingSize,
     hiddenSize = 200)

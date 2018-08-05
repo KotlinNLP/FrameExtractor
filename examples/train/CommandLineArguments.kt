@@ -23,6 +23,15 @@ internal class CommandLineArguments(args: Array<String>) {
   private val parser = ArgParser(args)
 
   /**
+   * The name of the model.
+   */
+  val modelName: String by parser.storing(
+    "-n",
+    "--model-name",
+    help="the name of the model"
+  )
+
+  /**
    * The file path in which to serialize the model.
    */
   val modelPath: String by parser.storing(
