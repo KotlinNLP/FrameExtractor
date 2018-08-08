@@ -9,6 +9,7 @@ package com.kotlinnlp.frameextractor.helpers.dataset
 
 import com.kotlinnlp.frameextractor.objects.Intent
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
+import com.kotlinnlp.utils.progressindicator.ProgressIndicatorBar
 
 /**
  * A dataset with the same structure of the [Dataset] read from file, but with encodings instead of forms in the
@@ -50,15 +51,19 @@ data class EncodedDataset(
      *
      * @return an encoded dataset
      */
-    fun fromDataset(dataset: Dataset, sentenceEncoder: SentenceEncoder): EncodedDataset =
+    fun fromDataset(dataset: Dataset, sentenceEncoder: SentenceEncoder, printProgress: Boolean = true): EncodedDataset {
 
-      EncodedDataset(
+      val progress = if (printProgress) ProgressIndicatorBar(dataset.examples.size) else null
+
+      return EncodedDataset(
         configuration = dataset.configuration.map {
           it.copy(slots = it.slots + Intent.Configuration.NO_SLOT_NAME)
         },
         examples = dataset.examples.map {
 
           val tokenEncodings: List<DenseNDArray> = sentenceEncoder.encode(it.tokens.map { it.form })
+
+          progress?.tick()
 
           Example(
             intent = it.intent,
@@ -69,5 +74,6 @@ data class EncodedDataset(
           )
         }
       )
+    }
   }
 }
