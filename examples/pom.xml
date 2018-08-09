@@ -15,7 +15,7 @@
         <assembly-plugin.version>2.6</assembly-plugin.version>
         <kotlin.version>1.2.41</kotlin.version>
         <klaxon.version>3.0.5</klaxon.version>
-        <frameextractor.version>0.2.1</frameextractor.version>
+        <frameextractor.version>0.3.0</frameextractor.version>
         <linguisticdescription.version>0.9.1</linguisticdescription.version>
         <morphologicalanalyzer.version>0.3.1</morphologicalanalyzer.version>
         <neuralparser.version>0.4.2</neuralparser.version>
