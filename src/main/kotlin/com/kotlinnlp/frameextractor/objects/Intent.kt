@@ -52,12 +52,14 @@ data class Intent(val name: String, val slots: List<Slot>, val score: Double) {
   }
 
   /**
+   * @param tokenForms the list of token forms of the input sentence
+   *
    * @return the JSON representation of this intent
    */
-  fun toJSON(): JsonObject = json {
+  fun toJSON(tokenForms: List<String>): JsonObject = json {
     obj(
       "name" to this@Intent.name,
-      "slots" to array(this@Intent.slots.map { it.toJSON() }),
+      "slots" to array(this@Intent.slots.map { it.toJSON(tokenForms) }),
       "score" to this@Intent.score
     )
   }

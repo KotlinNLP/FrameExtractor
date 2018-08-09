@@ -27,11 +27,14 @@ class Slot(val name: String, val tokens: List<Token>) {
   data class Token(val index: Int, val score: Double)
 
   /**
+   * @param tokenForms the list of token forms of the input sentence
+   *
    * @return the JSON representation of this slot
    */
-  fun toJSON(): JsonObject = json {
+  fun toJSON(tokenForms: List<String>): JsonObject = json {
     obj(
       "name" to this@Slot.name,
+      "value" to this@Slot.tokens.joinToString(" ") { tokenForms[it.index] },
       "tokens" to array(this@Slot.tokens.map { obj("index" to it.index, "score" to it.score) })
     )
   }
