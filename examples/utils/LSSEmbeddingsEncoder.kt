@@ -37,7 +37,7 @@ internal class LSSEmbeddingsEncoder(
    * Note: the context vectors size is equal to the latent head representations size.
    */
   val encodingSize: Int =
-    this.wordEmbeddingsEncoder.model.tokenEncodingSize + 2 * lssEncoder.contextEncoder.model.contextEncodingSize
+    this.wordEmbeddingsEncoder.model.tokenEncodingSize + 2 * this.lssEncoder.contextEncoder.model.contextEncodingSize
 
   /**
    * Encode the token forms concatenating word embeddings, latent head representations and context vectors.
