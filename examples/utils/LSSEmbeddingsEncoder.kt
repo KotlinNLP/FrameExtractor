@@ -26,7 +26,7 @@ import com.kotlinnlp.tokensencoder.embeddings.EmbeddingsEncoder
  * @param lssEncoder a Latent Syntactic Structure encoder
  * @param preprocessor a sentence preprocessor
  */
-class LSSEmbeddingsEncoder(
+internal class LSSEmbeddingsEncoder(
   private val wordEmbeddingsEncoder: EmbeddingsEncoder,
   private val lssEncoder: LSSEncoder,
   private val preprocessor: SentencePreprocessor
