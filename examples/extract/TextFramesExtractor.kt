@@ -48,11 +48,11 @@ internal class TextFramesExtractor(
   @Suppress("UNCHECKED_CAST")
   fun extractFrames(text: String): List<Frame> =
 
-    this.tokenizer.tokenize(text).map {
+    tokenizer.tokenize(text).map {
 
       val sentence = it as Sentence<FormToken>
-      val tokenEncodings: List<DenseNDArray> = this.sentenceEncoder.encode(tokensForms = sentence.tokens.map { it.form })
-      val extractorOutput: FrameExtractor.Output = this.extractor.forward(tokenEncodings)
+      val tokenEncodings: List<DenseNDArray> = sentenceEncoder.encode(tokensForms = sentence.tokens.map { it.form })
+      val extractorOutput: FrameExtractor.Output = extractor.forward(tokenEncodings)
 
       Frame(
         intent = extractorOutput.buildIntent(),
