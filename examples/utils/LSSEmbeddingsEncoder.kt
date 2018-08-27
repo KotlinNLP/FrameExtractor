@@ -71,6 +71,7 @@ internal class LSSEmbeddingsEncoder(
     var tokenPosition = 0
 
     return this.preprocessor.process(BaseSentence(
+      id = 0,
       position = Position(index = 0, start = 0, end = tokensForms.sumBy { it.length + 1 } - 1),
       tokens = tokensForms.mapIndexed { i, form ->
 
