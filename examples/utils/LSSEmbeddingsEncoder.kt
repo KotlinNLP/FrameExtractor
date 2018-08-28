@@ -54,11 +54,9 @@ internal class LSSEmbeddingsEncoder(
     @Suppress("UNCHECKED_CAST")
     val wordEncodings: List<DenseNDArray> = wordEmbeddingsEncoder.forward(sentence as Sentence<Token>)
 
-    val lssEncodings: List<DenseNDArray> = lss.latentHeads.zip(lss.contextVectors) {
-      latentHead, contextVector -> latentHead.concatV(contextVector)
+    return lss.latentSyntacticEncodings.zip(wordEncodings) { lsEncoding, wordEncoding ->
+      lsEncoding.concatV(wordEncoding)
     }
-
-    return lssEncodings.zip(wordEncodings) { lssEncoding, wordEncoding -> lssEncoding.concatV(wordEncoding) }
   }
 
   /**
