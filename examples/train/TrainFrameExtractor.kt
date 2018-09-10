@@ -16,7 +16,7 @@ import com.kotlinnlp.frameextractor.helpers.Validator
 import com.kotlinnlp.frameextractor.helpers.dataset.Dataset
 import com.kotlinnlp.frameextractor.helpers.dataset.EncodedDataset
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRModel
-import com.kotlinnlp.neuralparser.parsers.lhrparser.utils.keyextractors.WordKeyExtractor
+import com.kotlinnlp.neuralparser.parsers.lhrparser.helpers.keyextractors.WordKeyExtractor
 import com.kotlinnlp.simplednn.core.embeddings.EMBDLoader
 import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsMapByDictionary
 import com.kotlinnlp.tokensencoder.embeddings.EmbeddingsEncoder

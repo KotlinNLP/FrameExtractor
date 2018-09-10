@@ -14,7 +14,7 @@ import com.kotlinnlp.frameextractor.FrameExtractor
 import com.kotlinnlp.frameextractor.FrameExtractorModel
 import com.kotlinnlp.neuralparser.helpers.preprocessors.SentencePreprocessor
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRModel
-import com.kotlinnlp.neuralparser.parsers.lhrparser.utils.keyextractors.WordKeyExtractor
+import com.kotlinnlp.neuralparser.parsers.lhrparser.helpers.keyextractors.WordKeyExtractor
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizerModel
 import com.kotlinnlp.simplednn.core.embeddings.EMBDLoader
