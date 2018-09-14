@@ -15,13 +15,13 @@
         <assembly-plugin.version>2.6</assembly-plugin.version>
         <kotlin.version>1.2.41</kotlin.version>
         <klaxon.version>3.0.5</klaxon.version>
-        <frameextractor.version>0.3.0</frameextractor.version>
-        <linguisticdescription.version>0.9.1</linguisticdescription.version>
-        <morphologicalanalyzer.version>0.3.1</morphologicalanalyzer.version>
+        <frameextractor.version>0.4.0</frameextractor.version>
+        <linguisticdescription.version>0.10.0</linguisticdescription.version>
+        <morphologicalanalyzer.version>0.4.0</morphologicalanalyzer.version>
         <neuralparser.version>0.4.2</neuralparser.version>
         <neuraltokenizer.version>0.4.1</neuraltokenizer.version>
         <simplednn.version>0.11.0</simplednn.version>
-        <tokensencoder.version>0.3.1</tokensencoder.version>
+        <tokensencoder.version>0.4.0</tokensencoder.version>
     </properties>
 
     <repositories>
