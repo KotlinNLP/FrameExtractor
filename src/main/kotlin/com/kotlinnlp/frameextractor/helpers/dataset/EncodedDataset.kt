@@ -61,7 +61,7 @@ data class EncodedDataset(
         },
         examples = dataset.examples.map {
 
-          val tokenEncodings: List<DenseNDArray> = sentenceEncoder.encode(it.tokens.map { it.form })
+          val tokenEncodings: List<DenseNDArray> = sentenceEncoder.encode(it.tokens.map { t -> t.form })
 
           progress?.tick()
 
