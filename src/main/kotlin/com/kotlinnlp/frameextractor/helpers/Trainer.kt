@@ -13,7 +13,6 @@ import com.kotlinnlp.frameextractor.FrameExtractor
 import com.kotlinnlp.frameextractor.FrameExtractorModel
 import com.kotlinnlp.frameextractor.helpers.dataset.Dataset
 import com.kotlinnlp.frameextractor.helpers.dataset.EncodedDataset
-import com.kotlinnlp.neuralparser.utils.Timer
 import com.kotlinnlp.simplednn.core.functionalities.updatemethods.UpdateMethod
 import com.kotlinnlp.simplednn.core.functionalities.updatemethods.adam.ADAMMethod
 import com.kotlinnlp.simplednn.core.optimizer.ParamsOptimizer
@@ -23,6 +22,7 @@ import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArrayFactory
 import com.kotlinnlp.simplednn.utils.scheduling.BatchScheduling
 import com.kotlinnlp.simplednn.utils.scheduling.EpochScheduling
+import com.kotlinnlp.utils.Timer
 import com.kotlinnlp.utils.progressindicator.ProgressIndicatorBar
 import java.io.File
 import java.io.FileOutputStream
