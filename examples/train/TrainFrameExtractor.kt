@@ -19,9 +19,12 @@ import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRModel
 import com.kotlinnlp.simplednn.core.embeddings.EMBDLoader
 import com.xenomachina.argparser.mainBody
 import buildTokensEncoder
+import com.kotlinnlp.linguisticdescription.sentence.Sentence
+import com.kotlinnlp.linguisticdescription.sentence.token.FormToken
 import com.kotlinnlp.morphologicalanalyzer.MorphologicalAnalyzer
 import com.kotlinnlp.morphologicalanalyzer.dictionary.MorphologyDictionary
 import com.kotlinnlp.neuralparser.helpers.preprocessors.MorphoPreprocessor
+import com.kotlinnlp.tokensencoder.TokensEncoder
 import java.io.File
 import java.io.FileInputStream
 
@@ -39,7 +42,7 @@ fun main(args: Array<String>) = mainBody {
     LHRModel.load(FileInputStream(File(it))).lssModel
   }
 
-  val tokensEncoder = buildTokensEncoder(
+  val tokensEncoder: TokensEncoder<FormToken, Sentence<FormToken>> = buildTokensEncoder(
     preprocessor = parsedArgs.morphoDictionaryPath.let {
       println("Loading serialized dictionary from '$it'...")
       MorphoPreprocessor(MorphologicalAnalyzer(
