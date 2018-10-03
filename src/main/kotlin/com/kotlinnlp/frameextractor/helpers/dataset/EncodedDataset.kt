@@ -8,7 +8,10 @@
 package com.kotlinnlp.frameextractor.helpers.dataset
 
 import com.kotlinnlp.frameextractor.objects.Intent
+import com.kotlinnlp.linguisticdescription.sentence.Sentence
+import com.kotlinnlp.linguisticdescription.sentence.token.FormToken
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
+import com.kotlinnlp.tokensencoder.TokensEncoder
 import com.kotlinnlp.utils.progressindicator.ProgressIndicatorBar
 
 /**
@@ -41,17 +44,36 @@ data class EncodedDataset(
     data class Token(val encoding: DenseNDArray, val slot: Dataset.Example.Slot)
   }
 
+  /**
+   * The input token.
+   *
+   * @property form the form of the token
+   */
+  private class InputToken(override val form: String) : FormToken
+
+  /**
+   * The input sentence.
+   *
+   * @property tokens the list of tokens
+   */
+  private class InputSentence(override val tokens: List<InputToken>) : Sentence<FormToken>
+
+  /**
+   * Factory object.
+   */
   companion object {
 
     /**
-     * Build an [EncodedDataset] from a [Dataset], encoding the tokens of its examples with a given [SentenceEncoder].
+     * Build an [EncodedDataset] from a [Dataset], encoding the tokens of its examples with a given [TokensEncoder].
      *
      * @param dataset a dataset
-     * @param sentenceEncoder a sentence encoder
+     * @param tokensEncoder a tokens encoder
      *
      * @return an encoded dataset
      */
-    fun fromDataset(dataset: Dataset, sentenceEncoder: SentenceEncoder, printProgress: Boolean = true): EncodedDataset {
+    fun fromDataset(dataset: Dataset,
+                    tokensEncoder: TokensEncoder<FormToken, Sentence<FormToken>>,
+                    printProgress: Boolean = true): EncodedDataset {
 
       val progress = if (printProgress) ProgressIndicatorBar(dataset.examples.size) else null
 
@@ -61,13 +83,13 @@ data class EncodedDataset(
         },
         examples = dataset.examples.map {
 
-          val tokenEncodings: List<DenseNDArray> = sentenceEncoder.encode(it.tokens.map { t -> t.form })
+          val tokensEncodings: List<DenseNDArray> = tokensEncoder.forward(buildSentence(it))
 
           progress?.tick()
 
           Example(
             intent = it.intent,
-            tokens = it.tokens.zip(tokenEncodings).map { (token, encoding) ->
+            tokens = it.tokens.zip(tokensEncodings).map { (token, encoding) ->
               Example.Token(encoding = encoding, slot = token.slot
                 ?: Dataset.Example.Slot.noSlot)
             }
@@ -75,5 +97,13 @@ data class EncodedDataset(
         }
       )
     }
+
+    /**
+     * @param example a dataset example
+     *
+     * @return a new input sentence built from the given example
+     */
+    private fun buildSentence(example: Dataset.Example): Sentence<FormToken> = InputSentence(
+      tokens = example.tokens.map { InputToken(it.form) })
   }
 }
