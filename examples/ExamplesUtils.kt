@@ -15,6 +15,8 @@ import com.kotlinnlp.morphologicalanalyzer.dictionary.MorphologyDictionary
 import com.kotlinnlp.neuralparser.helpers.preprocessors.BasePreprocessor
 import com.kotlinnlp.neuralparser.helpers.preprocessors.MorphoPreprocessor
 import com.kotlinnlp.neuralparser.helpers.preprocessors.SentencePreprocessor
+import com.kotlinnlp.neuralparser.language.BaseSentence
+import com.kotlinnlp.neuralparser.language.BaseToken
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.language.ParsingToken
 import com.kotlinnlp.neuralparser.parsers.lhrparser.helpers.keyextractors.WordKeyExtractor
@@ -86,7 +88,15 @@ private class FormSentenceConverter(
    *
    * @return a parsing sentence built with the given input sentence
    */
-  override fun convert(sentence: Sentence<FormToken>): ParsingSentence {
+  override fun convert(sentence: Sentence<FormToken>): ParsingSentence =
+    this.preprocessor.convert(this.buildBaseSentence(sentence))
+
+  /**
+   * @param sentence an input sentence
+   *
+   * @return a new base sentence built from the given input sentence
+   */
+  private fun buildBaseSentence(sentence: Sentence<FormToken>): BaseSentence {
 
     var tokenPosition = 0
 
@@ -95,13 +105,14 @@ private class FormSentenceConverter(
       return tokenPosition
     }
 
-    return ParsingSentence(
+    return BaseSentence(
+      id = 0,
+      position = Position(index = 0, start = 0, end = sentence.tokens.sumBy { it.form.length + 1 }),
       tokens = sentence.tokens.mapIndexed { i, it ->
-        ParsingToken(
+        BaseToken(
           id = i,
           form = it.form,
-          position = Position(index = i, start = tokenPosition, end = nextPosition(it) - 1),
-          morphologies = emptyList())
+          position = Position(index = i, start = tokenPosition, end = nextPosition(it) - 1))
       }
     )
   }
