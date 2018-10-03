@@ -90,8 +90,7 @@ data class EncodedDataset(
           Example(
             intent = it.intent,
             tokens = it.tokens.zip(tokensEncodings).map { (token, encoding) ->
-              Example.Token(encoding = encoding, slot = token.slot
-                ?: Dataset.Example.Slot.noSlot)
+              Example.Token(encoding = encoding, slot = token.slot ?: Dataset.Example.Slot.noSlot)
             }
           )
         }
