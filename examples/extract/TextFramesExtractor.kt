@@ -7,26 +7,27 @@
 
 package extract
 
-import utils.LSSEmbeddingsEncoder
 import com.kotlinnlp.frameextractor.objects.Distribution
 import com.kotlinnlp.frameextractor.objects.Intent
 import com.kotlinnlp.frameextractor.FrameExtractor
+import com.kotlinnlp.linguisticdescription.sentence.RealSentence
 import com.kotlinnlp.linguisticdescription.sentence.Sentence
 import com.kotlinnlp.linguisticdescription.sentence.token.FormToken
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
+import com.kotlinnlp.tokensencoder.TokensEncoder
 
 /**
  * The extractor of frames from a text.
  *
  * @param extractor a frame extractor
  * @param tokenizer a neural tokenizer
- * @param sentenceEncoder a sentence encoder
+ * @param tokensEncoder a tokens encoder
  */
 internal class TextFramesExtractor(
   private val extractor: FrameExtractor,
   private val tokenizer: NeuralTokenizer,
-  private val sentenceEncoder: LSSEmbeddingsEncoder
+  private val tokensEncoder: TokensEncoder<FormToken, Sentence<FormToken>>
 ) {
 
   /**
@@ -48,11 +49,11 @@ internal class TextFramesExtractor(
   @Suppress("UNCHECKED_CAST")
   fun extractFrames(text: String): List<Frame> =
 
-    tokenizer.tokenize(text).map {
+    this.tokenizer.tokenize(text).map {
 
-      val sentence = it as Sentence<FormToken>
-      val tokenEncodings: List<DenseNDArray> = sentenceEncoder.encode(tokensForms = sentence.tokens.map { it.form })
-      val extractorOutput: FrameExtractor.Output = extractor.forward(tokenEncodings)
+      val sentence = it as RealSentence<FormToken>
+      val tokenEncodings: List<DenseNDArray> = this.tokensEncoder.forward(sentence)
+      val extractorOutput: FrameExtractor.Output = this.extractor.forward(tokenEncodings)
 
       Frame(
         intent = extractorOutput.buildIntent(),
