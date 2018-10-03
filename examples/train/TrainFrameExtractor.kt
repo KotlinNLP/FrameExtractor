@@ -7,7 +7,7 @@
 
 package train
 
-import utils.buildSentencePreprocessor
+import buildSentencePreprocessor
 import com.kotlinnlp.frameextractor.FrameExtractorModel
 import com.kotlinnlp.frameextractor.helpers.Trainer
 import com.kotlinnlp.frameextractor.helpers.Validator
@@ -19,7 +19,7 @@ import com.kotlinnlp.neuralparser.language.ParsingToken
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRModel
 import com.kotlinnlp.simplednn.core.embeddings.EMBDLoader
 import com.xenomachina.argparser.mainBody
-import utils.buildTokensEncoder
+import buildTokensEncoder
 import java.io.File
 import java.io.FileInputStream
 

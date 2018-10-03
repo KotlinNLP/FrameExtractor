@@ -7,7 +7,8 @@
 
 package extract
 
-import utils.buildSentencePreprocessor
+import buildSentencePreprocessor
+import buildTokensEncoder
 import com.kotlinnlp.frameextractor.FrameExtractor
 import com.kotlinnlp.frameextractor.FrameExtractorModel
 import com.kotlinnlp.lssencoder.LSSModel
@@ -76,7 +77,7 @@ private fun buildTextFramesExtractor(parsedArgs: CommandLineArguments): TextFram
     LHRModel.load(FileInputStream(File(it))).lssModel
   }
 
-  val tokensEncoder = utils.buildTokensEncoder(
+  val tokensEncoder = buildTokensEncoder(
     preprocessor = buildSentencePreprocessor(
       morphoDictionaryPath = parsedArgs.morphoDictionaryPath,
       language = lssModel.language),
