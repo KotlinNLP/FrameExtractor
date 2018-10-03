@@ -7,21 +7,19 @@
 
 package train
 
-import utils.buildLSSEncoder
 import utils.buildSentencePreprocessor
-import utils.LSSEmbeddingsEncoder
 import com.kotlinnlp.frameextractor.FrameExtractorModel
 import com.kotlinnlp.frameextractor.helpers.Trainer
 import com.kotlinnlp.frameextractor.helpers.Validator
 import com.kotlinnlp.frameextractor.helpers.dataset.Dataset
 import com.kotlinnlp.frameextractor.helpers.dataset.EncodedDataset
+import com.kotlinnlp.lssencoder.LSSModel
+import com.kotlinnlp.neuralparser.language.ParsingSentence
+import com.kotlinnlp.neuralparser.language.ParsingToken
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRModel
-import com.kotlinnlp.neuralparser.parsers.lhrparser.helpers.keyextractors.WordKeyExtractor
 import com.kotlinnlp.simplednn.core.embeddings.EMBDLoader
-import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsMapByDictionary
-import com.kotlinnlp.tokensencoder.embeddings.EmbeddingsEncoder
-import com.kotlinnlp.tokensencoder.embeddings.EmbeddingsEncoderModel
 import com.xenomachina.argparser.mainBody
+import utils.buildTokensEncoder
 import java.io.File
 import java.io.FileInputStream
 
@@ -34,40 +32,39 @@ fun main(args: Array<String>) = mainBody {
 
   val parsedArgs = CommandLineArguments(args)
 
-  val parserModel: LHRModel = LHRModel.load(FileInputStream(File(parsedArgs.parserModelPath)))
-
-  val embeddingsMap: EmbeddingsMapByDictionary = parsedArgs.embeddingsPath.let {
-    println("Loading embeddings from '$it'...")
-    EMBDLoader().load(filename = it)
+  val lssModel: LSSModel<ParsingToken, ParsingSentence> = parsedArgs.parserModelPath.let {
+      println("Loading the LSSEncoder model from the LHRParser model serialized in '$it'...")
+    LHRModel.load(FileInputStream(File(it))).lssModel
   }
 
-  val sentenceEncoder = LSSEmbeddingsEncoder(
+  val tokensEncoder = buildTokensEncoder(
     preprocessor = buildSentencePreprocessor(
       morphoDictionaryPath = parsedArgs.morphoDictionaryPath,
-      language = parserModel.language),
-    lssEncoder = parserModel.buildLSSEncoder(),
-    wordEmbeddingsEncoder = EmbeddingsEncoder(
-      model = EmbeddingsEncoderModel(embeddingsMap = embeddingsMap, embeddingKeyExtractor = WordKeyExtractor),
-      useDropout = false))
+      language = lssModel.language),
+    embeddingsMap = parsedArgs.embeddingsPath.let {
+      println("Loading embeddings from '$it'...")
+      EMBDLoader().load(filename = it)
+    },
+    lssModel = lssModel)
 
   val trainingDataset: EncodedDataset = EncodedDataset.fromDataset(
     dataset = parsedArgs.trainingSetPath.let {
       println("Loading training dataset from '$it'...")
       Dataset.fromFile(it)
     },
-    sentenceEncoder = sentenceEncoder)
+    tokensEncoder = tokensEncoder)
 
   val validationDataset: EncodedDataset = EncodedDataset.fromDataset(
     dataset = parsedArgs.validationSetPath.let {
       println("Loading validation dataset from '$it'...")
       Dataset.fromFile(it)
     },
-    sentenceEncoder = sentenceEncoder)
+    tokensEncoder = tokensEncoder)
 
   val extractorModel = FrameExtractorModel(
     name = parsedArgs.modelName,
     intentsConfiguration = trainingDataset.configuration,
-    tokenEncodingSize = sentenceEncoder.encodingSize,
+    tokenEncodingSize = tokensEncoder.model.tokenEncodingSize,
     hiddenSize = 200)
 
   require(trainingDataset.configuration == validationDataset.configuration) {

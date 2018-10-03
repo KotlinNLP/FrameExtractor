@@ -7,20 +7,16 @@
 
 package extract
 
-import utils.buildLSSEncoder
 import utils.buildSentencePreprocessor
-import utils.LSSEmbeddingsEncoder
 import com.kotlinnlp.frameextractor.FrameExtractor
 import com.kotlinnlp.frameextractor.FrameExtractorModel
-import com.kotlinnlp.neuralparser.helpers.preprocessors.SentencePreprocessor
+import com.kotlinnlp.lssencoder.LSSModel
+import com.kotlinnlp.neuralparser.language.ParsingSentence
+import com.kotlinnlp.neuralparser.language.ParsingToken
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRModel
-import com.kotlinnlp.neuralparser.parsers.lhrparser.helpers.keyextractors.WordKeyExtractor
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizerModel
 import com.kotlinnlp.simplednn.core.embeddings.EMBDLoader
-import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsMapByDictionary
-import com.kotlinnlp.tokensencoder.embeddings.EmbeddingsEncoder
-import com.kotlinnlp.tokensencoder.embeddings.EmbeddingsEncoderModel
 import com.xenomachina.argparser.mainBody
 import java.io.File
 import java.io.FileInputStream
@@ -75,16 +71,20 @@ private fun readValue(): String {
  */
 private fun buildTextFramesExtractor(parsedArgs: CommandLineArguments): TextFramesExtractor {
 
-  val parserModel = LHRModel.load(FileInputStream(File(parsedArgs.parserModelPath)))
-
-  val embeddingsMap: EmbeddingsMapByDictionary = parsedArgs.embeddingsPath.let {
-    println("Loading embeddings from '$it'...")
-    EMBDLoader().load(filename = it)
+  val lssModel: LSSModel<ParsingToken, ParsingSentence> = parsedArgs.parserModelPath.let {
+      println("Loading the LSSEncoder model from the LHRParser model serialized in '$it'...")
+    LHRModel.load(FileInputStream(File(it))).lssModel
   }
 
-  val preprocessor: SentencePreprocessor = buildSentencePreprocessor(
-    morphoDictionaryPath = parsedArgs.morphoDictionaryPath,
-    language = parserModel.language)
+  val tokensEncoder = utils.buildTokensEncoder(
+    preprocessor = buildSentencePreprocessor(
+      morphoDictionaryPath = parsedArgs.morphoDictionaryPath,
+      language = lssModel.language),
+    embeddingsMap = parsedArgs.embeddingsPath.let {
+      println("Loading embeddings from '$it'...")
+      EMBDLoader().load(filename = it)
+    },
+    lssModel = lssModel)
 
   val model: FrameExtractorModel = FrameExtractorModel.load(FileInputStream(File(parsedArgs.modelPath)))
 
@@ -93,12 +93,7 @@ private fun buildTextFramesExtractor(parsedArgs: CommandLineArguments): TextFram
   return TextFramesExtractor(
     extractor = FrameExtractor(model),
     tokenizer = NeuralTokenizer(NeuralTokenizerModel.load(FileInputStream(File(parsedArgs.tokenizerModelPath)))),
-    sentenceEncoder = LSSEmbeddingsEncoder(
-      preprocessor = preprocessor,
-      lssEncoder = parserModel.buildLSSEncoder(),
-      wordEmbeddingsEncoder = EmbeddingsEncoder(
-        model = EmbeddingsEncoderModel(embeddingsMap = embeddingsMap, embeddingKeyExtractor = WordKeyExtractor),
-        useDropout = false)))
+    tokensEncoder = tokensEncoder)
 }
 
 /**
@@ -110,8 +105,8 @@ private fun TextFramesExtractor.Frame.print() {
 
   println("Slots: %s".format(
     if (this.intent.slots.isNotEmpty())
-      this.intent.slots.joinToString(", ") {
-        "(${it.name} ${it.tokens.joinToString(" ") { this.sentence.tokens[it.index].form }})"
+      this.intent.slots.joinToString(", ") { slot ->
+        "(${slot.name} ${slot.tokens.joinToString(" ") { this.sentence.tokens[it.index].form }})"
       }
     else
       "None"))

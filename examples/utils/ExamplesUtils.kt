@@ -8,15 +8,25 @@
 package utils
 
 import com.kotlinnlp.linguisticdescription.language.Language
+import com.kotlinnlp.linguisticdescription.sentence.Sentence
+import com.kotlinnlp.linguisticdescription.sentence.token.FormToken
+import com.kotlinnlp.linguisticdescription.sentence.token.properties.Position
+import com.kotlinnlp.lssencoder.LSSModel
 import com.kotlinnlp.morphologicalanalyzer.MorphologicalAnalyzer
 import com.kotlinnlp.morphologicalanalyzer.dictionary.MorphologyDictionary
 import com.kotlinnlp.neuralparser.helpers.preprocessors.BasePreprocessor
 import com.kotlinnlp.neuralparser.helpers.preprocessors.MorphoPreprocessor
 import com.kotlinnlp.neuralparser.helpers.preprocessors.SentencePreprocessor
-import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRModel
-import com.kotlinnlp.neuralparser.parsers.lhrparser.LSSEncoder
-import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.contextencoder.ContextEncoder
-import com.kotlinnlp.neuralparser.parsers.lhrparser.neuralmodules.headsencoder.HeadsEncoder
+import com.kotlinnlp.neuralparser.language.ParsingSentence
+import com.kotlinnlp.neuralparser.language.ParsingToken
+import com.kotlinnlp.neuralparser.parsers.lhrparser.helpers.keyextractors.WordKeyExtractor
+import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsMapByDictionary
+import com.kotlinnlp.tokensencoder.embeddings.EmbeddingsEncoderModel
+import com.kotlinnlp.tokensencoder.ensemble.EnsembleTokensEncoder
+import com.kotlinnlp.tokensencoder.ensemble.EnsembleTokensEncoderModel
+import com.kotlinnlp.tokensencoder.lss.LSSTokensEncoderModel
+import com.kotlinnlp.tokensencoder.wrapper.SentenceConverter
+import com.kotlinnlp.tokensencoder.wrapper.TokensEncoderWrapperModel
 import java.io.File
 import java.io.FileInputStream
 
@@ -42,12 +52,59 @@ internal fun buildSentencePreprocessor(morphoDictionaryPath: String?, language: 
 }
 
 /**
- * Build an [LSSEncoder] from this LHRModel.
+ * Build an [EnsembleTokensEncoder] composed by an embeddings encoder and an LSS encoder.
  *
- * @return an encoder of Latent Syntactic Structures
+ * @param preprocessor a sentence preprocessor
+ * @param embeddingsMap an embeddings map by dictionary
+ * @param lssModel the model of an LSS encoder
+ *
+ * @return a new tokens encoder
  */
-internal fun LHRModel.buildLSSEncoder() = LSSEncoder(
-  tokensEncoderWrapper = this.tokensEncoderWrapperModel.buildWrapper(useDropout = false),
-  contextEncoder = ContextEncoder(this.contextEncoderModel, useDropout = false),
-  headsEncoder = HeadsEncoder(this.headsEncoderModel, useDropout = false),
-  virtualRoot = this.rootEmbedding.array.values)
+internal fun buildTokensEncoder(preprocessor: SentencePreprocessor,
+                                embeddingsMap: EmbeddingsMapByDictionary,
+                                lssModel: LSSModel<ParsingToken, ParsingSentence>) = EnsembleTokensEncoder(
+  model = EnsembleTokensEncoderModel(
+    models = listOf(
+      TokensEncoderWrapperModel(
+        model = EmbeddingsEncoderModel(embeddingsMap = embeddingsMap, embeddingKeyExtractor = WordKeyExtractor()),
+        converter = FormSentenceConverter(preprocessor)),
+      TokensEncoderWrapperModel(
+        model = LSSTokensEncoderModel(lssModel = lssModel),
+        converter = FormSentenceConverter(preprocessor)))
+  ),
+  useDropout = false)
+
+/**
+ * The [SentenceConverter] from a sentence of form tokens.
+ *
+ * @param preprocessor a sentence preprocessor
+ */
+private class FormSentenceConverter(
+  private val preprocessor: SentencePreprocessor
+) : SentenceConverter<FormToken, Sentence<FormToken>, ParsingToken, ParsingSentence> {
+
+  /**
+   * @param sentence an input sentence
+   *
+   * @return a parsing sentence built with the given input sentence
+   */
+  override fun convert(sentence: Sentence<FormToken>): ParsingSentence {
+
+    var tokenPosition = 0
+
+    fun nextPosition(token: FormToken): Int {
+      tokenPosition += token.form.length + 1
+      return tokenPosition
+    }
+
+    return ParsingSentence(
+      tokens = sentence.tokens.mapIndexed { i, it ->
+        ParsingToken(
+          id = i,
+          form = it.form,
+          position = Position(index = i, start = tokenPosition, end = nextPosition(it) - 1),
+          morphologies = emptyList())
+      }
+    )
+  }
+}
