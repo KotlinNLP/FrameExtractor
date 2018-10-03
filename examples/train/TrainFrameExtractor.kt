@@ -79,6 +79,6 @@ fun main(args: Array<String>) = mainBody {
     model = extractorModel,
     modelFilename = parsedArgs.modelPath,
     epochs = 30,
-    validator = Validator(model = extractorModel, dataset = trainingDataset)
+    validator = Validator(model = extractorModel, dataset = validationDataset)
   ).train(trainingDataset)
 }
