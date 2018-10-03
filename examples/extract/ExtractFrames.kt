@@ -7,11 +7,13 @@
 
 package extract
 
-import buildSentencePreprocessor
 import buildTokensEncoder
 import com.kotlinnlp.frameextractor.FrameExtractor
 import com.kotlinnlp.frameextractor.FrameExtractorModel
 import com.kotlinnlp.lssencoder.LSSModel
+import com.kotlinnlp.morphologicalanalyzer.MorphologicalAnalyzer
+import com.kotlinnlp.morphologicalanalyzer.dictionary.MorphologyDictionary
+import com.kotlinnlp.neuralparser.helpers.preprocessors.MorphoPreprocessor
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.language.ParsingToken
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRModel
@@ -73,14 +75,17 @@ private fun readValue(): String {
 private fun buildTextFramesExtractor(parsedArgs: CommandLineArguments): TextFramesExtractor {
 
   val lssModel: LSSModel<ParsingToken, ParsingSentence> = parsedArgs.parserModelPath.let {
-      println("Loading the LSSEncoder model from the LHRParser model serialized in '$it'...")
+    println("Loading the LSSEncoder model from the LHRParser model serialized in '$it'...")
     LHRModel.load(FileInputStream(File(it))).lssModel
   }
 
   val tokensEncoder = buildTokensEncoder(
-    preprocessor = buildSentencePreprocessor(
-      morphoDictionaryPath = parsedArgs.morphoDictionaryPath,
-      language = lssModel.language),
+    preprocessor = parsedArgs.morphoDictionaryPath.let {
+      println("Loading serialized dictionary from '$it'...")
+      MorphoPreprocessor(MorphologicalAnalyzer(
+        language = lssModel.language,
+        dictionary = MorphologyDictionary.load(FileInputStream(File(it)))))
+    },
     embeddingsMap = parsedArgs.embeddingsPath.let {
       println("Loading embeddings from '$it'...")
       EMBDLoader().load(filename = it)

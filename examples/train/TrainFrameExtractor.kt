@@ -7,7 +7,6 @@
 
 package train
 
-import buildSentencePreprocessor
 import com.kotlinnlp.frameextractor.FrameExtractorModel
 import com.kotlinnlp.frameextractor.helpers.Trainer
 import com.kotlinnlp.frameextractor.helpers.Validator
@@ -20,6 +19,9 @@ import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRModel
 import com.kotlinnlp.simplednn.core.embeddings.EMBDLoader
 import com.xenomachina.argparser.mainBody
 import buildTokensEncoder
+import com.kotlinnlp.morphologicalanalyzer.MorphologicalAnalyzer
+import com.kotlinnlp.morphologicalanalyzer.dictionary.MorphologyDictionary
+import com.kotlinnlp.neuralparser.helpers.preprocessors.MorphoPreprocessor
 import java.io.File
 import java.io.FileInputStream
 
@@ -33,14 +35,17 @@ fun main(args: Array<String>) = mainBody {
   val parsedArgs = CommandLineArguments(args)
 
   val lssModel: LSSModel<ParsingToken, ParsingSentence> = parsedArgs.parserModelPath.let {
-      println("Loading the LSSEncoder model from the LHRParser model serialized in '$it'...")
+    println("Loading the LSSEncoder model from the LHRParser model serialized in '$it'...")
     LHRModel.load(FileInputStream(File(it))).lssModel
   }
 
   val tokensEncoder = buildTokensEncoder(
-    preprocessor = buildSentencePreprocessor(
-      morphoDictionaryPath = parsedArgs.morphoDictionaryPath,
-      language = lssModel.language),
+    preprocessor = parsedArgs.morphoDictionaryPath.let {
+      println("Loading serialized dictionary from '$it'...")
+      MorphoPreprocessor(MorphologicalAnalyzer(
+        language = lssModel.language,
+        dictionary = MorphologyDictionary.load(FileInputStream(File(it)))))
+    },
     embeddingsMap = parsedArgs.embeddingsPath.let {
       println("Loading embeddings from '$it'...")
       EMBDLoader().load(filename = it)

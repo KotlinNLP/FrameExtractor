@@ -5,15 +5,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * ------------------------------------------------------------------*/
 
-import com.kotlinnlp.linguisticdescription.language.Language
 import com.kotlinnlp.linguisticdescription.sentence.Sentence
 import com.kotlinnlp.linguisticdescription.sentence.token.FormToken
 import com.kotlinnlp.linguisticdescription.sentence.token.properties.Position
 import com.kotlinnlp.lssencoder.LSSModel
-import com.kotlinnlp.morphologicalanalyzer.MorphologicalAnalyzer
-import com.kotlinnlp.morphologicalanalyzer.dictionary.MorphologyDictionary
-import com.kotlinnlp.neuralparser.helpers.preprocessors.BasePreprocessor
-import com.kotlinnlp.neuralparser.helpers.preprocessors.MorphoPreprocessor
 import com.kotlinnlp.neuralparser.helpers.preprocessors.SentencePreprocessor
 import com.kotlinnlp.neuralparser.language.BaseSentence
 import com.kotlinnlp.neuralparser.language.BaseToken
@@ -27,29 +22,6 @@ import com.kotlinnlp.tokensencoder.ensemble.EnsembleTokensEncoderModel
 import com.kotlinnlp.tokensencoder.lss.LSSTokensEncoderModel
 import com.kotlinnlp.tokensencoder.wrapper.SentenceConverter
 import com.kotlinnlp.tokensencoder.wrapper.TokensEncoderWrapperModel
-import java.io.File
-import java.io.FileInputStream
-
-/**
- * Build a [SentencePreprocessor].
- *
- * @param morphoDictionaryPath the path of the serialized morphology dictionary
- * @param language the language in which to process the sentence
- *
- * @return a new sentence preprocessor
- */
-internal fun buildSentencePreprocessor(morphoDictionaryPath: String?, language: Language): SentencePreprocessor {
-
-  return morphoDictionaryPath?.let {
-
-    println("Loading serialized dictionary from '$it'...")
-
-    MorphoPreprocessor(
-      MorphologicalAnalyzer(language = language, dictionary = MorphologyDictionary.load(FileInputStream(File(it))))
-    )
-
-  } ?: BasePreprocessor()
-}
 
 /**
  * Build an [EnsembleTokensEncoder] composed by an embeddings encoder and an LSS encoder.
