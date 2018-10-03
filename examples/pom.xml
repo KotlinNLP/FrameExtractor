@@ -19,6 +19,7 @@
         <linguisticdescription.version>0.10.0</linguisticdescription.version>
         <morphologicalanalyzer.version>0.4.0</morphologicalanalyzer.version>
         <neuralparser.version>0.5.0</neuralparser.version>
+        <lssencoder.version>0.1.0</lssencoder.version>
         <neuraltokenizer.version>0.4.1</neuraltokenizer.version>
         <simplednn.version>0.11.0</simplednn.version>
         <tokensencoder.version>0.4.0</tokensencoder.version>
@@ -146,6 +147,13 @@
             <groupId>com.kotlinnlp</groupId>
             <artifactId>neuralparser</artifactId>
             <version>${neuralparser.version}</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>com.kotlinnlp</groupId>
+            <artifactId>lssencoder</artifactId>
+            <version>${lssencoder.version}</version>
         </dependency>
 
         <dependency>
