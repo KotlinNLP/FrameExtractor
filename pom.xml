@@ -58,7 +58,6 @@
         <kotlin.version>1.2.41</kotlin.version>
         <dokka.version>0.9.16</dokka.version>
         <klaxon.version>3.0.5</klaxon.version>
-        <neuralparser.version>0.5.0</neuralparser.version>
         <tokensencoder.version>0.4.0</tokensencoder.version>
         <simplednn.version>0.11.0</simplednn.version>
         <utils.version>2.1.0</utils.version>
@@ -196,12 +195,6 @@
             <groupId>com.beust</groupId>
             <artifactId>klaxon</artifactId>
             <version>${klaxon.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.kotlinnlp</groupId>
-            <artifactId>neuralparser</artifactId>
-            <version>${neuralparser.version}</version>
         </dependency>
 
         <dependency>
