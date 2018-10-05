@@ -9,6 +9,7 @@ import com.kotlinnlp.linguisticdescription.sentence.Sentence
 import com.kotlinnlp.linguisticdescription.sentence.token.FormToken
 import com.kotlinnlp.linguisticdescription.sentence.token.properties.Position
 import com.kotlinnlp.lssencoder.LSSModel
+import com.kotlinnlp.lssencoder.tokensencoder.LSSTokensEncoderModel
 import com.kotlinnlp.neuralparser.helpers.preprocessors.SentencePreprocessor
 import com.kotlinnlp.neuralparser.language.BaseSentence
 import com.kotlinnlp.neuralparser.language.BaseToken
@@ -19,7 +20,6 @@ import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsMapByDictionary
 import com.kotlinnlp.tokensencoder.embeddings.EmbeddingsEncoderModel
 import com.kotlinnlp.tokensencoder.ensemble.EnsembleTokensEncoder
 import com.kotlinnlp.tokensencoder.ensemble.EnsembleTokensEncoderModel
-import com.kotlinnlp.tokensencoder.lss.LSSTokensEncoderModel
 import com.kotlinnlp.tokensencoder.wrapper.SentenceConverter
 import com.kotlinnlp.tokensencoder.wrapper.TokensEncoderWrapperModel
 
