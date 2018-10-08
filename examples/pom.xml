@@ -21,7 +21,7 @@
         <neuralparser.version>0.5.0</neuralparser.version>
         <lssencoder.version>0.1.0</lssencoder.version>
         <neuraltokenizer.version>0.4.1</neuraltokenizer.version>
-        <simplednn.version>0.11.0</simplednn.version>
+        <simplednn.version>0.11.1</simplednn.version>
         <tokensencoder.version>0.4.0</tokensencoder.version>
     </properties>
 
