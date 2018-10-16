@@ -96,7 +96,7 @@ class FrameExtractorModel(
   /**
    *
    */
-  val slotsNetwork: NeuralNetwork
+  val slotsRNN: NeuralNetwork
 
   /**
    *
@@ -108,14 +108,14 @@ class FrameExtractorModel(
     // There is a 2 x factor because it includes Beginning + Inside for each slot class.
     val slotsNetworkOutputSize: Int = 2 * this.intentsConfiguration.sumBy { it.slots.size }
 
-    this.slotsNetwork = NeuralNetwork(
+    this.slotsRNN = NeuralNetwork(
       layersConfiguration = listOf(
         LayerInterface(
-          size = slotsNetworkOutputSize + this.biRNN1.outputSize + this.biRNN2.outputSize,
+          size = this.biRNN1.outputSize + this.biRNN2.outputSize,
           type = LayerType.Input.Dense),
         LayerInterface(
           size = slotsNetworkOutputSize,
-          connectionType = LayerType.Connection.Feedforward,
+          connectionType = recurrentConnectionType,
           activationFunction = Softmax())
       ))
 
@@ -123,7 +123,7 @@ class FrameExtractorModel(
       biRNN1Params = this.biRNN1.model,
       biRNN2Params = this.biRNN2.model,
       intentNetworkParams = this.intentNetwork.model,
-      slotsNetworkParams = this.slotsNetwork.model
+      slotsRNNParams = this.slotsRNN.model
     )
   }
 

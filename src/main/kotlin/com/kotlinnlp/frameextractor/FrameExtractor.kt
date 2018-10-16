@@ -11,12 +11,10 @@ import com.kotlinnlp.frameextractor.objects.Distribution
 import com.kotlinnlp.frameextractor.objects.Intent
 import com.kotlinnlp.frameextractor.objects.Slot
 import com.kotlinnlp.simplednn.core.neuralprocessor.NeuralProcessor
-import com.kotlinnlp.simplednn.core.neuralprocessor.batchfeedforward.BatchFeedforwardProcessor
 import com.kotlinnlp.simplednn.core.neuralprocessor.feedforward.FeedforwardNeuralProcessor
+import com.kotlinnlp.simplednn.core.neuralprocessor.recurrent.RecurrentNeuralProcessor
 import com.kotlinnlp.simplednn.deeplearning.birnn.BiRNNEncoder
-import com.kotlinnlp.simplednn.simplemath.ndarray.Shape
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
-import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArrayFactory
 
 /**
  * The frame extractor.
@@ -160,10 +158,10 @@ class FrameExtractor(
     useDropout = false)
 
   /**
-   * The FF batch processor that decodes the slots of an intent.
+   * The recurrent neural processor that decodes the slots of an intent.
    */
-  private val slotsProcessor = BatchFeedforwardProcessor<DenseNDArray>(
-    neuralNetwork = this.model.slotsNetwork,
+  private val slotsProcessor = RecurrentNeuralProcessor<DenseNDArray>(
+    neuralNetwork = this.model.slotsRNN,
     propagateToInput = true,
     useDropout = false)
 
@@ -182,12 +180,11 @@ class FrameExtractor(
     val h1IntentInput: DenseNDArray = this.biRNNEncoder1.getLastOutput(copy = false).let { it.first.concatV(it.second) }
     val h2IntentInput: DenseNDArray = this.biRNNEncoder2.getLastOutput(copy = false).let { it.first.concatV(it.second) }
 
-    // Attention: [h2, h1] inverted order!
-    val slotsInputs: List<DenseNDArray> = h1List.zip(h2List).map { it.second.concatV(it.first) }
+    val slotsInputs: List<DenseNDArray> = h1List.zip(h2List).map { it.first.concatV(it.second) }
 
     return Output(
-      intentsDistribution = this.intentProcessor.forward(h1IntentInput.concatV(h2IntentInput)).copy(),
-      slotsClassifications = this.classifySlots(slotsInputs)
+      intentsDistribution =  this.intentProcessor.forward(h1IntentInput.concatV(h2IntentInput)).copy(),
+      slotsClassifications = this.slotsProcessor.forward(slotsInputs)
     )
   }
 
@@ -206,7 +203,12 @@ class FrameExtractor(
     val (h1IntentErrorsL2R, h1IntentErrorsR2L) = h1IntentErrors.halfSplit()
     val (h2IntentErrorsL2R, h2IntentErrorsR2L) = h2IntentErrors.halfSplit()
 
-    val (h2Errors, h1Errors) = this.backwardSlotsErrors(outputErrors.slotsClassifications) // [h2, h1] inverted order!
+    val slotsInputErrors: List<DenseNDArray> = this.slotsProcessor.let {
+      it.backward(outputErrors.slotsClassifications)
+      it.getInputErrors(copy = false)
+    }
+
+    val (h1Errors, h2Errors) = slotsInputErrors.map { it.halfSplit() }.unzip()
 
     this.partialSum(h1Errors.last(), h1IntentErrorsL2R)
     this.partialSum(h1Errors.first(), h1IntentErrorsR2L, fromEnd = true)
@@ -239,7 +241,7 @@ class FrameExtractor(
     biRNN1Params = this.biRNNEncoder1.getParamsErrors(copy),
     biRNN2Params = this.biRNNEncoder2.getParamsErrors(copy),
     intentNetworkParams = this.intentProcessor.getParamsErrors(copy),
-    slotsNetworkParams = this.slotsProcessor.getParamsErrors(copy)
+    slotsRNNParams = this.slotsProcessor.getParamsErrors(copy)
   )
 
   /**
@@ -274,54 +276,10 @@ class FrameExtractor(
   }
 
   /**
-   * Execute the backward of the slots processor.
-   * Return a pair containing two lists of input errors, which are parallel and are split in the two components (h2 and
-   * h1 respectively) that compose the inputs.
-   *
-   * @param slotsErrors the list of slots distributions errors
-   *
-   * @return a pair containing two parallel lists of slots processor input errors (h2, h1)
-   */
-  private fun backwardSlotsErrors(slotsErrors: List<DenseNDArray>): Pair<List<DenseNDArray>, List<DenseNDArray>> {
-
-    val slotsInputSize: Int = this.model.biRNN1.outputSize + this.model.biRNN2.outputSize
-
-    this.slotsProcessor.backward(slotsErrors)
-
-    return this.slotsProcessor.getInputErrors(copy = false)
-      .map { it.splitV(this.model.slotsNetwork.outputSize, slotsInputSize)[1].halfSplit() }
-      .unzip()
-  }
-
-  /**
    * Split this dense array in two components, each with halved length.
    *
    * @return the two half components of this dense array
    */
   private fun DenseNDArray.halfSplit(): Pair<DenseNDArray, DenseNDArray> =
     this.splitV(this.length / 2).let { it[0] to it[1] }
-
-  /**
-   * @param slotsInputs the input array used to classify the intent slots, one per token
-   *
-   * @return the list of intent slots classification
-   */
-  private fun classifySlots(slotsInputs: List<DenseNDArray>): List<DenseNDArray> {
-
-    var prevClass: Int? = null
-
-    return slotsInputs.mapIndexed { i, slotsInput ->
-
-      val prevClassBinary: DenseNDArray = prevClass?.let {
-        DenseNDArrayFactory.oneHotEncoder(length = this.model.slotsNetwork.outputSize, oneAt = it)
-      } ?: DenseNDArrayFactory.zeros(shape = Shape(this.model.slotsNetwork.outputSize))
-
-      val input: List<DenseNDArray> = listOf(prevClassBinary.concatV(slotsInput))
-      val classification: DenseNDArray = this.slotsProcessor.forward(input, continueBatch = i > 0).first()
-
-      prevClass = classification.argMaxIndex()
-
-      classification.copy()
-    }
-  }
 }

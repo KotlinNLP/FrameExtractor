@@ -18,13 +18,13 @@ import com.kotlinnlp.simplednn.deeplearning.birnn.BiRNNParameters
  * @property biRNN1Params
  * @property biRNN2Params
  * @property intentNetworkParams
- * @property slotsNetworkParams
+ * @property slotsRNNParams
  */
 class FrameExtractorParameters(
   val biRNN1Params: BiRNNParameters,
   val biRNN2Params: BiRNNParameters,
   val intentNetworkParams: NetworkParameters,
-  val slotsNetworkParams: NetworkParameters
+  val slotsRNNParams: NetworkParameters
 ) : IterableParams<FrameExtractorParameters>() {
 
   companion object {
@@ -43,7 +43,7 @@ class FrameExtractorParameters(
     this.biRNN1Params.paramsList +
       this.biRNN2Params.paramsList +
       this.intentNetworkParams.paramsList +
-      this.slotsNetworkParams.paramsList
+      this.slotsRNNParams.paramsList
 
   /**
    * @return new [FrameExtractorParameters] containing a copy of all the values of this
@@ -52,6 +52,6 @@ class FrameExtractorParameters(
     biRNN1Params = this.biRNN1Params.copy(),
     biRNN2Params = this.biRNN2Params.copy(),
     intentNetworkParams = this.intentNetworkParams.copy(),
-    slotsNetworkParams = this.slotsNetworkParams.copy()
+    slotsRNNParams = this.slotsRNNParams.copy()
   )
 }
