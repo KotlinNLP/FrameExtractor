@@ -121,9 +121,11 @@ class FrameExtractor(
       }
 
       return slotsFound
+        .asSequence()
         .filter { it.index in slotsRange }
         .map { Slot(name = intentConfig.slots[it.index - slotsOffset], tokens = it.tokens) }
         .filter { it.name != Intent.Configuration.NO_SLOT_NAME }
+        .toList()
     }
   }
 
@@ -249,7 +251,8 @@ class FrameExtractor(
    * @return the offset of the given intent slots
    */
   fun getSlotsOffset(intentName: String): Int =
-    this.model.intentsConfiguration.let { it.subList(0, it.indexOfFirst { it.name == intentName }) }
+    this.model.intentsConfiguration
+      .subList(0, this.model.intentsConfiguration.indexOfFirst { it.name == intentName })
       .sumBy { it.slots.size }
 
   /**
