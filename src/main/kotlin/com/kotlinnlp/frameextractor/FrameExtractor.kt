@@ -198,13 +198,13 @@ class FrameExtractor(
    */
   override fun backward(outputErrors: Output) {
 
-    val intentInputErrors: Pair<DenseNDArray, DenseNDArray> = this.intentProcessor.let {
+    val (h1IntentErrors, h2IntentErrors) = this.intentProcessor.let {
       it.backward(outputErrors.intentsDistribution)
       it.getInputErrors(copy = false).halfSplit()
     }
 
-    val (h1IntentErrorsL2R, h1IntentErrorsR2L) = intentInputErrors.first.halfSplit()
-    val (h2IntentErrorsL2R, h2IntentErrorsR2L) = intentInputErrors.second.halfSplit()
+    val (h1IntentErrorsL2R, h1IntentErrorsR2L) = h1IntentErrors.halfSplit()
+    val (h2IntentErrorsL2R, h2IntentErrorsR2L) = h2IntentErrors.halfSplit()
 
     val (h2Errors, h1Errors) = this.backwardSlotsErrors(outputErrors.slotsClassifications) // [h2, h1] inverted order!
 
