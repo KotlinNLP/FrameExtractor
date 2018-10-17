@@ -74,7 +74,8 @@ fun main(args: Array<String>) = mainBody {
     intentsConfiguration = trainingDataset.configuration,
     tokenEncodingSize = tokensEncoder.model.tokenEncodingSize,
     biRNNHiddenSize = 200,
-    slotsHiddenSize = 100)
+    slotsHiddenSize = 100,
+    intentHiddenSize = 100)
 
   require(trainingDataset.configuration == validationDataset.configuration) {
     "The training dataset and the validation dataset must have the same configuration."

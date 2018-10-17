@@ -11,7 +11,6 @@ import com.kotlinnlp.frameextractor.objects.Distribution
 import com.kotlinnlp.frameextractor.objects.Intent
 import com.kotlinnlp.frameextractor.objects.Slot
 import com.kotlinnlp.simplednn.core.neuralprocessor.NeuralProcessor
-import com.kotlinnlp.simplednn.core.neuralprocessor.feedforward.FeedforwardNeuralProcessor
 import com.kotlinnlp.simplednn.core.neuralprocessor.recurrent.RecurrentNeuralProcessor
 import com.kotlinnlp.simplednn.deeplearning.birnn.BiRNNEncoder
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
@@ -150,10 +149,10 @@ class FrameExtractor(
     useDropout = false)
 
   /**
-   * The FF neural processor that decodes the intent.
+   * The recurrent neural processor that decodes the intent.
    */
-  private val intentProcessor = FeedforwardNeuralProcessor<DenseNDArray>(
-    neuralNetwork = this.model.intentNetwork,
+  private val intentProcessor = RecurrentNeuralProcessor<DenseNDArray>(
+    neuralNetwork = this.model.intentRNN,
     propagateToInput = true,
     useDropout = false)
 
@@ -177,14 +176,11 @@ class FrameExtractor(
     val h1List: List<DenseNDArray> = this.biRNNEncoder1.forward(input)
     val h2List: List<DenseNDArray> = this.biRNNEncoder2.forward(input)
 
-    val h1IntentInput: DenseNDArray = this.biRNNEncoder1.getLastOutput(copy = false).let { it.first.concatV(it.second) }
-    val h2IntentInput: DenseNDArray = this.biRNNEncoder2.getLastOutput(copy = false).let { it.first.concatV(it.second) }
-
-    val slotsInputs: List<DenseNDArray> = h1List.zip(h2List).map { it.first.concatV(it.second) }
+    val upperTasksInput: List<DenseNDArray> = h1List.zip(h2List).map { it.first.concatV(it.second) }
 
     return Output(
-      intentsDistribution =  this.intentProcessor.forward(h1IntentInput.concatV(h2IntentInput)).copy(),
-      slotsClassifications = this.slotsProcessor.forward(slotsInputs)
+      intentsDistribution =  this.intentProcessor.forward(upperTasksInput).last(),
+      slotsClassifications = this.slotsProcessor.forward(upperTasksInput)
     )
   }
 
@@ -195,26 +191,18 @@ class FrameExtractor(
    */
   override fun backward(outputErrors: Output) {
 
-    val (h1IntentErrors, h2IntentErrors) = this.intentProcessor.let {
+    val intentInputErrors: List<DenseNDArray> = this.intentProcessor.let {
       it.backward(outputErrors.intentsDistribution)
-      it.getInputErrors(copy = false).halfSplit()
+      it.getInputErrors(copy = false)
     }
-
-    val (h1IntentErrorsL2R, h1IntentErrorsR2L) = h1IntentErrors.halfSplit()
-    val (h2IntentErrorsL2R, h2IntentErrorsR2L) = h2IntentErrors.halfSplit()
 
     val slotsInputErrors: List<DenseNDArray> = this.slotsProcessor.let {
       it.backward(outputErrors.slotsClassifications)
       it.getInputErrors(copy = false)
     }
 
-    val (h1Errors, h2Errors) = slotsInputErrors.map { it.halfSplit() }.unzip()
-
-    this.partialSum(h1Errors.last(), h1IntentErrorsL2R)
-    this.partialSum(h1Errors.first(), h1IntentErrorsR2L, fromEnd = true)
-
-    this.partialSum(h2Errors.last(), h2IntentErrorsL2R)
-    this.partialSum(h2Errors.first(), h2IntentErrorsR2L, fromEnd = true)
+    val (h1Errors, h2Errors) =
+      slotsInputErrors.zip(intentInputErrors).map { it.first.sum(it.second).halfSplit() }.unzip()
 
     this.biRNNEncoder1.backward(h1Errors)
     this.biRNNEncoder2.backward(h2Errors)
@@ -240,7 +228,7 @@ class FrameExtractor(
   override fun getParamsErrors(copy: Boolean) = FrameExtractorParameters(
     biRNN1Params = this.biRNNEncoder1.getParamsErrors(copy),
     biRNN2Params = this.biRNNEncoder2.getParamsErrors(copy),
-    intentNetworkParams = this.intentProcessor.getParamsErrors(copy),
+    intentRNNParams = this.intentProcessor.getParamsErrors(copy),
     slotsRNNParams = this.slotsProcessor.getParamsErrors(copy)
   )
 
@@ -256,24 +244,6 @@ class FrameExtractor(
     this.model.intentsConfiguration
       .subList(0, this.model.intentsConfiguration.indexOfFirst { it.name == intentName })
       .sumBy { it.slots.size }
-
-  /**
-   * Sum a smaller dense array to a bigger dense array element-wise in-place, aligning them to the first or the last
-   * index.
-   *
-   * @param bigArray the bigger dense array
-   * @param smallArray the smaller dense array
-   * @param fromEnd align the arrays to the last index if true, otherwise to the first index (the default)
-   */
-  private fun partialSum(bigArray: DenseNDArray, smallArray: DenseNDArray, fromEnd: Boolean = false) {
-
-    (0 until smallArray.length).forEach { i ->
-
-      val bigIndex: Int = if (fromEnd) bigArray.length - i - 1 else i
-
-      bigArray[bigIndex] = bigArray[bigIndex] + smallArray[i]
-    }
-  }
 
   /**
    * Split this dense array in two components, each with halved length.

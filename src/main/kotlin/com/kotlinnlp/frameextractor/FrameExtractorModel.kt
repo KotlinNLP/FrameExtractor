@@ -32,6 +32,8 @@ import java.io.Serializable
  * @param biRNNConnectionType
  * @param slotsHiddenSize
  * @param slotsConnectionType
+ * @param intentHiddenSize
+ * @param intentConnectionType
  */
 class FrameExtractorModel(
   val name: String,
@@ -41,7 +43,9 @@ class FrameExtractorModel(
   biRNNHiddenActivation: ActivationFunction? = Tanh(),
   biRNNConnectionType: LayerType.Connection = LayerType.Connection.LSTM,
   slotsHiddenSize: Int,
-  slotsConnectionType: LayerType.Connection = LayerType.Connection.LSTM
+  slotsConnectionType: LayerType.Connection = LayerType.Connection.LSTM,
+  intentHiddenSize: Int,
+  intentConnectionType: LayerType.Connection = LayerType.Connection.LSTM
 ) : Serializable {
 
   companion object {
@@ -89,22 +93,40 @@ class FrameExtractorModel(
   /**
    *
    */
-  val intentNetwork = NeuralNetwork(
+  val intentRNN = NeuralNetwork(
     layersConfiguration = listOf(
       LayerInterface(
-        size = 2 * this.biRNN1.hiddenSize + 2 * this.biRNN2.hiddenSize, // always the concatenation of the last outputs
+        size = this.biRNN1.outputSize + this.biRNN2.outputSize,
         type = LayerType.Input.Dense),
       LayerInterface(
+        size = intentHiddenSize,
+        connectionType = intentConnectionType,
+        activationFunction = Tanh()),
+      LayerInterface(
+        // There is a 2x factor because it includes Beginning + Inside for each slot class.
         size = this.intentsConfiguration.size,
         connectionType = LayerType.Connection.Feedforward,
         activationFunction = Softmax())
-    )
-  )
+    ))
 
   /**
    *
    */
-  val slotsRNN: NeuralNetwork
+  val slotsRNN = NeuralNetwork(
+    layersConfiguration = listOf(
+      LayerInterface(
+        size = this.biRNN1.outputSize + this.biRNN2.outputSize,
+        type = LayerType.Input.Dense),
+      LayerInterface(
+        size = slotsHiddenSize,
+        connectionType = slotsConnectionType,
+        activationFunction = Tanh()),
+      LayerInterface(
+        // There is a 2x factor because it includes Beginning + Inside for each slot class.
+        size = 2 * this.intentsConfiguration.sumBy { it.slots.size },
+        connectionType = LayerType.Connection.Feedforward,
+        activationFunction = Softmax())
+    ))
 
   /**
    *
@@ -113,28 +135,10 @@ class FrameExtractorModel(
 
   init {
 
-    // There is a 2 x factor because it includes Beginning + Inside for each slot class.
-    val slotsNetworkOutputSize: Int = 2 * this.intentsConfiguration.sumBy { it.slots.size }
-
-    this.slotsRNN = NeuralNetwork(
-      layersConfiguration = listOf(
-        LayerInterface(
-          size = this.biRNN1.outputSize + this.biRNN2.outputSize,
-          type = LayerType.Input.Dense),
-        LayerInterface(
-          size = slotsHiddenSize,
-          connectionType = slotsConnectionType,
-          activationFunction = Tanh()),
-        LayerInterface(
-          size = slotsNetworkOutputSize,
-          connectionType = LayerType.Connection.Feedforward,
-          activationFunction = Softmax())
-      ))
-
     this.params = FrameExtractorParameters(
       biRNN1Params = this.biRNN1.model,
       biRNN2Params = this.biRNN2.model,
-      intentNetworkParams = this.intentNetwork.model,
+      intentRNNParams = this.intentRNN.model,
       slotsRNNParams = this.slotsRNN.model
     )
   }
