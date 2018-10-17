@@ -1,4 +1,4 @@
-# FrameExtractor
+# FrameExtractor [![Maven Central](https://img.shields.io/maven-central/v/com.kotlinnlp/frameextractor.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22com.kotlinnlp%22%20AND%20a:%22frameextractor%22) [![Build Status](https://travis-ci.org/KotlinNLP/FrameExtractor.svg?branch=master)](https://travis-ci.org/KotlinNLP/FrameExtractor)
 
 FrameExtractor is a module for semantic frame parsing  that performs intent detection and slot filling.
 
