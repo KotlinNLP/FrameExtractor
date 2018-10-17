@@ -26,14 +26,22 @@ import java.io.Serializable
  *
  * @property name the name of this model (it should be unique, used to distinguish it among more models)
  * @property intentsConfiguration the list of all the possible intents managed by this frame extractor
+ * @param tokenEncodingSize
+ * @param biRNNHiddenSize
+ * @param biRNNHiddenActivation
+ * @param biRNNConnectionType
+ * @param slotsHiddenSize
+ * @param slotsConnectionType
  */
 class FrameExtractorModel(
   val name: String,
   val intentsConfiguration: List<Intent.Configuration>,
   tokenEncodingSize: Int,
-  hiddenSize: Int,
-  hiddenActivation: ActivationFunction? = Tanh(),
-  recurrentConnectionType: LayerType.Connection = LayerType.Connection.LSTM
+  biRNNHiddenSize: Int,
+  biRNNHiddenActivation: ActivationFunction? = Tanh(),
+  biRNNConnectionType: LayerType.Connection = LayerType.Connection.LSTM,
+  slotsHiddenSize: Int,
+  slotsConnectionType: LayerType.Connection = LayerType.Connection.LSTM
 ) : Serializable {
 
   companion object {
@@ -60,9 +68,9 @@ class FrameExtractorModel(
   val biRNN1 = BiRNN(
     inputType = LayerType.Input.Dense,
     inputSize = tokenEncodingSize,
-    hiddenSize = hiddenSize,
-    hiddenActivation = hiddenActivation,
-    recurrentConnectionType = recurrentConnectionType,
+    hiddenSize = biRNNHiddenSize,
+    hiddenActivation = biRNNHiddenActivation,
+    recurrentConnectionType = biRNNConnectionType,
     dropout = 0.0, // the input is an encoding, it makes sense as complete numerical vector
     outputMergeConfiguration = ConcatMerge())
 
@@ -72,9 +80,9 @@ class FrameExtractorModel(
   val biRNN2 = BiRNN(
     inputType = LayerType.Input.Dense,
     inputSize = tokenEncodingSize,
-    hiddenSize = hiddenSize,
-    hiddenActivation = hiddenActivation,
-    recurrentConnectionType = recurrentConnectionType,
+    hiddenSize = biRNNHiddenSize,
+    hiddenActivation = biRNNHiddenActivation,
+    recurrentConnectionType = biRNNConnectionType,
     dropout = 0.0, // the input is an encoding, it makes sense as complete numerical vector
     outputMergeConfiguration = ConcatMerge())
 
@@ -114,8 +122,12 @@ class FrameExtractorModel(
           size = this.biRNN1.outputSize + this.biRNN2.outputSize,
           type = LayerType.Input.Dense),
         LayerInterface(
+          size = slotsHiddenSize,
+          connectionType = slotsConnectionType,
+          activationFunction = Tanh()),
+        LayerInterface(
           size = slotsNetworkOutputSize,
-          connectionType = recurrentConnectionType,
+          connectionType = LayerType.Connection.Feedforward,
           activationFunction = Softmax())
       ))
 
