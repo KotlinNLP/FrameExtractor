@@ -17,6 +17,7 @@ import com.kotlinnlp.simplednn.core.layers.models.merge.mergeconfig.ConcatMerge
 import com.kotlinnlp.simplednn.core.neuralnetwork.NeuralNetwork
 import com.kotlinnlp.simplednn.deeplearning.birnn.BiRNN
 import com.kotlinnlp.utils.Serializer
+import org.antlr.v4.runtime.misc.OrderedHashSet
 import java.io.InputStream
 import java.io.OutputStream
 import java.io.Serializable
@@ -52,6 +53,27 @@ class FrameExtractorModel(
      * @return the [FrameExtractorModel] read from [inputStream] and decoded
      */
     fun load(inputStream: InputStream): FrameExtractorModel = Serializer.deserialize(inputStream)
+  }
+
+  /**
+   * The offsets of the slots indices (within the flatten list of all the slots) for each intent configuration.
+   */
+  val slotsOffsets: List<Int> = this.intentsConfiguration.indices.map { intentIndex ->
+    this.intentsConfiguration.take(intentIndex).sumBy { config -> config.slots.size }
+  }
+
+  /**
+   * The set of indices of the "no-slot" classes within the slots classification.
+   */
+  val noSlotIndices: OrderedHashSet<Int> = run {
+
+    val orderedSet = OrderedHashSet<Int>()
+
+    this.intentsConfiguration.flatMap { it.slots }.withIndex()
+      .filter { it.value == Intent.Configuration.NO_SLOT_NAME }
+      .forEach { orderedSet.add(it.index) }
+
+    orderedSet
   }
 
   /**
