@@ -60,18 +60,13 @@ class FrameExtractor(
   ) {
 
     /**
-     * The list of intents configurations of the frame extractor related to this output.
-     */
-    private val intentsConfig: List<Intent.Configuration> = this@FrameExtractor.model.intentsConfiguration
-
-    /**
      * Build a [Distribution] of the intents from this frame extractor output.
      *
      * @return the intents distribution
      */
     fun buildDistribution(): Distribution =
       Distribution(map = (0 until this.intentsDistribution.length).associate { i ->
-        this.intentsConfig[i].name to this.intentsDistribution[i]
+        model.intentsConfiguration[i].name to this.intentsDistribution[i]
       })
 
     /**
@@ -82,51 +77,56 @@ class FrameExtractor(
     fun buildIntent(): Intent {
 
       val intentIndex: Int = this.intentsDistribution.argMaxIndex()
-      val intentConfig: Intent.Configuration = this.intentsConfig[intentIndex]
-      val slotsOffset: Int = if (intentIndex > 0) this.intentsConfig.subList(0, intentIndex).sumBy { it.slots.size } else 0
 
       return Intent(
-        name = intentConfig.name,
-        slots = this.buildSlots(intentConfig = intentConfig, slotsOffset = slotsOffset),
+        name = model.intentsConfiguration[intentIndex].name,
+        slots = this.buildSlots(intentIndex),
         score = this.intentsDistribution[intentIndex]
       )
     }
 
     /**
-     * @param intentConfig the intent configuration from which to extract the slots information
-     * @param slotsOffset the offset of slots indices from which this intent starts in the whole list
+     * @param intentIndex the index of the intent predicted, within the list of the possible intents
      *
      * @return the list of slots interpreted from this output
      */
-    private fun buildSlots(intentConfig: Intent.Configuration, slotsOffset: Int): List<Slot> {
+    private fun buildSlots(intentIndex: Int): List<Slot> {
 
-      val slotsFound = mutableListOf<TmpSlot>()
-      val slotsRange: IntRange = slotsOffset until (slotsOffset + intentConfig.slots.size)
+      val intentConfig: Intent.Configuration = model.intentsConfiguration[intentIndex]
+      val slotsOffset: Int = model.slotsOffsets[intentIndex]
+      val slotsFound: MutableList<TmpSlot> = mutableListOf()
+      val slotIndices: MutableList<Int> = mutableListOf()
 
       this.slotsClassifications.forEachIndexed { tokenIndex, classification ->
 
         val argMaxIndex: Int = classification.argMaxIndex()
-        val slotIndex: Int = argMaxIndex / 2
+        val slotIndexedScore: IndexedValue<Double> = this@FrameExtractor.getSlotIndexedScore(
+          classification = classification,
+          prevSlotIndices = slotIndices,
+          slotsOffset = slotsOffset)
 
-        val token = Slot.Token(index = tokenIndex, score = classification[argMaxIndex])
+        val token = Slot.Token(index = tokenIndex, score = slotIndexedScore.value)
 
-        if (argMaxIndex % 2 == 0)
-        // Beginning
-          slotsFound.add(TmpSlot(index = slotIndex, tokens = mutableListOf(token)))
-        else
-        // Inside
-          slotsFound.lastOrNull()?.let {
-            if (it.index == slotIndex && it.tokens.last().index == tokenIndex - 1) it.tokens.add(token)
-          }
+        slotIndices.add(slotIndexedScore.index)
+
+        when {
+          argMaxIndex % 2 == 0 || slotIndexedScore.index.isNoSlot() -> // Beginning
+            slotsFound.add(TmpSlot(index = slotIndexedScore.index, tokens = mutableListOf(token)))
+          else -> slotsFound.last().tokens.add(token) // Inside
+        }
       }
 
       return slotsFound
         .asSequence()
-        .filter { it.index in slotsRange }
         .map { Slot(name = intentConfig.slots[it.index - slotsOffset], tokens = it.tokens) }
         .filter { it.name != Intent.Configuration.NO_SLOT_NAME }
         .toList()
     }
+
+    /**
+     * @return true if this index refers to a "no-slot" slot within the list of all the intents slots
+     */
+    private fun Int.isNoSlot(): Boolean = this in this@FrameExtractor.model.noSlotIndices
   }
 
   /**
@@ -185,9 +185,13 @@ class FrameExtractor(
     // Attention: [h2, h1] inverted order!
     val slotsInputs: List<DenseNDArray> = h1List.zip(h2List).map { it.second.concatV(it.first) }
 
+    val intentsDistribution: DenseNDArray = this.intentProcessor.forward(h1IntentInput.concatV(h2IntentInput)).copy()
+
     return Output(
-      intentsDistribution = this.intentProcessor.forward(h1IntentInput.concatV(h2IntentInput)).copy(),
-      slotsClassifications = this.classifySlots(slotsInputs)
+      intentsDistribution = intentsDistribution,
+      slotsClassifications = this.classifySlots(
+        intentIndex = intentsDistribution.argMaxIndex(),
+        slotsInputs = slotsInputs)
     )
   }
 
@@ -252,7 +256,8 @@ class FrameExtractor(
    */
   fun getSlotsOffset(intentName: String): Int =
     this.model.intentsConfiguration
-      .subList(0, this.model.intentsConfiguration.indexOfFirst { it.name == intentName })
+      .asSequence()
+      .take(this.model.intentsConfiguration.indexOfFirst { it.name == intentName })
       .sumBy { it.slots.size }
 
   /**
@@ -302,26 +307,74 @@ class FrameExtractor(
     this.splitV(this.length / 2).let { it[0] to it[1] }
 
   /**
+   * @param intentIndex the index of the predicted intent
    * @param slotsInputs the input array used to classify the intent slots, one per token
    *
    * @return the list of intent slots classification
    */
-  private fun classifySlots(slotsInputs: List<DenseNDArray>): List<DenseNDArray> {
+  private fun classifySlots(intentIndex: Int, slotsInputs: List<DenseNDArray>): List<DenseNDArray> {
 
-    var prevClass: Int? = null
+    val slotsOffset: Int = this.model.slotsOffsets[intentIndex]
+    val slotIndices: MutableList<Int> = mutableListOf()
 
     return slotsInputs.mapIndexed { i, slotsInput ->
 
-      val prevClassBinary: DenseNDArray = prevClass?.let {
+      val prevClassBinary: DenseNDArray = slotIndices.lastOrNull()?.let {
         DenseNDArrayFactory.oneHotEncoder(length = this.model.slotsNetwork.outputSize, oneAt = it)
       } ?: DenseNDArrayFactory.zeros(shape = Shape(this.model.slotsNetwork.outputSize))
 
       val input: List<DenseNDArray> = listOf(prevClassBinary.concatV(slotsInput))
       val classification: DenseNDArray = this.slotsProcessor.forward(input, continueBatch = i > 0).first()
 
-      prevClass = classification.argMaxIndex()
+      slotIndices.add(
+        this.getSlotIndexedScore(
+          classification = classification,
+          prevSlotIndices = slotIndices,
+          slotsOffset = slotsOffset).index)
 
       classification.copy()
     }
   }
+
+  /**
+   * Get the slot index of a prediction.
+   *
+   * @param classification the classification of the slots network
+   * @param prevSlotIndices the list of indices of the previous slots predicted
+   * @param slotsOffset the slots indices offset of the intent predicted
+   *
+   * @return the indexed of the slot predicted
+   */
+  private fun getSlotIndexedScore(classification: DenseNDArray,
+                                  prevSlotIndices: List<Int>,
+                                  slotsOffset: Int): IndexedValue<Double> {
+
+    val argMaxIndex: Int =
+      classification.argMaxIndex(exceptIndices = this.getValidSlotClassificationIndices(prevSlotIndices))
+    val slotIndex: Int = argMaxIndex / 2
+    val isInside: Boolean = argMaxIndex % 2 != 0
+    val invalidInside: Boolean = isInside && slotIndex != prevSlotIndices.last()
+
+    return if (invalidInside || slotIndex !in slotsOffset until (slotsOffset + classification.length)) {
+
+      val noSlotIndex: Int = this.model.noSlotIndices.first { it >= slotsOffset }
+
+      IndexedValue(index = noSlotIndex, value = classification[noSlotIndex])
+
+    } else {
+      IndexedValue(index = slotIndex, value = classification[argMaxIndex])
+    }
+  }
+
+  /**
+   * @param slotIndices a list of slot indices
+   *
+   * @return a set containing all the classification indices of the given slots that are not "no-slot"
+   */
+  private fun getValidSlotClassificationIndices(slotIndices: List<Int>): Set<Int> =
+    slotIndices
+      .asSequence()
+      .filter { it !in this.model.noSlotIndices }
+      .map { 2 * it }
+      .toSet()
 }
