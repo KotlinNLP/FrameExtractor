@@ -20,6 +20,7 @@ import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsMapByDictionary
 import com.kotlinnlp.tokensencoder.embeddings.EmbeddingsEncoderModel
 import com.kotlinnlp.tokensencoder.ensemble.EnsembleTokensEncoder
 import com.kotlinnlp.tokensencoder.ensemble.EnsembleTokensEncoderModel
+import com.kotlinnlp.tokensencoder.wrapper.MirrorConverter
 import com.kotlinnlp.tokensencoder.wrapper.SentenceConverter
 import com.kotlinnlp.tokensencoder.wrapper.TokensEncoderWrapperModel
 
@@ -40,7 +41,7 @@ internal fun buildTokensEncoder(preprocessor: SentencePreprocessor,
       EnsembleTokensEncoderModel.ComponentModel(
         TokensEncoderWrapperModel(
           model = EmbeddingsEncoderModel(embeddingsMap = embeddingsMap, embeddingKeyExtractor = NormWordKeyExtractor()),
-          converter = FormSentenceConverter(preprocessor))),
+          converter = MirrorConverter())),
       EnsembleTokensEncoderModel.ComponentModel(
         TokensEncoderWrapperModel(
           model = LSSTokensEncoderModel(lssModel = lssModel),
