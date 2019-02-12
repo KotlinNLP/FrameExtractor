@@ -20,11 +20,11 @@
         <frameextractor.version>0.4.2</frameextractor.version>
         <linguisticdescription.version>0.10.1</linguisticdescription.version>
         <morphologicalanalyzer.version>0.4.1</morphologicalanalyzer.version>
-        <neuralparser.version>0.6.0</neuralparser.version>
-        <lssencoder.version>0.1.1</lssencoder.version>
+        <neuralparser.version>0.6.1</neuralparser.version>
+        <lssencoder.version>0.1.2</lssencoder.version>
         <neuraltokenizer.version>0.4.3</neuraltokenizer.version>
         <simplednn.version>0.11.2</simplednn.version>
-        <tokensencoder.version>0.4.1</tokensencoder.version>
+        <tokensencoder.version>0.5.0</tokensencoder.version>
     </properties>
 
     <repositories>
