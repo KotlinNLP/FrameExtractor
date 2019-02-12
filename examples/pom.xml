@@ -17,7 +17,7 @@
         <xenocom.version>0.0.5</xenocom.version>
         <argparser.version>2.0.7</argparser.version>
         <klaxon.version>3.0.5</klaxon.version>
-        <frameextractor.version>0.4.1</frameextractor.version>
+        <frameextractor.version>0.4.2</frameextractor.version>
         <linguisticdescription.version>0.10.1</linguisticdescription.version>
         <morphologicalanalyzer.version>0.4.1</morphologicalanalyzer.version>
         <neuralparser.version>0.6.0</neuralparser.version>
