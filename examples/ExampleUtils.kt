@@ -40,7 +40,9 @@ internal fun buildTokensEncoder(preprocessor: SentencePreprocessor,
     components = listOf(
       EnsembleTokensEncoderModel.ComponentModel(
         TokensEncoderWrapperModel(
-          model = EmbeddingsEncoderModel(embeddingsMap = embeddingsMap, embeddingKeyExtractor = NormWordKeyExtractor()),
+          model = EmbeddingsEncoderModel.Base(
+            embeddingsMap = embeddingsMap,
+            embeddingKeyExtractor = NormWordKeyExtractor()),
           converter = MirrorConverter())),
       EnsembleTokensEncoderModel.ComponentModel(
         TokensEncoderWrapperModel(
