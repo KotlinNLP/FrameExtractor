@@ -19,7 +19,7 @@
         <klaxon.version>3.0.5</klaxon.version>
         <frameextractor.version>0.4.2</frameextractor.version>
         <linguisticdescription.version>0.10.1</linguisticdescription.version>
-        <morphologicalanalyzer.version>0.4.1</morphologicalanalyzer.version>
+        <morphologicalanalyzer.version>0.4.2</morphologicalanalyzer.version>
         <neuralparser.version>0.6.1</neuralparser.version>
         <lssencoder.version>0.1.2</lssencoder.version>
         <neuraltokenizer.version>0.4.4</neuraltokenizer.version>
