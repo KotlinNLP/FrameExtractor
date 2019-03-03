@@ -16,7 +16,6 @@ import com.kotlinnlp.lssencoder.LSSModel
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.language.ParsingToken
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRModel
-import com.kotlinnlp.simplednn.core.embeddings.EMBDLoader
 import com.xenomachina.argparser.mainBody
 import buildTokensEncoder
 import com.kotlinnlp.linguisticdescription.sentence.Sentence
@@ -24,6 +23,7 @@ import com.kotlinnlp.linguisticdescription.sentence.token.FormToken
 import com.kotlinnlp.morphologicalanalyzer.MorphologicalAnalyzer
 import com.kotlinnlp.morphologicalanalyzer.dictionary.MorphologyDictionary
 import com.kotlinnlp.neuralparser.helpers.preprocessors.MorphoPreprocessor
+import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsMap
 import com.kotlinnlp.tokensencoder.TokensEncoder
 import java.io.File
 import java.io.FileInputStream
@@ -50,8 +50,8 @@ fun main(args: Array<String>) = mainBody {
         dictionary = MorphologyDictionary.load(FileInputStream(File(it)))))
     },
     embeddingsMap = parsedArgs.embeddingsPath.let {
-      println("Loading embeddings from '$it'...")
-      EMBDLoader().load(filename = it)
+      println("Loading pre-trained word embeddings from '$it'...")
+      EmbeddingsMap.load(it)
     },
     lssModel = lssModel)
 

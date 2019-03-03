@@ -19,7 +19,7 @@ import com.kotlinnlp.neuralparser.language.ParsingToken
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRModel
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizerModel
-import com.kotlinnlp.simplednn.core.embeddings.EMBDLoader
+import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsMap
 import com.xenomachina.argparser.mainBody
 import java.io.File
 import java.io.FileInputStream
@@ -87,8 +87,8 @@ private fun buildTextFramesExtractor(parsedArgs: CommandLineArguments): TextFram
         dictionary = MorphologyDictionary.load(FileInputStream(File(it)))))
     },
     embeddingsMap = parsedArgs.embeddingsPath.let {
-      println("Loading embeddings from '$it'...")
-      EMBDLoader().load(filename = it)
+      println("Loading pre-trained word embeddings from '$it'...")
+      EmbeddingsMap.load(it)
     },
     lssModel = lssModel)
 
