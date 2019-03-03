@@ -13,8 +13,8 @@ import com.kotlinnlp.simplednn.core.functionalities.activations.Softmax
 import com.kotlinnlp.simplednn.core.functionalities.activations.Tanh
 import com.kotlinnlp.simplednn.core.layers.LayerInterface
 import com.kotlinnlp.simplednn.core.layers.LayerType
+import com.kotlinnlp.simplednn.core.layers.StackedLayersParameters
 import com.kotlinnlp.simplednn.core.layers.models.merge.mergeconfig.ConcatMerge
-import com.kotlinnlp.simplednn.core.neuralnetwork.NeuralNetwork
 import com.kotlinnlp.simplednn.deeplearning.birnn.BiRNN
 import com.kotlinnlp.utils.Serializer
 import org.antlr.v4.runtime.misc.OrderedHashSet
@@ -103,7 +103,7 @@ class FrameExtractorModel(
   /**
    *
    */
-  val intentNetwork = NeuralNetwork(
+  val intentNetwork = StackedLayersParameters(
     layersConfiguration = listOf(
       LayerInterface(
         size = 2 * this.biRNN1.hiddenSize + 2 * this.biRNN2.hiddenSize, // always the concatenation of the last outputs
@@ -118,7 +118,7 @@ class FrameExtractorModel(
   /**
    *
    */
-  val slotsNetwork: NeuralNetwork
+  val slotsNetwork: StackedLayersParameters
 
   /**
    *
@@ -130,7 +130,7 @@ class FrameExtractorModel(
     // There is a 2 x factor because it includes Beginning + Inside for each slot class.
     val slotsNetworkOutputSize: Int = 2 * this.intentsConfiguration.sumBy { it.slots.size }
 
-    this.slotsNetwork = NeuralNetwork(
+    this.slotsNetwork = StackedLayersParameters(
       layersConfiguration = listOf(
         LayerInterface(
           size = slotsNetworkOutputSize + this.biRNN1.outputSize + this.biRNN2.outputSize,
@@ -144,8 +144,8 @@ class FrameExtractorModel(
     this.params = FrameExtractorParameters(
       biRNN1Params = this.biRNN1.model,
       biRNN2Params = this.biRNN2.model,
-      intentNetworkParams = this.intentNetwork.model,
-      slotsNetworkParams = this.slotsNetwork.model
+      intentNetworkParams = this.intentNetwork,
+      slotsNetworkParams = this.slotsNetwork
     )
   }
 

@@ -155,7 +155,7 @@ class FrameExtractor(
    * The FF neural processor that decodes the intent.
    */
   private val intentProcessor = FeedforwardNeuralProcessor<DenseNDArray>(
-    neuralNetwork = this.model.intentNetwork,
+    model = this.model.intentNetwork,
     propagateToInput = true,
     useDropout = false)
 
@@ -163,7 +163,7 @@ class FrameExtractor(
    * The FF batch processor that decodes the slots of an intent.
    */
   private val slotsProcessor = BatchFeedforwardProcessor<DenseNDArray>(
-    neuralNetwork = this.model.slotsNetwork,
+    model = this.model.slotsNetwork,
     propagateToInput = true,
     useDropout = false)
 

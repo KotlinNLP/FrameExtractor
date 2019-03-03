@@ -8,7 +8,7 @@
 package com.kotlinnlp.frameextractor
 
 import com.kotlinnlp.simplednn.core.arrays.UpdatableArray
-import com.kotlinnlp.simplednn.core.neuralnetwork.NetworkParameters
+import com.kotlinnlp.simplednn.core.layers.StackedLayersParameters
 import com.kotlinnlp.simplednn.core.optimizer.IterableParams
 import com.kotlinnlp.simplednn.deeplearning.birnn.BiRNNParameters
 
@@ -23,8 +23,8 @@ import com.kotlinnlp.simplednn.deeplearning.birnn.BiRNNParameters
 class FrameExtractorParameters(
   val biRNN1Params: BiRNNParameters,
   val biRNN2Params: BiRNNParameters,
-  val intentNetworkParams: NetworkParameters,
-  val slotsNetworkParams: NetworkParameters
+  val intentNetworkParams: StackedLayersParameters,
+  val slotsNetworkParams: StackedLayersParameters
 ) : IterableParams<FrameExtractorParameters>() {
 
   companion object {
