@@ -23,6 +23,14 @@ internal class CommandLineArguments(args: Array<String>) {
   private val parser = ArgParser(args)
 
   /**
+   * The number of training epochs (default = 10).
+   */
+  val epochs: Int by parser.storing(
+    "--epochs",
+    help="the number of training epochs (default = 10)"
+  ) { toInt() }.default(10)
+
+  /**
    * The name of the model.
    */
   val modelName: String by parser.storing(

@@ -86,7 +86,7 @@ fun main(args: Array<String>) = mainBody {
   Trainer(
     model = extractorModel,
     modelFilename = parsedArgs.modelPath,
-    epochs = 30,
+    epochs = parsedArgs.epochs,
     validator = Validator(model = extractorModel, dataset = validationDataset)
   ).train(trainingDataset)
 }
