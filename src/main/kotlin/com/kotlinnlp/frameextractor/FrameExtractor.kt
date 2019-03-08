@@ -353,7 +353,7 @@ class FrameExtractor(
       classification.argMaxIndex(exceptIndices = this.getValidSlotClassificationIndices(prevSlotIndices))
     val slotIndex: Int = argMaxIndex / 2
     val isInside: Boolean = argMaxIndex % 2 != 0
-    val invalidInside: Boolean = isInside && slotIndex != prevSlotIndices.last()
+    val invalidInside: Boolean = isInside && (prevSlotIndices.isEmpty() || slotIndex != prevSlotIndices.last())
 
     return if (invalidInside || slotIndex !in slotsOffset until (slotsOffset + classification.length)) {
 
