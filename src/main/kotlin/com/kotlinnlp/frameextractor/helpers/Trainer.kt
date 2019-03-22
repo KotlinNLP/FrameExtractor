@@ -54,7 +54,7 @@ class Trainer(
   /**
    * A timer to track the elapsed time.
    */
-  private var timer = Timer()
+  private val timer = Timer()
 
   /**
    * The best accuracy reached during the training.
