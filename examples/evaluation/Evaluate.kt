@@ -25,6 +25,7 @@ import com.kotlinnlp.morphologicalanalyzer.dictionary.MorphologyDictionary
 import com.kotlinnlp.neuralparser.helpers.preprocessors.MorphoPreprocessor
 import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsMap
 import com.kotlinnlp.tokensencoder.TokensEncoder
+import com.kotlinnlp.utils.Timer
 import java.io.File
 import java.io.FileInputStream
 
@@ -69,8 +70,11 @@ fun main(args: Array<String>) = mainBody {
 
   println("\nStart validation on %d examples".format(validationDataset.examples.size))
 
+  val timer = Timer()
   val stats: Statistics = Validator(model = extractorModel, dataset = validationDataset).evaluate()
   val accuracy: Double = stats.intents.f1Score * stats.slots.f1Score
+
+  println("Elapsed time: %s".format(timer.formatElapsedTime()))
 
   println("\nAccuracy: %.2f%%".format(100.0 * accuracy))
   println("\nStatistics\n$stats")
