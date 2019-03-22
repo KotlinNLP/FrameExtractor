@@ -10,6 +10,8 @@ package extract
 import buildTokensEncoder
 import com.kotlinnlp.frameextractor.FrameExtractor
 import com.kotlinnlp.frameextractor.FrameExtractorModel
+import com.kotlinnlp.linguisticdescription.sentence.Sentence
+import com.kotlinnlp.linguisticdescription.sentence.token.FormToken
 import com.kotlinnlp.lssencoder.LSSModel
 import com.kotlinnlp.morphologicalanalyzer.MorphologicalAnalyzer
 import com.kotlinnlp.morphologicalanalyzer.dictionary.MorphologyDictionary
@@ -32,6 +34,7 @@ import java.io.FileInputStream
 fun main(args: Array<String>) = mainBody {
 
   val parsedArgs = CommandLineArguments(args)
+  val tokenizer = NeuralTokenizer(NeuralTokenizerModel.load(FileInputStream(File(parsedArgs.tokenizerModelPath))))
   val textFramesExtractor: TextFramesExtractor = buildTextFramesExtractor(parsedArgs)
 
   @Suppress("UNCHECKED_CAST")
@@ -45,9 +48,12 @@ fun main(args: Array<String>) = mainBody {
 
     } else {
 
-      textFramesExtractor.extractFrames(inputText).forEach { frame ->
+      tokenizer.tokenize(inputText).forEach { sentence ->
+
+        sentence as Sentence<FormToken>
+
         println()
-        frame.print()
+        textFramesExtractor.extractFrames(sentence).print(sentence)
       }
     }
   }
@@ -99,23 +105,22 @@ private fun buildTextFramesExtractor(parsedArgs: CommandLineArguments): TextFram
 
   println("\nFrame Extractor model: ${model.name}")
 
-  return TextFramesExtractor(
-    extractor = FrameExtractor(model),
-    tokenizer = NeuralTokenizer(NeuralTokenizerModel.load(FileInputStream(File(parsedArgs.tokenizerModelPath)))),
-    tokensEncoder = tokensEncoder)
+  return TextFramesExtractor(extractor = FrameExtractor(model), tokensEncoder = tokensEncoder)
 }
 
 /**
  * Print this frame to the standard output.
+ *
+ * @param sentence the sentence from which this frame has been extracted
  */
-private fun TextFramesExtractor.Frame.print() {
+private fun TextFramesExtractor.Frame.print(sentence: Sentence<FormToken>) {
 
   println("Intent: ${this.intent.name}")
 
   println("Slots: %s".format(
     if (this.intent.slots.isNotEmpty())
       this.intent.slots.joinToString(", ") { slot ->
-        "(${slot.name} ${slot.tokens.joinToString(" ") { this.sentence.tokens[it.index].form }})"
+        "(${slot.name} ${slot.tokens.joinToString(" ") { sentence.tokens[it.index].form }})"
       }
     else
       "None"))
