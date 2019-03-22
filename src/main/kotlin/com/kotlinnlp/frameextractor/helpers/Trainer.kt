@@ -194,16 +194,15 @@ class Trainer(
   private fun validateAndSaveModel() {
 
     val stats: Statistics = this.validator.evaluate()
-    val accuracy: Double = stats.intents.f1Score * stats.slots.f1Score
 
     println("\nStatistics\n$stats")
 
-    if (accuracy > this.bestAccuracy) {
+    if (stats.accuracy > this.bestAccuracy) {
 
       this.model.dump(FileOutputStream(File(this.modelFilename)))
       println("\nNEW BEST ACCURACY! Model saved to \"${this.modelFilename}\"")
 
-      this.bestAccuracy = accuracy
+      this.bestAccuracy = stats.accuracy
     }
   }
 

@@ -72,10 +72,8 @@ fun main(args: Array<String>) = mainBody {
 
   val timer = Timer()
   val stats: Statistics = Validator(model = extractorModel, dataset = validationDataset).evaluate()
-  val accuracy: Double = stats.intents.f1Score * stats.slots.f1Score
 
   println("Elapsed time: %s".format(timer.formatElapsedTime()))
-
-  println("\nAccuracy: %.2f%%".format(100.0 * accuracy))
-  println("\nStatistics\n$stats")
+  println()
+  println("Statistics\n$stats")
 }
