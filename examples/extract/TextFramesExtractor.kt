@@ -10,23 +10,20 @@ package extract
 import com.kotlinnlp.frameextractor.objects.Distribution
 import com.kotlinnlp.frameextractor.objects.Intent
 import com.kotlinnlp.frameextractor.FrameExtractor
-import com.kotlinnlp.linguisticdescription.sentence.RealSentence
 import com.kotlinnlp.linguisticdescription.sentence.Sentence
 import com.kotlinnlp.linguisticdescription.sentence.token.FormToken
-import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
+import com.kotlinnlp.neuraltokenizer.Sentence as TokenizerSentence
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 import com.kotlinnlp.tokensencoder.TokensEncoder
 
 /**
- * The extractor of frames from a text.
+ * The extractor of frames from a sentence of form tokens.
  *
  * @param extractor a frame extractor
- * @param tokenizer a neural tokenizer
  * @param tokensEncoder a tokens encoder
  */
 internal class TextFramesExtractor(
   private val extractor: FrameExtractor,
-  private val tokenizer: NeuralTokenizer,
   private val tokensEncoder: TokensEncoder<FormToken, Sentence<FormToken>>
 ) {
 
@@ -35,30 +32,23 @@ internal class TextFramesExtractor(
    *
    * @property intent the intent frame extracted
    * @property distribution the distribution of [intent] classification
-   * @property sentence the intent sentence
    */
-  data class Frame(val intent: Intent, val distribution: Distribution, val sentence: Sentence<FormToken>)
+  data class Frame(val intent: Intent, val distribution: Distribution)
 
   /**
-   * Extract intent frames from a text.
+   * Extract intent frames from a sentence of form tokens.
    *
-   * @param text the input text
+   * @param sentence a sentence of form tokens
    *
-   * @return the list of frames extracted
+   * @return the frame extracted
    */
-  @Suppress("UNCHECKED_CAST")
-  fun extractFrames(text: String): List<Frame> =
+  fun extractFrames(sentence: Sentence<FormToken>): Frame {
 
-    this.tokenizer.tokenize(text).map {
+    val tokenEncodings: List<DenseNDArray> = this.tokensEncoder.forward(sentence)
+    val extractorOutput: FrameExtractor.Output = this.extractor.forward(tokenEncodings)
 
-      val sentence = it as RealSentence<FormToken>
-      val tokenEncodings: List<DenseNDArray> = this.tokensEncoder.forward(sentence)
-      val extractorOutput: FrameExtractor.Output = this.extractor.forward(tokenEncodings)
-
-      Frame(
-        intent = extractorOutput.buildIntent(),
-        distribution = extractorOutput.buildDistribution(),
-        sentence = sentence
-      )
-    }
+    return Frame(
+      intent = extractorOutput.buildIntent(),
+      distribution = extractorOutput.buildDistribution())
+  }
 }
