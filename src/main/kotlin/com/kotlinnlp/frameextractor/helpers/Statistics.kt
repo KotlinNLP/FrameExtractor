@@ -7,34 +7,35 @@
 
 package com.kotlinnlp.frameextractor.helpers
 
+import com.kotlinnlp.utils.stats.MetricCounter
+
 /**
  * Evaluation statistics.
  *
- * @property intents statistic metric about the intents
- * @property slots statistic metric about the intent slots
+ * @property intents a map of intents names to the related metrics
+ * @property slots the metrics of the slots
  */
-data class Statistics(val intents: StatsMetric, val slots: StatsMetric) {
+data class Statistics(val intents: Map<String, MetricCounter>, val slots: MetricCounter) {
 
   /**
-   * Statistics for a single metric.
-   *
-   * @property precision precision
-   * @property recall recall
-   * @property f1Score the F1 score
+   * The overall accuracy.
    */
-  data class StatsMetric(val precision: Double, val recall: Double, val f1Score: Double)
+  val accuracy: Double = (this.intents.asSequence().map { it.value.f1Score }.average() + this.slots.f1Score) / 2.0
 
   /**
    * @return this statistics formatted into a string
    */
-  override fun toString(): String = """
-    - Intents accuracy:    precision %.2f, recall %.2f, f1 score %.2f
-    - Slots accuracy:      precision %.2f, recall %.2f, f1 score %.2f
+  override fun toString(): String {
+
+    val maxIntentLen: Int = this.intents.keys.maxBy { it.length }!!.length + 2 // include apexes
+
+    return """
+    - Overall accuracy: ${"%.2f%%".format(100.0 * this.accuracy)}
+    - Intents accuracy:
+      ${this.intents.entries.joinToString("\n      ") { "%-${maxIntentLen}s : %s".format("`${it.key}`", it.value) }}
+    - Slots accuracy: ${this.slots}
     """
-    .removePrefix("\n")
-    .trimIndent()
-    .format(
-      100.0 * this.intents.precision, 100.0 * this.intents.recall, 100.0 * this.intents.f1Score,
-      100.0 * this.slots.precision, 100.0 * this.slots.recall, 100.0 * this.slots.f1Score
-    )
+      .removePrefix("\n")
+      .trimIndent()
+  }
 }
