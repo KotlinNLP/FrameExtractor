@@ -92,7 +92,10 @@ private fun buildTextFramesExtractor(parsedArgs: CommandLineArguments): TextFram
     },
     lssModel = lssModel)
 
-  val model: FrameExtractorModel = FrameExtractorModel.load(FileInputStream(File(parsedArgs.modelPath)))
+  val model: FrameExtractorModel = parsedArgs.modelPath.let {
+    println("Loading frame extractor model from '$it'...")
+    FrameExtractorModel.load(FileInputStream(File(it)))
+  }
 
   println("\nFrame Extractor model: ${model.name}")
 
