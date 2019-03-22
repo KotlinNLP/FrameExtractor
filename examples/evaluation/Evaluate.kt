@@ -62,13 +62,16 @@ fun main(args: Array<String>) = mainBody {
     },
     tokensEncoder = tokensEncoder)
 
-  val extractorModel = FrameExtractorModel.load(FileInputStream(File(parsedArgs.modelPath)))
+  val extractorModel = parsedArgs.modelPath.let {
+    println("Loading frame extractor model from '$it'...")
+    FrameExtractorModel.load(FileInputStream(File(it)))
+  }
 
   println("\nStart validation on %d examples".format(validationDataset.examples.size))
 
   val stats: Statistics = Validator(model = extractorModel, dataset = validationDataset).evaluate()
   val accuracy: Double = stats.intents.f1Score * stats.slots.f1Score
 
-  println("\nAccuracy: %.2f%%".format(accuracy))
+  println("\nAccuracy: %.2f%%".format(100.0 * accuracy))
   println("\nStatistics\n$stats")
 }
