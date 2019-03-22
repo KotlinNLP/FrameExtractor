@@ -13,6 +13,7 @@ import com.kotlinnlp.frameextractor.FrameExtractorModel
 import com.kotlinnlp.frameextractor.helpers.dataset.EncodedDataset
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 import com.kotlinnlp.utils.progressindicator.ProgressIndicatorBar
+import com.kotlinnlp.utils.stats.MetricCounter
 
 /**
  * A helper to evaluate a [FrameExtractorModel].
@@ -33,29 +34,14 @@ class Validator(
   private val extractor  = FrameExtractor(this.model)
 
   /**
-   * The total number of intents in the validation dataset.
+   * The metric counters for each intent, associated by intent name.
    */
-  private val totalIntents: Int = this.dataset.examples.size
+  private lateinit var intentMetrics: Map<String, MetricCounter>
 
   /**
-   * The total number of slots in the validation dataset.
+   * The metric counter of the slots.
    */
-  private val totalSlots: Int = this.dataset.examples.sumBy { it.tokens.size }
-
-  /**
-   * The count of correct intents found.
-   */
-  private var correctIntents = 0
-
-  /**
-   * The count of correct slots found.
-   */
-  private var correctSlots = 0
-
-  /**
-   * The count of not-null slots found.
-   */
-  private var notNullSlots = 0
+  private lateinit var slotsMetric: MetricCounter
 
   /**
    * Evaluate the [model] and get statistics.
@@ -75,17 +61,16 @@ class Validator(
       if (this.verbose) progress.tick()
     }
 
-    return this.buildStats()
+    return Statistics(intents = this.intentMetrics, slots = this.slotsMetric)
   }
 
   /**
-   * Reset the counters.
+   * Reset the metrics counters.
    */
   private fun reset() {
 
-    this.correctIntents = 0
-    this.correctSlots = 0
-    this.notNullSlots = 0
+    this.intentMetrics = this.dataset.configuration.associate { it.name to MetricCounter() }
+    this.slotsMetric = MetricCounter()
   }
 
   /**
@@ -103,12 +88,15 @@ class Validator(
 
     if (example.intent == bestIntentName) {
 
-      this.correctIntents++
+      this.intentMetrics.getValue(example.intent).truePos++
 
       this.validateSlots(
         example = example,
         possibleSlots = intentConfig.slots,
         slotsClassifications = output.slotsClassifications)
+
+    } else {
+      this.intentMetrics.getValue(example.intent).falsePos++
     }
   }
 
@@ -133,39 +121,28 @@ class Validator(
       if (bestSlotIndex in intentSlotsRange) possibleSlots[bestSlotIndex - intentSlotsOffset] else null
     }
 
-    predictedSlotsNames.zip(example.tokens).forEach { (predictedSlotName, token) ->
-
-      if (predictedSlotName != null) {
-        this.notNullSlots++
-        if (predictedSlotName == token.slot.name) this.correctSlots++
-      }
+    predictedSlotsNames.zip(example.tokens).forEach {
+      this.validateSlot(predicted = it.first, expected = it.second.slot.name)
     }
   }
 
   /**
-   * @return the evaluation statistics
-   */
-  private fun buildStats(): Statistics = Statistics(
-    intents = buildStatsMetric(correct = correctIntents, outputTotal = totalIntents, goldTotal = totalIntents),
-    slots = buildStatsMetric(correct = correctSlots, outputTotal = notNullSlots, goldTotal = totalSlots)
-  )
-
-  /**
-   * @param correct the number of correct elements
-   * @param outputTotal the number of output elements
-   * @param goldTotal the number of gold elements
+   * Validate a slot classified.
    *
-   * @return statistics (precision, recall and F1 score) about the comparison of the output elements respect to
-   *         the gold elements
+   * @param predicted the name of the predicted slot (null if it is not a slot of the predicted intent)
+   * @param expected the name of the expected slot
    */
-  private fun buildStatsMetric(correct: Int, outputTotal: Int, goldTotal: Int): Statistics.StatsMetric {
+  private fun validateSlot(predicted: String?, expected: String) {
 
-    val correctDouble: Double = correct.toDouble()
+      if (predicted != null) {
 
-    return Statistics.StatsMetric(
-      precision = if (outputTotal > 0) correctDouble / outputTotal else 0.0,
-      recall = if (goldTotal > 0) correctDouble / goldTotal else 0.0,
-      f1Score = if (outputTotal > 0 && goldTotal > 0) 2 * correctDouble / (outputTotal + goldTotal) else 0.0
-    )
+        if (predicted == expected)
+          this.slotsMetric.truePos++
+        else
+          this.slotsMetric.falsePos++
+
+      } else {
+        this.slotsMetric.falseNeg++
+      }
   }
 }
