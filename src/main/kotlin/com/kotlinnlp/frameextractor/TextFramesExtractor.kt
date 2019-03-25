@@ -18,13 +18,9 @@ import com.kotlinnlp.tokensencoder.TokensEncoder
 /**
  * The extractor of frames from a sentence of form tokens.
  *
- * @param extractor a frame extractor
- * @param tokensEncoder a tokens encoder
+ * @param model the text frames extractor model
  */
-class TextFramesExtractor(
-  private val extractor: FrameExtractor,
-  private val tokensEncoder: TokensEncoder<FormToken, Sentence<FormToken>>
-) {
+class TextFramesExtractor(private val model: TextFrameExtractorModel) {
 
   /**
    * A frame extracted.
@@ -35,19 +31,27 @@ class TextFramesExtractor(
   data class Frame(val intent: Intent, val distribution: Distribution)
 
   /**
+   * A frame extractor built with the given [model].
+   */
+  internal val extractor = FrameExtractor(this.model.frameExtractor)
+
+  /**
+   * The encoder of the input tokens.
+   */
+  private val encoder: TokensEncoder<FormToken, Sentence<FormToken>> =
+    this.model.tokensEncoder.buildEncoder(useDropout = false)
+
+  /**
    * Extract intent frames from a sentence of form tokens.
    *
    * @param sentence a sentence of form tokens
    *
    * @return the frame extracted
    */
-  fun extractFrames(sentence: Sentence<FormToken>): Frame {
+  fun extractFrames(sentence: Sentence<FormToken>): FrameExtractor.Output {
 
-    val tokenEncodings: List<DenseNDArray> = this.tokensEncoder.forward(sentence)
-    val extractorOutput: FrameExtractor.Output = this.extractor.forward(tokenEncodings)
+    val tokensEncodings: List<DenseNDArray> = this.encoder.forward(sentence)
 
-    return Frame(
-      intent = extractorOutput.buildIntent(),
-      distribution = extractorOutput.buildDistribution())
+    return this.extractor.forward(tokensEncodings)
   }
 }
