@@ -10,6 +10,7 @@ package extract
 import buildTokensEncoder
 import com.kotlinnlp.frameextractor.FrameExtractor
 import com.kotlinnlp.frameextractor.FrameExtractorModel
+import com.kotlinnlp.frameextractor.TextFramesExtractor
 import com.kotlinnlp.linguisticdescription.sentence.Sentence
 import com.kotlinnlp.linguisticdescription.sentence.token.FormToken
 import com.kotlinnlp.lssencoder.LSSModel

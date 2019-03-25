@@ -5,11 +5,10 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/.
  * ------------------------------------------------------------------*/
 
-package extract
+package com.kotlinnlp.frameextractor
 
 import com.kotlinnlp.frameextractor.objects.Distribution
 import com.kotlinnlp.frameextractor.objects.Intent
-import com.kotlinnlp.frameextractor.FrameExtractor
 import com.kotlinnlp.linguisticdescription.sentence.Sentence
 import com.kotlinnlp.linguisticdescription.sentence.token.FormToken
 import com.kotlinnlp.neuraltokenizer.Sentence as TokenizerSentence
@@ -22,7 +21,7 @@ import com.kotlinnlp.tokensencoder.TokensEncoder
  * @param extractor a frame extractor
  * @param tokensEncoder a tokens encoder
  */
-internal class TextFramesExtractor(
+class TextFramesExtractor(
   private val extractor: FrameExtractor,
   private val tokensEncoder: TokensEncoder<FormToken, Sentence<FormToken>>
 ) {
