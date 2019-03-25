@@ -45,6 +45,11 @@ class TextFrameExtractorModel(
   }
 
   /**
+   * The name of this model.
+   */
+  val name: String = this.frameExtractor.name
+
+  /**
    * Serialize this [TextFrameExtractorModel] and write it to an output stream.
    *
    * @param outputStream the [OutputStream] in which to write this serialized [TextFrameExtractorModel]
