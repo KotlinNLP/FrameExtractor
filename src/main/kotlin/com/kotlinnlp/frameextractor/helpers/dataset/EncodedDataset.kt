@@ -89,8 +89,8 @@ data class EncodedDataset(
 
           Example(
             intent = it.intent,
-            tokens = it.tokens.zip(tokensEncodings).map { (token, encoding) ->
-              Example.Token(encoding = encoding.copy(), slot = token.slot ?: Dataset.Example.Slot.noSlot)
+            tokens = it.sentence.tokens.zip(tokensEncodings).map { (token, encoding) ->
+              Example.Token(encoding = encoding.copy(), slot = token.slot)
             }
           )
         }
@@ -103,6 +103,6 @@ data class EncodedDataset(
      * @return a new input sentence built from the given example
      */
     private fun buildSentence(example: Dataset.Example): Sentence<FormToken> = InputSentence(
-      tokens = example.tokens.map { InputToken(it.form) })
+      tokens = example.sentence.tokens.map { InputToken(it.form) })
   }
 }

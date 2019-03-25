@@ -10,6 +10,8 @@ package com.kotlinnlp.frameextractor.helpers.dataset
 import com.beust.klaxon.JsonObject
 import com.beust.klaxon.Parser
 import com.kotlinnlp.frameextractor.objects.Intent
+import com.kotlinnlp.linguisticdescription.sentence.token.FormToken
+import com.kotlinnlp.linguisticdescription.sentence.Sentence as LDSentence
 import com.kotlinnlp.frameextractor.objects.Slot as IntentSlot
 
 /**
@@ -48,18 +50,23 @@ data class Dataset(
   /**
    * An example of the dataset.
    *
-   * @property intent the name of the intent that this example represents
-   * @property tokens the list of tokens that compose the sentence of this example
+   * @property intent the name of the intent that the example represents
+   * @property sentence the sentence of the example
    */
-  data class Example(val intent: String, val tokens: List<Token>) {
+  data class Example(val intent: String, val sentence: Sentence) {
 
     /**
-     * A token of the example.
+     * The sentence of the example
+     */
+    data class Sentence(override val tokens: List<Token>) : LDSentence<FormToken>
+
+    /**
+     * A token of the sentence.
      *
      * @property form the token form
-     * @property slot the intent slot that this token is part of (null if it is not part of a slot)
+     * @property slot the intent slot that this token is part of
      */
-    data class Token(val form: String, val slot: Slot? = null)
+    data class Token(override val form: String, val slot: Slot) : FormToken
 
     /**
      * The token slot.
@@ -131,21 +138,24 @@ data class Dataset(
         examples = jsonDataset.array<JsonObject>("examples")!!.map { example ->
           Example(
             intent = example.string("intent")!!,
-            tokens = example.array<JsonObject>("tokens")!!.map { token ->
-              Example.Token(
-                form = token.string("form")!!,
-                slot = token.obj("slot")?.let { slot ->
-                  Example.Slot(
-                    name = slot.string("name")!!,
-                    iob = slot.string("iob")!!.let { iob ->
-                      when (iob) {
-                        "B" -> IOBTag.Beginning
-                        "I" -> IOBTag.Inside
-                        else -> throw RuntimeException("Invalid IOB tag annotation: $iob")
-                      }
-                    })
-                })
-            }
+            sentence = Example.Sentence(
+              tokens = example.array<JsonObject>("tokens")!!.map { token ->
+                Example.Token(
+                  form = token.string("form")!!,
+                  slot = token.obj("slot")?.let { slot ->
+                    Example.Slot(
+                      name = slot.string("name")!!,
+                      iob = slot.string("iob")!!.let { iob ->
+                        when (iob) {
+                          "B" -> IOBTag.Beginning
+                          "I" -> IOBTag.Inside
+                          else -> throw RuntimeException("Invalid IOB tag annotation: $iob")
+                        }
+                      })
+                  } ?: Example.Slot.noSlot
+                )
+              }
+            )
           )
         }
       )
@@ -166,12 +176,15 @@ data class Dataset(
       if (example.intent !in slotNamesByIntent)
         throw InvalidExample(index = exampleIndex, message = "Invalid intent name: '${example.intent}'")
 
-      example.tokens.forEach {
-        if (it.slot != null && it.slot.name !in slotNamesByIntent.getValue(example.intent))
+      example.sentence.tokens
+        .firstOrNull {
+          it.slot.name != Intent.Configuration.NO_SLOT_NAME &&
+            it.slot.name !in slotNamesByIntent.getValue(example.intent)
+        }?.let {
           throw InvalidExample(
             index = exampleIndex,
             message = "Invalid slot name for intent '${example.intent}': '${it.slot.name}'")
-      }
+        }
     }
   }
 
