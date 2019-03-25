@@ -7,22 +7,13 @@
 
 package extract
 
-import buildTokensEncoder
 import com.kotlinnlp.frameextractor.FrameExtractor
-import com.kotlinnlp.frameextractor.FrameExtractorModel
+import com.kotlinnlp.frameextractor.TextFrameExtractorModel
 import com.kotlinnlp.frameextractor.TextFramesExtractor
 import com.kotlinnlp.linguisticdescription.sentence.Sentence
 import com.kotlinnlp.linguisticdescription.sentence.token.FormToken
-import com.kotlinnlp.lssencoder.LSSModel
-import com.kotlinnlp.morphologicalanalyzer.MorphologicalAnalyzer
-import com.kotlinnlp.morphologicalanalyzer.dictionary.MorphologyDictionary
-import com.kotlinnlp.neuralparser.helpers.preprocessors.MorphoPreprocessor
-import com.kotlinnlp.neuralparser.language.ParsingSentence
-import com.kotlinnlp.neuralparser.language.ParsingToken
-import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRModel
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizerModel
-import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsMap
 import com.xenomachina.argparser.mainBody
 import java.io.File
 import java.io.FileInputStream
@@ -36,7 +27,10 @@ fun main(args: Array<String>) = mainBody {
 
   val parsedArgs = CommandLineArguments(args)
   val tokenizer = NeuralTokenizer(NeuralTokenizerModel.load(FileInputStream(File(parsedArgs.tokenizerModelPath))))
-  val textFramesExtractor: TextFramesExtractor = buildTextFramesExtractor(parsedArgs)
+  val textFramesExtractor = TextFramesExtractor(model = parsedArgs.modelPath.let {
+    println("Loading text frames extractor model from '$it'...")
+    TextFrameExtractorModel.load(FileInputStream(File(it)))
+  })
 
   @Suppress("UNCHECKED_CAST")
   while (true) {
@@ -53,8 +47,11 @@ fun main(args: Array<String>) = mainBody {
 
         sentence as Sentence<FormToken>
 
+        val output: FrameExtractor.Output = textFramesExtractor.extractFrames(sentence)
+        val frame = TextFramesExtractor.Frame(intent = output.buildIntent(), distribution = output.buildDistribution())
+
         println()
-        textFramesExtractor.extractFrames(sentence).print(sentence)
+        frame.print(sentence)
       }
     }
   }
@@ -72,41 +69,6 @@ private fun readValue(): String {
   print("\nExtract frames from a text (empty to exit): ")
 
   return readLine()!!
-}
-
-/**
- * @param parsedArgs the command line parsed arguments
- *
- * @return the text frames extractor
- */
-private fun buildTextFramesExtractor(parsedArgs: CommandLineArguments): TextFramesExtractor {
-
-  val lssModel: LSSModel<ParsingToken, ParsingSentence> = parsedArgs.parserModelPath.let {
-    println("Loading the LSSEncoder model from the LHRParser model serialized in '$it'...")
-    LHRModel.load(FileInputStream(File(it))).lssModel
-  }
-
-  val tokensEncoder = buildTokensEncoder(
-    preprocessor = parsedArgs.morphoDictionaryPath.let {
-      println("Loading serialized dictionary from '$it'...")
-      MorphoPreprocessor(MorphologicalAnalyzer(
-        language = lssModel.language,
-        dictionary = MorphologyDictionary.load(FileInputStream(File(it)))))
-    },
-    embeddingsMap = parsedArgs.embeddingsPath.let {
-      println("Loading pre-trained word embeddings from '$it'...")
-      EmbeddingsMap.load(it)
-    },
-    lssModel = lssModel)
-
-  val model: FrameExtractorModel = parsedArgs.modelPath.let {
-    println("Loading frame extractor model from '$it'...")
-    FrameExtractorModel.load(FileInputStream(File(it)))
-  }
-
-  println("\nFrame Extractor model: ${model.name}")
-
-  return TextFramesExtractor(extractor = FrameExtractor(model), tokensEncoder = tokensEncoder)
 }
 
 /**
