@@ -147,6 +147,8 @@ class Trainer(
         intentConfig = dataset.configuration[intentIndex],
         slotsOffset = this.extractor.getSlotsOffset(example.intent))
 
+      // TODO: setup newExample() call?
+
       this.update() // the params errors copies are optimized considering batches with a single example
     }
   }
