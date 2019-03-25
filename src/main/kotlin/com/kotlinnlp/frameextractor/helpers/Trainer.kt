@@ -11,15 +11,18 @@ import com.kotlinnlp.frameextractor.helpers.dataset.IOBTag
 import com.kotlinnlp.frameextractor.objects.Intent
 import com.kotlinnlp.frameextractor.FrameExtractor
 import com.kotlinnlp.frameextractor.FrameExtractorModel
+import com.kotlinnlp.frameextractor.TextFrameExtractorModel
 import com.kotlinnlp.frameextractor.helpers.dataset.Dataset
 import com.kotlinnlp.frameextractor.helpers.dataset.EncodedDataset
+import com.kotlinnlp.linguisticdescription.sentence.Sentence
+import com.kotlinnlp.linguisticdescription.sentence.token.FormToken
 import com.kotlinnlp.simplednn.core.functionalities.updatemethods.UpdateMethod
 import com.kotlinnlp.simplednn.core.functionalities.updatemethods.adam.ADAMMethod
 import com.kotlinnlp.simplednn.core.optimizer.ParamsOptimizer
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArrayFactory
-import com.kotlinnlp.simplednn.utils.scheduling.BatchScheduling
-import com.kotlinnlp.simplednn.utils.scheduling.EpochScheduling
+import com.kotlinnlp.tokensencoder.TokensEncoder
+import com.kotlinnlp.tokensencoder.TokensEncoderOptimizer
 import com.kotlinnlp.utils.ExamplesIndices
 import com.kotlinnlp.utils.Shuffler
 import com.kotlinnlp.utils.Timer
@@ -33,15 +36,19 @@ import java.io.FileOutputStream
  * @param model the model to train
  * @param modelFilename the path of the file in which to save the serialized trained model
  * @param epochs the number of training epochs
- * @param updateMethod the update method to optimize the model parameters
+ * @param extractorUpdateMethod the update method to optimize the frame extractor model parameters
+ * @param encoderUpdateMethod the update method for the parameters of the tokens encoder (null if must not be trained)
+ * @param useDropout whether to apply the dropout of the input
  * @param validator a helper for the validation of the model
  * @param verbose whether to print info about the training progress and timing (default = true)
  */
 class Trainer(
-  private val model: FrameExtractorModel,
+  private val model: TextFrameExtractorModel,
   private val modelFilename: String,
   private val epochs: Int,
-  private val updateMethod: UpdateMethod<*> = ADAMMethod(stepSize = 0.001, beta1 = 0.9, beta2 = 0.999),
+  extractorUpdateMethod: UpdateMethod<*> = ADAMMethod(stepSize = 0.001, beta1 = 0.9, beta2 = 0.999),
+  encoderUpdateMethod: UpdateMethod<*>? = null,
+  useDropout: Boolean,
   private val validator: Validator,
   private val verbose: Boolean = true
 ) {
@@ -64,12 +71,26 @@ class Trainer(
   /**
    * A frame extractor built with the given [model].
    */
-  private val extractor = FrameExtractor(this.model)
+  private val extractor = FrameExtractor(this.model.frameExtractor)
+
+  /**
+   * The encoder of the input tokens.
+   */
+  private val encoder: TokensEncoder<FormToken, Sentence<FormToken>> =
+    this.model.tokensEncoder.buildEncoder(useDropout)
 
   /**
    * The optimizer of the [model] parameters.
    */
-  private val optimizer = ParamsOptimizer(params = this.model.params, updateMethod = this.updateMethod)
+  private val extractorOptimizer =
+    ParamsOptimizer(params = this.model.frameExtractor.params, updateMethod = extractorUpdateMethod)
+
+  /**
+   * The optimizer of the tokens encoder.
+   * It is null if it must not be trained.
+   */
+  private val encoderOptimizer: TokensEncoderOptimizer? =
+    encoderUpdateMethod?.let { this.model.tokensEncoder.buildOptimizer(updateMethod = it) }
 
   /**
    * Check requirements.
@@ -125,6 +146,8 @@ class Trainer(
         intentIndex = intentIndex,
         intentConfig = dataset.configuration[intentIndex],
         slotsOffset = this.extractor.getSlotsOffset(example.intent))
+
+      this.update() // the params errors copies are optimized considering batches with a single example
     }
   }
 
@@ -161,9 +184,21 @@ class Trainer(
 
     this.extractor.backward(
       outputErrors = this.extractor.Output(intentsDistribution = intentErrors, slotsClassifications = slotsErrors))
+    this.extractorOptimizer.accumulate(this.extractor.getParamsErrors(copy = false), copy = false) // optimized copy
 
-    this.optimizer.accumulate(this.extractor.getParamsErrors(copy = false), copy = false)
-    this.optimizer.update()
+    this.encoderOptimizer?.let { optimizer ->
+      this.encoder.backward(this.extractor.getInputErrors(copy = false))
+      optimizer.accumulate(this.encoder.getParamsErrors(copy = false), copy = false) // optimized copy
+    }
+  }
+
+  /**
+   * Optimizers update.
+   */
+  private fun update() {
+
+    this.extractorOptimizer.update()
+    this.encoderOptimizer?.update()
   }
 
   /**
@@ -171,9 +206,8 @@ class Trainer(
    */
   private fun newBatch() {
 
-    if (this.updateMethod is BatchScheduling) {
-      this.updateMethod.newBatch()
-    }
+    this.extractorOptimizer.newBatch()
+    this.encoderOptimizer?.newBatch()
   }
 
   /**
@@ -181,9 +215,8 @@ class Trainer(
    */
   private fun newEpoch() {
 
-    if (this.updateMethod is EpochScheduling) {
-      this.updateMethod.newEpoch()
-    }
+    this.extractorOptimizer.newEpoch()
+    this.encoderOptimizer?.newEpoch()
 
     this.epochCount++
   }
