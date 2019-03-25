@@ -16,27 +16,29 @@ import com.kotlinnlp.neuralparser.language.BaseToken
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.language.ParsingToken
 import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsMap
+import com.kotlinnlp.tokensencoder.TokensEncoderModel
 import com.kotlinnlp.tokensencoder.embeddings.keyextractor.NormWordKeyExtractor
 import com.kotlinnlp.tokensencoder.embeddings.EmbeddingsEncoderModel
-import com.kotlinnlp.tokensencoder.ensemble.EnsembleTokensEncoder
 import com.kotlinnlp.tokensencoder.ensemble.EnsembleTokensEncoderModel
 import com.kotlinnlp.tokensencoder.wrapper.MirrorConverter
 import com.kotlinnlp.tokensencoder.wrapper.SentenceConverter
 import com.kotlinnlp.tokensencoder.wrapper.TokensEncoderWrapperModel
 
 /**
- * Build an [EnsembleTokensEncoder] composed by an embeddings encoder and an LSS encoder.
+ * Build an [EnsembleTokensEncoderModel] composed by an embeddings encoder and an LSS encoder.
  *
  * @param preprocessor a sentence preprocessor
  * @param embeddingsMap an embeddings map by dictionary
  * @param lssModel the model of an LSS encoder
  *
- * @return a new tokens encoder
+ * @return a new tokens encoder model
  */
-internal fun buildTokensEncoder(preprocessor: SentencePreprocessor,
-                                embeddingsMap: EmbeddingsMap<String>,
-                                lssModel: LSSModel<ParsingToken, ParsingSentence>) = EnsembleTokensEncoder(
-  model = EnsembleTokensEncoderModel(
+internal fun buildTokensEncoderModel(
+  preprocessor: SentencePreprocessor,
+  embeddingsMap: EmbeddingsMap<String>,
+  lssModel: LSSModel<ParsingToken, ParsingSentence>
+): TokensEncoderModel<FormToken, Sentence<FormToken>> =
+  EnsembleTokensEncoderModel(
     components = listOf(
       EnsembleTokensEncoderModel.ComponentModel(
         TokensEncoderWrapperModel(
@@ -48,8 +50,7 @@ internal fun buildTokensEncoder(preprocessor: SentencePreprocessor,
         TokensEncoderWrapperModel(
           model = LSSTokensEncoderModel(lssModel = lssModel),
           converter = FormSentenceConverter(preprocessor))))
-  ),
-  useDropout = false)
+  )
 
 /**
  * The [SentenceConverter] from a sentence of form tokens.
