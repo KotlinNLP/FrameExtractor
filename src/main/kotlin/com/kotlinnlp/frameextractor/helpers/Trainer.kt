@@ -13,7 +13,6 @@ import com.kotlinnlp.frameextractor.FrameExtractor
 import com.kotlinnlp.frameextractor.FrameExtractorModel
 import com.kotlinnlp.frameextractor.TextFrameExtractorModel
 import com.kotlinnlp.frameextractor.helpers.dataset.Dataset
-import com.kotlinnlp.frameextractor.helpers.dataset.EncodedDataset
 import com.kotlinnlp.linguisticdescription.sentence.Sentence
 import com.kotlinnlp.linguisticdescription.sentence.token.FormToken
 import com.kotlinnlp.simplednn.core.functionalities.updatemethods.UpdateMethod
@@ -105,7 +104,7 @@ class Trainer(
    * @param dataset the training dataset
    * @param shuffler a shuffle to shuffle the sentences at each epoch (can be null)
    */
-  fun train(dataset: EncodedDataset, shuffler: Shuffler? = Shuffler(enablePseudoRandom = true, seed = 743)) {
+  fun train(dataset: Dataset, shuffler: Shuffler? = Shuffler(enablePseudoRandom = true, seed = 743)) {
 
     (0 until this.epochs).forEach { i ->
 
@@ -128,13 +127,13 @@ class Trainer(
    * @param dataset the training dataset
    * @param shuffler a shuffle to shuffle the sentences at each epoch (can be null)
    */
-  private fun trainEpoch(dataset: EncodedDataset, shuffler: Shuffler?) {
+  private fun trainEpoch(dataset: Dataset, shuffler: Shuffler?) {
 
     val progress = ProgressIndicatorBar(dataset.examples.size)
 
     ExamplesIndices(dataset.examples.size, shuffler = shuffler).forEach { i ->
 
-      val example: EncodedDataset.Example = dataset.examples[i]
+      val example: Dataset.Example = dataset.examples[i]
       val intentIndex: Int = dataset.configuration.indexOfFirst { it.name == example.intent }
 
       if (this.verbose) progress.tick()
@@ -162,17 +161,18 @@ class Trainer(
    * @param slotsOffset the offset index from which the slots of a this example intent start, within the concatenation
    *                    of all the possible intents slots
    */
-  private fun trainExample(example: EncodedDataset.Example,
+  private fun trainExample(example: Dataset.Example,
                            intentIndex: Int,
                            intentConfig: Intent.Configuration,
                            slotsOffset: Int) {
 
-    val output: FrameExtractor.Output = this.extractor.forward(example.tokens.map { it.encoding })
+    val tokensEncodings: List<DenseNDArray> = this.encoder.forward(example.sentence)
+    val output: FrameExtractor.Output = this.extractor.forward(tokensEncodings)
 
     val intentErrors: DenseNDArray = output.intentsDistribution.sub(
       DenseNDArrayFactory.oneHotEncoder(length = output.intentsDistribution.length, oneAt = intentIndex))
 
-    val slotsErrors: List<DenseNDArray> = output.slotsClassifications.zip(example.tokens).map {
+    val slotsErrors: List<DenseNDArray> = output.slotsClassifications.zip(example.sentence.tokens).map {
       (classification, exampleToken) ->
 
       val slot: Dataset.Example.Slot = exampleToken.slot
