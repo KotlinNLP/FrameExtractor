@@ -123,7 +123,7 @@ class Validator(
       if (bestSlotIndex in intentSlotsRange) possibleSlots[bestSlotIndex - intentSlotsOffset] else null
     }
 
-    predictedSlotsNames.zip(example.tokens).forEach {
+    predictedSlotsNames.zip(example.sentence.tokens).forEach {
       this.validateSlot(predicted = it.first, expected = it.second.slot.name)
     }
   }
