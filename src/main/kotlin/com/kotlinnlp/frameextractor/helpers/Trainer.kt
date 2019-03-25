@@ -144,7 +144,7 @@ class Trainer(
         example = example,
         intentIndex = intentIndex,
         intentConfig = dataset.configuration[intentIndex],
-        slotsOffset = this.extractor.getSlotsOffset(example.intent))
+        slotsOffset = this.model.frameExtractor.getSlotsOffset(example.intent))
 
       // TODO: setup newExample() call?
 
