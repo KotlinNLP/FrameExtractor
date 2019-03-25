@@ -113,7 +113,7 @@ class Validator(
                             possibleSlots: List<String>,
                             slotsClassifications: List<DenseNDArray>) {
 
-    val intentSlotsOffset: Int = this.extractor.getSlotsOffset(example.intent)
+    val intentSlotsOffset: Int = this.model.frameExtractor.getSlotsOffset(example.intent)
     val intentSlotsRange = intentSlotsOffset until (intentSlotsOffset + possibleSlots.size)
 
     val predictedSlotsNames: List<String?> = slotsClassifications.map {

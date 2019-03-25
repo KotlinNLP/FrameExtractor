@@ -155,4 +155,18 @@ class FrameExtractorModel(
    * @param outputStream the [OutputStream] in which to write this serialized [FrameExtractorModel]
    */
   fun dump(outputStream: OutputStream) = Serializer.serialize(this, outputStream)
+
+  /**
+   * Get the offset index from which the slots of a given intent start, within the concatenation of all the possible
+   * intents slots.
+   *
+   * @param intentName the name of an intent
+   *
+   * @return the offset of the given intent slots
+   */
+  fun getSlotsOffset(intentName: String): Int =
+    this.intentsConfiguration
+      .asSequence()
+      .take(this.intentsConfiguration.indexOfFirst { it.name == intentName })
+      .sumBy { it.slots.size }
 }

@@ -247,20 +247,6 @@ class FrameExtractor(
   )
 
   /**
-   * Get the offset index from which the slots of a given intent start, within the concatenation of all the possible
-   * intents slots.
-   *
-   * @param intentName the name of an intent
-   *
-   * @return the offset of the given intent slots
-   */
-  fun getSlotsOffset(intentName: String): Int =
-    this.model.intentsConfiguration
-      .asSequence()
-      .take(this.model.intentsConfiguration.indexOfFirst { it.name == intentName })
-      .sumBy { it.slots.size }
-
-  /**
    * Sum a smaller dense array to a bigger dense array element-wise in-place, aligning them to the first or the last
    * index.
    *
