@@ -31,7 +31,7 @@ import java.io.Serializable
 class FrameExtractorModel(
   val name: String,
   val intentsConfiguration: List<Intent.Configuration>,
-  tokenEncodingSize: Int,
+  internal val tokenEncodingSize: Int,
   hiddenSize: Int,
   hiddenActivation: ActivationFunction? = Tanh(),
   recurrentConnectionType: LayerType.Connection = LayerType.Connection.LSTM

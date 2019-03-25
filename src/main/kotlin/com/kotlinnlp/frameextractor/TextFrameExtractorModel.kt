@@ -56,6 +56,15 @@ class TextFrameExtractorModel(
   val intentsConfiguration: List<Intent.Configuration> = this.frameExtractor.intentsConfiguration
 
   /**
+   * Check requirements.
+   */
+  init {
+    require(this.frameExtractor.tokenEncodingSize == this.tokensEncoder.tokenEncodingSize) {
+      "The tokens encoding size of the TokensEncoder must be compatible with the FramesExtractor."
+    }
+  }
+
+  /**
    * Serialize this [TextFrameExtractorModel] and write it to an output stream.
    *
    * @param outputStream the [OutputStream] in which to write this serialized [TextFrameExtractorModel]
