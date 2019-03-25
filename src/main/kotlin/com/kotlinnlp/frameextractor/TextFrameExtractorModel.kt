@@ -7,6 +7,7 @@
 
 package com.kotlinnlp.frameextractor
 
+import com.kotlinnlp.frameextractor.objects.Intent
 import com.kotlinnlp.linguisticdescription.sentence.Sentence
 import com.kotlinnlp.linguisticdescription.sentence.token.FormToken
 import com.kotlinnlp.tokensencoder.TokensEncoderModel
@@ -48,6 +49,11 @@ class TextFrameExtractorModel(
    * The name of this model.
    */
   val name: String = this.frameExtractor.name
+
+  /**
+   * The list of all the possible intents managed by this frame extractor.
+   */
+  val intentsConfiguration: List<Intent.Configuration> = this.frameExtractor.intentsConfiguration
 
   /**
    * Serialize this [TextFrameExtractorModel] and write it to an output stream.
