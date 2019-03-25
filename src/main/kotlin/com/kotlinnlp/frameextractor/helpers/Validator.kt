@@ -10,7 +10,9 @@ package com.kotlinnlp.frameextractor.helpers
 import com.kotlinnlp.frameextractor.objects.Intent
 import com.kotlinnlp.frameextractor.FrameExtractor
 import com.kotlinnlp.frameextractor.FrameExtractorModel
-import com.kotlinnlp.frameextractor.helpers.dataset.EncodedDataset
+import com.kotlinnlp.frameextractor.TextFrameExtractorModel
+import com.kotlinnlp.frameextractor.TextFramesExtractor
+import com.kotlinnlp.frameextractor.helpers.dataset.Dataset
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 import com.kotlinnlp.utils.progressindicator.ProgressIndicatorBar
 import com.kotlinnlp.utils.stats.MetricCounter
@@ -23,15 +25,15 @@ import com.kotlinnlp.utils.stats.MetricCounter
  * @param verbose whether to print info about the validation progress (default = true)
  */
 class Validator(
-  private val model: FrameExtractorModel,
-  private val dataset: EncodedDataset,
+  private val model: TextFrameExtractorModel,
+  private val dataset: Dataset,
   private val verbose: Boolean = true
 ) {
 
   /**
    * A frame extractor built with the given [model].
    */
-  private val extractor  = FrameExtractor(this.model)
+  private val extractor = TextFramesExtractor(this.model)
 
   /**
    * The metric counters for each intent, associated by intent name.
@@ -78,12 +80,12 @@ class Validator(
    *
    * @param example an example of the dataset
    */
-  private fun validateExample(example: EncodedDataset.Example) {
+  private fun validateExample(example: Dataset.Example) {
 
-    val output: FrameExtractor.Output = this.extractor.forward(example.tokens.map { it.encoding })
+    val output: FrameExtractor.Output = this.extractor.extractFrames(example.sentence)
 
     val bestIntentIndex: Int = output.intentsDistribution.argMaxIndex()
-    val intentConfig: Intent.Configuration = this.model.intentsConfiguration[bestIntentIndex]
+    val intentConfig: Intent.Configuration = this.model.frameExtractor.intentsConfiguration[bestIntentIndex]
     val bestIntentName: String = intentConfig.name
 
     if (example.intent == bestIntentName) {
@@ -107,7 +109,7 @@ class Validator(
    * @param possibleSlots the list of possible slot names that can be associated to the example intent
    * @param slotsClassifications the list of slots classifications
    */
-  private fun validateSlots(example: EncodedDataset.Example,
+  private fun validateSlots(example: Dataset.Example,
                             possibleSlots: List<String>,
                             slotsClassifications: List<DenseNDArray>) {
 
