@@ -19,7 +19,6 @@ import com.xenomachina.argparser.mainBody
 import com.kotlinnlp.frameextractor.TextFrameExtractorModel
 import com.kotlinnlp.linguisticdescription.sentence.Sentence
 import com.kotlinnlp.linguisticdescription.sentence.token.FormToken
-import com.kotlinnlp.morphologicalanalyzer.MorphologicalAnalyzer
 import com.kotlinnlp.morphologicalanalyzer.dictionary.MorphologyDictionary
 import com.kotlinnlp.neuralparser.helpers.preprocessors.MorphoPreprocessor
 import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsMap
@@ -57,7 +56,7 @@ fun main(args: Array<String>) = mainBody {
   val encoderModel: TokensEncoderModel<FormToken, Sentence<FormToken>> = buildTokensEncoderModel(
     preprocessor = parsedArgs.morphoDictionaryPath.let {
       println("Loading serialized dictionary from '$it'...")
-      MorphoPreprocessor(MorphologicalAnalyzer(dictionary = MorphologyDictionary.load(FileInputStream(File(it)))))
+      MorphoPreprocessor(dictionary = MorphologyDictionary.load(FileInputStream(File(it))))
     },
     embeddingsMap = embeddingsMap,
     lssModel = lssModel,
