@@ -16,6 +16,7 @@ import com.kotlinnlp.neuralparser.language.BaseToken
 import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.language.ParsingToken
 import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsMap
+import com.kotlinnlp.simplednn.core.layers.models.merge.mergeconfig.ConcatFeedforwardMerge
 import com.kotlinnlp.tokensencoder.TokensEncoderModel
 import com.kotlinnlp.tokensencoder.embeddings.keyextractor.NormWordKeyExtractor
 import com.kotlinnlp.tokensencoder.embeddings.EmbeddingsEncoderModel
@@ -71,7 +72,8 @@ internal fun buildTokensEncoderModel(
       EnsembleTokensEncoderModel.ComponentModel(
         model = TokensEncoderWrapperModel(model = lssEncoder, converter = FormSentenceConverter(preprocessor)),
         trainable = false)
-    )
+    ),
+    outputMergeConfiguration = ConcatFeedforwardMerge(outputSize = 100)
   )
 }
 
