@@ -103,7 +103,7 @@ class FrameExtractor(
         val slotIndexedScore: IndexedValue<Double> = this@FrameExtractor.getSlotIndexedScore(
           classification = classification,
           prevSlotIndices = slotIndices,
-          slotsOffset = slotsOffset)
+          slotsRange = model.getSlotsRange(intentIndex))
 
         val token = Slot.Token(index = tokenIndex, score = slotIndexedScore.value)
 
@@ -299,7 +299,7 @@ class FrameExtractor(
    */
   private fun classifySlots(intentIndex: Int, slotsInputs: List<DenseNDArray>): List<DenseNDArray> {
 
-    val slotsOffset: Int = this.model.slotsOffsets[intentIndex]
+    val slotsRange: IntRange = this.model.getSlotsRange(intentIndex)
     val slotIndices: MutableList<Int> = mutableListOf()
 
     return slotsInputs.mapIndexed { i, slotsInput ->
@@ -315,7 +315,7 @@ class FrameExtractor(
         this.getSlotIndexedScore(
           classification = classification,
           prevSlotIndices = slotIndices,
-          slotsOffset = slotsOffset).index)
+          slotsRange = slotsRange).index)
 
       classification.copy()
     }
@@ -324,23 +324,25 @@ class FrameExtractor(
   /**
    * @param classification a classification of the slots network
    * @param prevSlotIndices the list of indices of the previous slots predicted
-   * @param slotsOffset the slots indices offset of the intent predicted
+   * @param slotsRange the slots indices range of the intent predicted
    *
    * @return the indexed score of the slot predicted
    */
   private fun getSlotIndexedScore(classification: DenseNDArray,
                                   prevSlotIndices: List<Int>,
-                                  slotsOffset: Int): IndexedValue<Double> {
+                                  slotsRange: IntRange): IndexedValue<Double> {
 
-    val argMaxIndex: Int =
-      classification.argMaxIndex(exceptIndices = this.getValidSlotClassificationIndices(prevSlotIndices))
+    val slotsClassificationRange: IntRange = 2 * slotsRange.start until 2 * (slotsRange.endInclusive + 1)
+    val invalidClassificationIndices: Set<Int> = ((0 until classification.length) - slotsClassificationRange).toSet() +
+      this.getValidSlotClassificationIndices(prevSlotIndices)
+    val argMaxIndex: Int = classification.argMaxIndex(exceptIndices = invalidClassificationIndices)
     val slotIndex: Int = argMaxIndex / 2
     val isInside: Boolean = argMaxIndex % 2 != 0
-    val invalidInside: Boolean = isInside && (prevSlotIndices.isEmpty() || slotIndex != prevSlotIndices.last())
+    val isInvalidInside: Boolean = isInside && (prevSlotIndices.isEmpty() || slotIndex != prevSlotIndices.last())
 
-    return if (invalidInside || slotIndex !in slotsOffset until (slotsOffset + classification.length)) {
+    return if (isInvalidInside) {
 
-      val noSlotIndex: Int = this.model.noSlotIndices.first { it >= slotsOffset }
+      val noSlotIndex: Int = this.model.noSlotIndices.first { it in slotsRange }
 
       IndexedValue(index = noSlotIndex, value = classification[noSlotIndex])
 
@@ -352,7 +354,7 @@ class FrameExtractor(
   /**
    * @param slotIndices a list of slot indices
    *
-   * @return a set containing the classification 'Beginning' indices of the given slots that are not "no-slot"
+   * @return a set containing the classification 'Beginning' indices of the slots that are not already predicted
    */
   private fun getValidSlotClassificationIndices(slotIndices: List<Int>): Set<Int> =
     slotIndices
