@@ -87,6 +87,40 @@
                         </configuration>
                     </execution>
                     <execution>
+                        <id>evaluation-assembly</id>
+                        <phase>package</phase>
+                        <goals> <goal>single</goal> </goals>
+                        <configuration>
+                            <finalName>eval-frame-extractor</finalName>
+                            <archive>
+                                <manifest>
+                                    <addClasspath>true</addClasspath>
+                                    <mainClass>evaluation.EvaluateKt</mainClass>
+                                </manifest>
+                            </archive>
+                            <descriptorRefs>
+                                <descriptorRef>jar-with-dependencies</descriptorRef>
+                            </descriptorRefs>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>evaluation-no-emb-assembly</id>
+                        <phase>package</phase>
+                        <goals> <goal>single</goal> </goals>
+                        <configuration>
+                            <finalName>eval-frame-extractor-no-emb</finalName>
+                            <archive>
+                                <manifest>
+                                    <addClasspath>true</addClasspath>
+                                    <mainClass>evaluation.separatemodels.EvaluateKt</mainClass>
+                                </manifest>
+                            </archive>
+                            <descriptorRefs>
+                                <descriptorRef>jar-with-dependencies</descriptorRef>
+                            </descriptorRefs>
+                        </configuration>
+                    </execution>
+                    <execution>
                         <id>extract-assembly</id>
                         <phase>package</phase>
                         <goals> <goal>single</goal> </goals>
@@ -96,6 +130,23 @@
                                 <manifest>
                                     <addClasspath>true</addClasspath>
                                     <mainClass>extract.ExtractFramesKt</mainClass>
+                                </manifest>
+                            </archive>
+                            <descriptorRefs>
+                                <descriptorRef>jar-with-dependencies</descriptorRef>
+                            </descriptorRefs>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>extract-no-emb-assembly</id>
+                        <phase>package</phase>
+                        <goals> <goal>single</goal> </goals>
+                        <configuration>
+                            <finalName>extract-frames-no-emb</finalName>
+                            <archive>
+                                <manifest>
+                                    <addClasspath>true</addClasspath>
+                                    <mainClass>extract.separatemodels.ExtractFramesKt</mainClass>
                                 </manifest>
                             </archive>
                             <descriptorRefs>
