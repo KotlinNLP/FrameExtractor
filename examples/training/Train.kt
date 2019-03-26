@@ -7,7 +7,6 @@
 
 package training
 
-import addAll
 import com.kotlinnlp.frameextractor.FrameExtractorModel
 import com.kotlinnlp.frameextractor.helpers.Trainer
 import com.kotlinnlp.frameextractor.helpers.Validator
@@ -17,7 +16,6 @@ import com.kotlinnlp.neuralparser.language.ParsingSentence
 import com.kotlinnlp.neuralparser.language.ParsingToken
 import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRModel
 import com.xenomachina.argparser.mainBody
-import buildTokensEncoderModel
 import com.kotlinnlp.frameextractor.TextFrameExtractorModel
 import com.kotlinnlp.linguisticdescription.sentence.Sentence
 import com.kotlinnlp.linguisticdescription.sentence.token.FormToken
