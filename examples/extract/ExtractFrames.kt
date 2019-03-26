@@ -26,11 +26,18 @@ import java.io.FileInputStream
 fun main(args: Array<String>) = mainBody {
 
   val parsedArgs = CommandLineArguments(args)
-  val tokenizer = NeuralTokenizer(NeuralTokenizerModel.load(FileInputStream(File(parsedArgs.tokenizerModelPath))))
-  val textFramesExtractor = TextFramesExtractor(model = parsedArgs.modelPath.let {
+
+  val tokenizer: NeuralTokenizer = parsedArgs.tokenizerModelPath.let {
+    println("Loading tokenizer model from '$it'...")
+    NeuralTokenizer(NeuralTokenizerModel.load(FileInputStream(File(it))))
+  }
+
+  val model: TextFrameExtractorModel = parsedArgs.modelPath.let {
     println("Loading text frames extractor model from '$it'...")
     TextFrameExtractorModel.load(FileInputStream(File(it)))
-  })
+  }
+
+  val textFramesExtractor = TextFramesExtractor(model)
 
   @Suppress("UNCHECKED_CAST")
   while (true) {
