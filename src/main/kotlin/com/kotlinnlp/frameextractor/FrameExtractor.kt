@@ -340,7 +340,7 @@ class FrameExtractor(
     val isInside: Boolean = argMaxIndex % 2 != 0
     val isInvalidInside: Boolean = isInside && (prevSlotIndices.isEmpty() || slotIndex != prevSlotIndices.last())
 
-    return if (isInvalidInside) {
+    return if (argMaxIndex < 0 || isInvalidInside) {
 
       val noSlotIndex: Int = this.model.noSlotIndices.first { it in slotsRange }
 
