@@ -104,11 +104,11 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>evaluation-no-emb-assembly</id>
+                        <id>evaluation-separate-assembly</id>
                         <phase>package</phase>
                         <goals> <goal>single</goal> </goals>
                         <configuration>
-                            <finalName>eval-frame-extractor-no-emb</finalName>
+                            <finalName>eval-frame-extractor-separate</finalName>
                             <archive>
                                 <manifest>
                                     <addClasspath>true</addClasspath>
@@ -138,11 +138,11 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>extract-no-emb-assembly</id>
+                        <id>extract-separate-assembly</id>
                         <phase>package</phase>
                         <goals> <goal>single</goal> </goals>
                         <configuration>
-                            <finalName>extract-frames-no-emb</finalName>
+                            <finalName>extract-frames-separate</finalName>
                             <archive>
                                 <manifest>
                                     <addClasspath>true</addClasspath>
