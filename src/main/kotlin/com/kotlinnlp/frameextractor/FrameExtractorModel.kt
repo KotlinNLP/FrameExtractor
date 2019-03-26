@@ -165,10 +165,7 @@ class FrameExtractorModel(
    * @return the offset of the given intent slots
    */
   fun getSlotsOffset(intentName: String): Int =
-    this.intentsConfiguration
-      .asSequence()
-      .take(this.intentsConfiguration.indexOfFirst { it.name == intentName })
-      .sumBy { it.slots.size }
+    this.slotsOffsets[this.intentsConfiguration.indexOfFirst { it.name == intentName }]
 
   /**
    * @param intentIndex the index of an intent
