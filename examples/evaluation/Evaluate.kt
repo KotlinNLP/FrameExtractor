@@ -26,7 +26,7 @@ fun main(args: Array<String>) = mainBody {
 
   val parsedArgs = CommandLineArguments(args)
 
-  val extractorModel = parsedArgs.modelPath.let {
+  val model = parsedArgs.modelPath.let {
     println("Loading text frames extractor model from '$it'...")
     TextFrameExtractorModel.load(FileInputStream(File(it)))
   }
@@ -39,7 +39,7 @@ fun main(args: Array<String>) = mainBody {
   println("\nStart validation on %d examples".format(validationDataset.examples.size))
 
   val timer = Timer()
-  val stats: Statistics = Validator(model = extractorModel, dataset = validationDataset).evaluate()
+  val stats: Statistics = Validator(model = model, dataset = validationDataset).evaluate()
 
   println("Elapsed time: %s".format(timer.formatElapsedTime()))
   println()
