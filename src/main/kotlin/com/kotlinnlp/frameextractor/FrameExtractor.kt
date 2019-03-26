@@ -322,13 +322,11 @@ class FrameExtractor(
   }
 
   /**
-   * Get the slot index of a prediction.
-   *
-   * @param classification the classification of the slots network
+   * @param classification a classification of the slots network
    * @param prevSlotIndices the list of indices of the previous slots predicted
    * @param slotsOffset the slots indices offset of the intent predicted
    *
-   * @return the indexed of the slot predicted
+   * @return the indexed score of the slot predicted
    */
   private fun getSlotIndexedScore(classification: DenseNDArray,
                                   prevSlotIndices: List<Int>,
@@ -354,12 +352,12 @@ class FrameExtractor(
   /**
    * @param slotIndices a list of slot indices
    *
-   * @return a set containing all the classification indices of the given slots that are not "no-slot"
+   * @return a set containing the classification 'Beginning' indices of the given slots that are not "no-slot"
    */
   private fun getValidSlotClassificationIndices(slotIndices: List<Int>): Set<Int> =
     slotIndices
       .asSequence()
       .filter { it !in this.model.noSlotIndices }
-      .map { 2 * it }
+      .map { 2 * it } // calculate the 'Beginning' classification index of each slot
       .toSet()
 }
