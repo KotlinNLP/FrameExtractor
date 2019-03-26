@@ -169,4 +169,16 @@ class FrameExtractorModel(
       .asSequence()
       .take(this.intentsConfiguration.indexOfFirst { it.name == intentName })
       .sumBy { it.slots.size }
+
+  /**
+   * @param intentIndex the index of an intent
+   *
+   * @return the range of slots indices of the given intent, within the concatenation of all the possible intents slots
+   */
+  fun getSlotsRange(intentIndex: Int): IntRange {
+
+    val slotsOffset: Int = this.slotsOffsets[intentIndex]
+
+    return slotsOffset until slotsOffset + this.intentsConfiguration[intentIndex].slots.size
+  }
 }
