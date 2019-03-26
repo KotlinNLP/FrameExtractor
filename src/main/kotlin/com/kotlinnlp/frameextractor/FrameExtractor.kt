@@ -109,11 +109,10 @@ class FrameExtractor(
 
         slotIndices.add(slotIndexedScore.index)
 
-        when {
-          argMaxIndex % 2 == 0 || slotIndexedScore.index.isNoSlot() -> // Beginning
-            slotsFound.add(TmpSlot(index = slotIndexedScore.index, tokens = mutableListOf(token)))
-          else -> slotsFound.last().tokens.add(token) // Inside
-        }
+        if (argMaxIndex % 2 == 0 || slotIndexedScore.index.isNoSlot())
+          slotsFound.add(TmpSlot(index = slotIndexedScore.index, tokens = mutableListOf(token)))  // Beginning
+        else
+          slotsFound.last().tokens.add(token) // Inside
       }
 
       return slotsFound
