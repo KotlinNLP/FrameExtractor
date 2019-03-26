@@ -54,9 +54,7 @@ fun main(args: Array<String>) = mainBody {
   val encoderModel: TokensEncoderModel<FormToken, Sentence<FormToken>> = buildTokensEncoderModel(
     preprocessor = parsedArgs.morphoDictionaryPath.let {
       println("Loading serialized dictionary from '$it'...")
-      MorphoPreprocessor(MorphologicalAnalyzer(
-        language = lssModel.language,
-        dictionary = MorphologyDictionary.load(FileInputStream(File(it)))))
+      MorphoPreprocessor(MorphologicalAnalyzer(dictionary = MorphologyDictionary.load(FileInputStream(File(it)))))
     },
     embeddingsMap = parsedArgs.embeddingsPath.let {
       println("Loading pre-trained word embeddings from '$it'...")
