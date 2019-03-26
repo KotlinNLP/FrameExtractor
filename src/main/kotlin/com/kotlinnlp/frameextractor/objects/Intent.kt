@@ -25,9 +25,9 @@ data class Intent(val name: String, val slots: List<Slot>, val score: Double) {
    * It describes its name and its possible slots.
    *
    * @property name the intent name
-   * @property slots the list of all the possible slot names that can be associated to this intent
+   * @param slots the list of all the possible slot names that can be associated to this intent
    */
-  data class Configuration(val name: String, val slots: List<String>) : Serializable {
+  class Configuration(val name: String, slots: List<String>) : Serializable {
 
     companion object {
 
@@ -42,6 +42,11 @@ data class Intent(val name: String, val slots: List<Slot>, val score: Double) {
        */
       const val NO_SLOT_NAME = "NoSlot"
     }
+
+    /**
+     * The list of all the possible slot names that can be associated to this intent, including the 'no-slot'.
+     */
+    val slots: List<String> = (slots.toSet() + NO_SLOT_NAME).toList()
 
     /**
      * @param slotName the name of a possible slot of this intent
