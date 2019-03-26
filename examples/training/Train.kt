@@ -22,6 +22,8 @@ import com.kotlinnlp.linguisticdescription.sentence.token.FormToken
 import com.kotlinnlp.morphologicalanalyzer.dictionary.MorphologyDictionary
 import com.kotlinnlp.neuralparser.helpers.preprocessors.MorphoPreprocessor
 import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsMap
+import com.kotlinnlp.simplednn.core.functionalities.updatemethods.adagrad.AdaGradMethod
+import com.kotlinnlp.simplednn.core.functionalities.updatemethods.adam.ADAMMethod
 import com.kotlinnlp.tokensencoder.TokensEncoderModel
 import java.io.File
 import java.io.FileInputStream
@@ -83,6 +85,8 @@ fun main(args: Array<String>) = mainBody {
     model = model,
     modelFilename = parsedArgs.modelPath,
     epochs = parsedArgs.epochs,
+    encoderUpdateMethod = if (optimizeEmbeddings) AdaGradMethod(learningRate = 0.1) else null,
+    extractorUpdateMethod = ADAMMethod(stepSize = 0.001, beta1 = 0.9, beta2 = 0.999),
     validator = Validator(model = model, dataset = validationDataset),
     useDropout = false
   ).train(trainingDataset)
