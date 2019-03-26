@@ -58,9 +58,11 @@ internal fun buildTokensEncoderModel(
 ): TokensEncoderModel<FormToken, Sentence<FormToken>> {
 
   val embeddingsEncoder: EmbeddingsEncoderModel<FormToken, Sentence<FormToken>> = if (optimizeEmbeddings)
-    EmbeddingsEncoderModel.Base(embeddingsMap = embeddingsMap, embeddingKeyExtractor = NormWordKeyExtractor())
+    EmbeddingsEncoderModel
+      .Base(embeddingsMap = preTrainedEmbeddingsMap, embeddingKeyExtractor = NormWordKeyExtractor())
   else
-    EmbeddingsEncoderModel.Transient(embeddingsMap = embeddingsMap, embeddingKeyExtractor = NormWordKeyExtractor())
+    EmbeddingsEncoderModel
+      .Transient(embeddingsMap = preTrainedEmbeddingsMap, embeddingKeyExtractor = NormWordKeyExtractor())
 
   val lssEncoder = LSSTokensEncoderModel(lssModel)
 
