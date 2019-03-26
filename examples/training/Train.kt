@@ -85,7 +85,7 @@ fun main(args: Array<String>) = mainBody {
     model = model,
     modelFilename = parsedArgs.modelPath,
     epochs = parsedArgs.epochs,
-    encoderUpdateMethod = if (optimizeEmbeddings) AdaGradMethod(learningRate = 0.1) else null,
+    encoderUpdateMethod = AdaGradMethod(learningRate = 0.1),
     extractorUpdateMethod = ADAMMethod(stepSize = 0.001, beta1 = 0.9, beta2 = 0.999),
     validator = Validator(model = model, dataset = validationDataset),
     useDropout = false
