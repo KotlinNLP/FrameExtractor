@@ -54,6 +54,19 @@ data class Intent(val name: String, val slots: List<Slot>, val score: Double) {
      * @return the index of the slot with the given name within the possible slots defined in this configuration
      */
     fun getSlotIndex(slotName: String): Int = this.slots.indexOfFirst { it == slotName }
+
+    /**
+     * @param other any object
+     *
+     * @return if this configuration is equal to the given object
+     */
+    override fun equals(other: Any?): Boolean =
+      other is Configuration && this.name == other.name && this.slots == other.slots
+
+    /**
+     * @return the hash code of this configuration
+     */
+    override fun hashCode(): Int = 31 * this.name.hashCode() + this.slots.hashCode()
   }
 
   /**
