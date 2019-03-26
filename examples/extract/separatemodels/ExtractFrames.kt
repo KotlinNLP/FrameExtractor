@@ -15,9 +15,9 @@ import com.kotlinnlp.linguisticdescription.sentence.token.FormToken
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizer
 import com.kotlinnlp.neuraltokenizer.NeuralTokenizerModel
 import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsMap
-import com.kotlinnlp.tokensencoder.TokensEncoderModel
 import com.kotlinnlp.tokensencoder.embeddings.EmbeddingsEncoderModel
 import com.kotlinnlp.tokensencoder.ensemble.EnsembleTokensEncoderModel
+import com.kotlinnlp.tokensencoder.wrapper.TokensEncoderWrapperModel
 import com.xenomachina.argparser.mainBody
 import java.io.File
 import java.io.FileInputStream
@@ -47,10 +47,11 @@ fun main(args: Array<String>) = mainBody {
     EmbeddingsMap.load(it)
   }
 
-  val firstEncoder: TokensEncoderModel<*, *> =
-    (model.tokensEncoder as EnsembleTokensEncoderModel).components.first().model
+  val firstEncoder: TokensEncoderWrapperModel<*, *, *, *> =
+    (model.tokensEncoder as EnsembleTokensEncoderModel)
+      .components.first().model as TokensEncoderWrapperModel<*, *, *, *>
 
-  (firstEncoder as EmbeddingsEncoderModel.Transient).setEmbeddingsMap(embeddingsMap)
+  (firstEncoder.model as EmbeddingsEncoderModel.Transient).setEmbeddingsMap(embeddingsMap)
 
   val textFramesExtractor = TextFramesExtractor(model)
 

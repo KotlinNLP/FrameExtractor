@@ -14,9 +14,9 @@ import com.kotlinnlp.frameextractor.TextFrameExtractorModel
 import com.kotlinnlp.frameextractor.helpers.Statistics
 import com.kotlinnlp.frameextractor.helpers.dataset.Dataset
 import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsMap
-import com.kotlinnlp.tokensencoder.TokensEncoderModel
 import com.kotlinnlp.tokensencoder.embeddings.EmbeddingsEncoderModel
 import com.kotlinnlp.tokensencoder.ensemble.EnsembleTokensEncoderModel
+import com.kotlinnlp.tokensencoder.wrapper.TokensEncoderWrapperModel
 import com.kotlinnlp.utils.Timer
 import java.io.File
 import java.io.FileInputStream
@@ -45,10 +45,11 @@ fun main(args: Array<String>) = mainBody {
     Dataset.fromFile(it)
   }
 
-  val firstEncoder: TokensEncoderModel<*, *> =
-    (model.tokensEncoder as EnsembleTokensEncoderModel).components.first().model
+  val firstEncoder: TokensEncoderWrapperModel<*, *, *, *> =
+    (model.tokensEncoder as EnsembleTokensEncoderModel)
+      .components.first().model as TokensEncoderWrapperModel<*, *, *, *>
 
-  (firstEncoder as EmbeddingsEncoderModel.Transient).setEmbeddingsMap(embeddingsMap)
+  (firstEncoder.model as EmbeddingsEncoderModel.Transient).setEmbeddingsMap(embeddingsMap)
 
   println("\nStart validation on %d examples".format(validationDataset.examples.size))
 
