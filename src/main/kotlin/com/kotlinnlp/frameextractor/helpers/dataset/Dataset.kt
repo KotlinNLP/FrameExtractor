@@ -15,7 +15,7 @@ import com.kotlinnlp.linguisticdescription.sentence.Sentence as LDSentence
 import com.kotlinnlp.frameextractor.objects.Slot as IntentSlot
 
 /**
- * A dataset that can be read from a JSON file and it is used to create an [EncodedDataset].
+ * A dataset that can be read from a JSON file.
  *
  * @property configuration the list of configurations of all the possible intents in this dataset
  * @property examples the list of examples
