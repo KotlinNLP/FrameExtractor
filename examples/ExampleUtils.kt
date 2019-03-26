@@ -25,6 +25,21 @@ import com.kotlinnlp.tokensencoder.wrapper.SentenceConverter
 import com.kotlinnlp.tokensencoder.wrapper.TokensEncoderWrapperModel
 
 /**
+ * Add the all the tokens form to the embeddings map.
+ *
+ * @param sentences the list of sentences
+ */
+internal fun EmbeddingsMap<String>.addAll(sentences: List<Sentence<FormToken>>) {
+
+  sentences.forEach { sentence ->
+    sentence.tokens.forEach { token ->
+      if (token.normalizedForm !in this)
+        this.set(token.normalizedForm) // random initialized
+    }
+  }
+}
+
+/**
  * Build an [EnsembleTokensEncoderModel] composed by an embeddings encoder and an LSS encoder.
  *
  * @param preprocessor a sentence preprocessor
