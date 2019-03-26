@@ -7,6 +7,7 @@
 
 package training
 
+import addAll
 import com.kotlinnlp.frameextractor.FrameExtractorModel
 import com.kotlinnlp.frameextractor.helpers.Trainer
 import com.kotlinnlp.frameextractor.helpers.Validator
@@ -36,6 +37,7 @@ import java.io.FileInputStream
 fun main(args: Array<String>) = mainBody {
 
   val parsedArgs = CommandLineArguments(args)
+  val optimizeEmbeddings: Boolean = !parsedArgs.noEmbeddingsOptimization
 
   val trainingDataset: Dataset = parsedArgs.trainingSetPath.let {
     println("Loading training dataset from '$it'...")
@@ -50,18 +52,18 @@ fun main(args: Array<String>) = mainBody {
     println("Loading the LSSEncoder model from the LHRParser model serialized in '$it'...")
     LHRModel.load(FileInputStream(File(it))).lssModel
   }
-
+  val embeddingsMap: EmbeddingsMap<String> = parsedArgs.embeddingsPath.let {
+    println("Loading pre-trained word embeddings from '$it'...")
+    EmbeddingsMap.load(it)
+  }
   val encoderModel: TokensEncoderModel<FormToken, Sentence<FormToken>> = buildTokensEncoderModel(
     preprocessor = parsedArgs.morphoDictionaryPath.let {
       println("Loading serialized dictionary from '$it'...")
       MorphoPreprocessor(MorphologicalAnalyzer(dictionary = MorphologyDictionary.load(FileInputStream(File(it)))))
     },
-    embeddingsMap = parsedArgs.embeddingsPath.let {
-      println("Loading pre-trained word embeddings from '$it'...")
-      EmbeddingsMap.load(it)
-    },
-    lssModel = lssModel)
-
+    embeddingsMap = embeddingsMap,
+    lssModel = lssModel,
+    optimizeEmbeddings = optimizeEmbeddings)
   val extractorModel = FrameExtractorModel(
     name = parsedArgs.modelName,
     intentsConfiguration = trainingDataset.configuration,
@@ -73,6 +75,8 @@ fun main(args: Array<String>) = mainBody {
   require(trainingDataset.configuration == validationDataset.configuration) {
     "The training dataset and the validation dataset must have the same configuration."
   }
+
+  if (optimizeEmbeddings) embeddingsMap.addAll(trainingDataset.examples.map { it.sentence } )
 
   println()
   println("Training examples: ${trainingDataset.examples.size}.")

@@ -45,27 +45,35 @@ internal fun EmbeddingsMap<String>.addAll(sentences: List<Sentence<FormToken>>) 
  * @param preprocessor a sentence preprocessor
  * @param embeddingsMap an embeddings map by dictionary
  * @param lssModel the model of an LSS encoder
+ * @param optimizeEmbeddings whether to optimize and serialize the embeddings
  *
  * @return a new tokens encoder model
  */
 internal fun buildTokensEncoderModel(
   preprocessor: SentencePreprocessor,
   embeddingsMap: EmbeddingsMap<String>,
-  lssModel: LSSModel<ParsingToken, ParsingSentence>
-): TokensEncoderModel<FormToken, Sentence<FormToken>> =
-  EnsembleTokensEncoderModel(
+  lssModel: LSSModel<ParsingToken, ParsingSentence>,
+  optimizeEmbeddings: Boolean
+): TokensEncoderModel<FormToken, Sentence<FormToken>> {
+
+  val embeddingsEncoder: EmbeddingsEncoderModel<FormToken, Sentence<FormToken>> = if (optimizeEmbeddings)
+    EmbeddingsEncoderModel.Base(embeddingsMap = embeddingsMap, embeddingKeyExtractor = NormWordKeyExtractor())
+  else
+    EmbeddingsEncoderModel.Transient(embeddingsMap = embeddingsMap, embeddingKeyExtractor = NormWordKeyExtractor())
+
+  val lssEncoder = LSSTokensEncoderModel(lssModel)
+
+  return EnsembleTokensEncoderModel(
     components = listOf(
       EnsembleTokensEncoderModel.ComponentModel(
-        TokensEncoderWrapperModel(
-          model = EmbeddingsEncoderModel.Base(
-            embeddingsMap = embeddingsMap,
-            embeddingKeyExtractor = NormWordKeyExtractor()),
-          converter = MirrorConverter())),
+        model = TokensEncoderWrapperModel(model = embeddingsEncoder, converter = MirrorConverter()),
+        trainable = optimizeEmbeddings),
       EnsembleTokensEncoderModel.ComponentModel(
-        TokensEncoderWrapperModel(
-          model = LSSTokensEncoderModel(lssModel = lssModel),
-          converter = FormSentenceConverter(preprocessor))))
+        model = TokensEncoderWrapperModel(model = lssEncoder, converter = FormSentenceConverter(preprocessor)),
+        trainable = false)
+    )
   )
+}
 
 /**
  * The [SentenceConverter] from a sentence of form tokens.
