@@ -70,7 +70,9 @@ class Trainer(
   /**
    * A frame extractor built with the given [model].
    */
-  private val extractor = FrameExtractor(this.model.frameExtractor)
+  private val extractor = FrameExtractor(
+    model = this.model.frameExtractor,
+    propagateToInput = encoderUpdateMethod != null)
 
   /**
    * The encoder of the input tokens.
