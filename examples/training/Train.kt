@@ -11,22 +11,14 @@ import com.kotlinnlp.frameextractor.FrameExtractorModel
 import com.kotlinnlp.frameextractor.helpers.Trainer
 import com.kotlinnlp.frameextractor.helpers.Validator
 import com.kotlinnlp.frameextractor.helpers.dataset.Dataset
-import com.kotlinnlp.lssencoder.LSSModel
-import com.kotlinnlp.neuralparser.language.ParsingSentence
-import com.kotlinnlp.neuralparser.language.ParsingToken
-import com.kotlinnlp.neuralparser.parsers.lhrparser.LHRModel
 import com.xenomachina.argparser.mainBody
 import com.kotlinnlp.frameextractor.TextFrameExtractorModel
 import com.kotlinnlp.linguisticdescription.sentence.Sentence
 import com.kotlinnlp.linguisticdescription.sentence.token.FormToken
-import com.kotlinnlp.morphologicalanalyzer.dictionary.MorphologyDictionary
-import com.kotlinnlp.neuralparser.helpers.preprocessors.MorphoPreprocessor
 import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsMap
 import com.kotlinnlp.simplednn.core.functionalities.updatemethods.adagrad.AdaGradMethod
 import com.kotlinnlp.simplednn.core.functionalities.updatemethods.adam.ADAMMethod
 import com.kotlinnlp.tokensencoder.TokensEncoderModel
-import java.io.File
-import java.io.FileInputStream
 
 /**
  * Train a [FrameExtractorModel].
@@ -47,21 +39,14 @@ fun main(args: Array<String>) = mainBody {
     Dataset.fromFile(it)
   }
 
-  val lssModel: LSSModel<ParsingToken, ParsingSentence> = parsedArgs.parserModelPath.let {
-    println("Loading the LSSEncoder model from the LHRParser model serialized in '$it'...")
-    LHRModel.load(FileInputStream(File(it))).lssModel
-  }
-  val embeddingsMap: EmbeddingsMap<String> = parsedArgs.embeddingsPath.let {
+  val preTrainedEmbeddingsMap: EmbeddingsMap<String> = parsedArgs.embeddingsPath.let {
     println("Loading pre-trained word embeddings from '$it'...")
     EmbeddingsMap.load(it)
   }
+  val emptyEmbeddingsMap = EmbeddingsMap<String>(size = 100)
   val encoderModel: TokensEncoderModel<FormToken, Sentence<FormToken>> = buildTokensEncoderModel(
-    preprocessor = parsedArgs.morphoDictionaryPath.let {
-      println("Loading serialized dictionary from '$it'...")
-      MorphoPreprocessor(dictionary = MorphologyDictionary.load(FileInputStream(File(it))))
-    },
-    embeddingsMap = embeddingsMap,
-    lssModel = lssModel,
+    preTrainedEmbeddingsMap = preTrainedEmbeddingsMap,
+    emptyEmbeddingsMap = emptyEmbeddingsMap,
     optimizeEmbeddings = optimizeEmbeddings)
   val extractorModel = FrameExtractorModel(
     name = parsedArgs.modelName,
@@ -75,7 +60,8 @@ fun main(args: Array<String>) = mainBody {
     "The training dataset and the validation dataset must have the same configuration."
   }
 
-  if (optimizeEmbeddings) embeddingsMap.addAll(trainingDataset.examples.map { it.sentence } )
+  if (optimizeEmbeddings) preTrainedEmbeddingsMap.addAll(trainingDataset.examples.map { it.sentence })
+  emptyEmbeddingsMap.addAll(trainingDataset.examples.map { it.sentence })
 
   println()
   println("Training examples: ${trainingDataset.examples.size}.")
