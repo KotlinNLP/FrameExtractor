@@ -117,9 +117,7 @@ class Trainer(
 
       this.logTrainingEnd()
 
-      this.logValidationStart()
       this.validateAndSaveModel()
-      this.logValidationEnd()
     }
   }
 
@@ -230,7 +228,11 @@ class Trainer(
    */
   private fun validateAndSaveModel() {
 
+    this.logValidationStart()
+
     val stats: Statistics = this.validator.evaluate()
+
+    this.logValidationEnd()
 
     println("\nStatistics\n$stats")
 
