@@ -189,6 +189,23 @@ data class Dataset(
   }
 
   /**
+   * @return the words contained in this dataset associated to the number of their occurrences
+   */
+  fun countWords(): Map<String, Int> {
+
+    val counts: MutableMap<String, Int> = mutableMapOf()
+
+    val words: Sequence<String> =
+      this.examples.asSequence().map { it.sentence }.flatMap { it.tokens.asSequence() }.map { it.form }
+
+    words.forEach {
+      counts.compute(it) { _, count -> count?.let { count + 1 } ?: 1 }
+    }
+
+    return counts.toMap()
+  }
+
+  /**
    * Check the validity of the dataset configuration.
    *
    * @throws InvalidConfiguration when the configuration is generically not valid
