@@ -9,8 +9,8 @@ package com.kotlinnlp.frameextractor.helpers
 
 import com.kotlinnlp.frameextractor.helpers.dataset.IOBTag
 import com.kotlinnlp.frameextractor.objects.Intent
-import com.kotlinnlp.frameextractor.FrameExtractor
-import com.kotlinnlp.frameextractor.FrameExtractorModel
+import com.kotlinnlp.frameextractor.FramesExtractor
+import com.kotlinnlp.frameextractor.FramesExtractorModel
 import com.kotlinnlp.frameextractor.TextFramesExtractorModel
 import com.kotlinnlp.frameextractor.helpers.dataset.Dataset
 import com.kotlinnlp.linguisticdescription.sentence.Sentence
@@ -29,7 +29,7 @@ import java.io.File
 import java.io.FileOutputStream
 
 /**
- * A helper to train a [FrameExtractorModel].
+ * A helper to train a [FramesExtractorModel].
  *
  * @param model the model to train
  * @param modelFilename the path of the file in which to save the serialized trained model
@@ -69,7 +69,7 @@ class Trainer(
   /**
    * A frame extractor built with the given [model].
    */
-  private val extractor = FrameExtractor(
+  private val extractor = FramesExtractor(
     model = this.model.frameExtractor,
     propagateToInput = encoderUpdateMethod != null)
 
@@ -164,7 +164,7 @@ class Trainer(
                            slotsOffset: Int) {
 
     val tokensEncodings: List<DenseNDArray> = this.encoder.forward(example.sentence)
-    val output: FrameExtractor.Output = this.extractor.forward(tokensEncodings)
+    val output: FramesExtractor.Output = this.extractor.forward(tokensEncodings)
 
     val intentErrors: DenseNDArray = output.intentsDistribution.sub(
       DenseNDArrayFactory.oneHotEncoder(length = output.intentsDistribution.length, oneAt = intentIndex))

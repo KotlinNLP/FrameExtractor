@@ -29,14 +29,14 @@ import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArrayFactory
  * @property propagateToInput whether to propagate errors to the input during the backward (default = false)
  * @property id an identifier of this frame extractor (useful when included in a pool, default = 0)
  */
-class FrameExtractor(
-  val model: FrameExtractorModel,
+class FramesExtractor(
+  val model: FramesExtractorModel,
   override val propagateToInput: Boolean = false,
   override val id: Int = 0
 ) : NeuralProcessor<
   List<DenseNDArray>, // InputType
-  FrameExtractor.Output, // OutputType
-  FrameExtractor.Output, // ErrorsType
+  FramesExtractor.Output, // OutputType
+  FramesExtractor.Output, // ErrorsType
   List<DenseNDArray> // InputErrorsType
   > {
 
@@ -49,7 +49,7 @@ class FrameExtractor(
   private data class TmpSlot(val index: Int, val tokens: MutableList<Slot.Token>)
 
   /**
-   * The [FrameExtractor] output.
+   * The [FramesExtractor] output.
    *
    * @property intentsDistribution the distribution array of the intents
    * @property slotsClassifications the list of classifications of the slots, one per token
@@ -100,7 +100,7 @@ class FrameExtractor(
       this.slotsClassifications.forEachIndexed { tokenIndex, classification ->
 
         val argMaxIndex: Int = classification.argMaxIndex()
-        val slotIndexedScore: IndexedValue<Double> = this@FrameExtractor.getSlotIndexedScore(
+        val slotIndexedScore: IndexedValue<Double> = this@FramesExtractor.getSlotIndexedScore(
           classification = classification,
           prevSlotIndices = slotIndices,
           slotsRange = model.getSlotsRange(intentIndex))
@@ -125,7 +125,7 @@ class FrameExtractor(
     /**
      * @return true if this index refers to a "no-slot" slot within the list of all the intents slots
      */
-    private fun Int.isNoSlot(): Boolean = this in this@FrameExtractor.model.noSlotIndices
+    private fun Int.isNoSlot(): Boolean = this in this@FramesExtractor.model.noSlotIndices
   }
 
   /**

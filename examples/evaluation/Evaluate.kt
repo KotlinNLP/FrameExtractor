@@ -7,7 +7,7 @@
 
 package evaluation
 
-import com.kotlinnlp.frameextractor.FrameExtractorModel
+import com.kotlinnlp.frameextractor.FramesExtractorModel
 import com.kotlinnlp.frameextractor.helpers.Validator
 import com.xenomachina.argparser.mainBody
 import com.kotlinnlp.frameextractor.TextFramesExtractorModel
@@ -18,7 +18,7 @@ import java.io.File
 import java.io.FileInputStream
 
 /**
- * Evaluate a [FrameExtractorModel].
+ * Evaluate a [FramesExtractorModel].
  *
  * Launch with the '-h' option for help about the command line arguments.
  */

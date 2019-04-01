@@ -8,8 +8,8 @@
 package com.kotlinnlp.frameextractor.helpers
 
 import com.kotlinnlp.frameextractor.objects.Intent
-import com.kotlinnlp.frameextractor.FrameExtractor
-import com.kotlinnlp.frameextractor.FrameExtractorModel
+import com.kotlinnlp.frameextractor.FramesExtractor
+import com.kotlinnlp.frameextractor.FramesExtractorModel
 import com.kotlinnlp.frameextractor.TextFramesExtractorModel
 import com.kotlinnlp.frameextractor.TextFramesExtractor
 import com.kotlinnlp.frameextractor.helpers.dataset.Dataset
@@ -18,7 +18,7 @@ import com.kotlinnlp.utils.progressindicator.ProgressIndicatorBar
 import com.kotlinnlp.utils.stats.MetricCounter
 
 /**
- * A helper to evaluate a [FrameExtractorModel].
+ * A helper to evaluate a [FramesExtractorModel].
  *
  * @param model the model to evaluate
  * @param dataset the validation dataset
@@ -82,7 +82,7 @@ class Validator(
    */
   private fun validateExample(example: Dataset.Example) {
 
-    val output: FrameExtractor.Output = this.extractor.extractFrames(example.sentence)
+    val output: FramesExtractor.Output = this.extractor.extractFrames(example.sentence)
 
     val bestIntentIndex: Int = output.intentsDistribution.argMaxIndex()
     val intentConfig: Intent.Configuration = this.model.frameExtractor.intentsConfiguration[bestIntentIndex]

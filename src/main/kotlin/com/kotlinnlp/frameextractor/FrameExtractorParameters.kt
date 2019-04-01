@@ -13,7 +13,7 @@ import com.kotlinnlp.simplednn.core.optimizer.IterableParams
 import com.kotlinnlp.simplednn.deeplearning.birnn.BiRNNParameters
 
 /**
- * The [FrameExtractorModel] parameters.
+ * The [FramesExtractorModel] parameters.
  *
  * @property biRNN1Params
  * @property biRNN2Params
@@ -37,7 +37,7 @@ class FrameExtractorParameters(
   }
 
   /**
-   * The list of all the parameters of a [FrameExtractorModel].
+   * The list of all the parameters of a [FramesExtractorModel].
    */
   override val paramsList: List<ParamsArray> =
     this.biRNN1Params.paramsList +

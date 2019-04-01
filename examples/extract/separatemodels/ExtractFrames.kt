@@ -7,7 +7,7 @@
 
 package extract.separatemodels
 
-import com.kotlinnlp.frameextractor.FrameExtractor
+import com.kotlinnlp.frameextractor.FramesExtractor
 import com.kotlinnlp.frameextractor.TextFramesExtractorModel
 import com.kotlinnlp.frameextractor.TextFramesExtractor
 import com.kotlinnlp.linguisticdescription.sentence.Sentence
@@ -70,7 +70,7 @@ fun main(args: Array<String>) = mainBody {
 
         sentence as Sentence<FormToken>
 
-        val output: FrameExtractor.Output = textFramesExtractor.extractFrames(sentence)
+        val output: FramesExtractor.Output = textFramesExtractor.extractFrames(sentence)
         val frame = TextFramesExtractor.Frame(intent = output.buildIntent(), distribution = output.buildDistribution())
 
         println()

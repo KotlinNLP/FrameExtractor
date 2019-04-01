@@ -7,7 +7,7 @@
 
 package training
 
-import com.kotlinnlp.frameextractor.FrameExtractorModel
+import com.kotlinnlp.frameextractor.FramesExtractorModel
 import com.kotlinnlp.frameextractor.helpers.Trainer
 import com.kotlinnlp.frameextractor.helpers.Validator
 import com.kotlinnlp.frameextractor.helpers.dataset.Dataset
@@ -21,7 +21,7 @@ import com.kotlinnlp.simplednn.core.functionalities.updatemethods.adam.ADAMMetho
 import com.kotlinnlp.tokensencoder.TokensEncoderModel
 
 /**
- * Train a [FrameExtractorModel].
+ * Train a [FramesExtractorModel].
  *
  * Launch with the '-h' option for help about the command line arguments.
  */
@@ -48,7 +48,7 @@ fun main(args: Array<String>) = mainBody {
     preTrainedEmbeddingsMap = preTrainedEmbeddingsMap,
     emptyEmbeddingsMap = emptyEmbeddingsMap,
     optimizeEmbeddings = optimizeEmbeddings)
-  val extractorModel = FrameExtractorModel(
+  val extractorModel = FramesExtractorModel(
     name = parsedArgs.modelName,
     intentsConfiguration = trainingDataset.configuration,
     tokenEncodingSize = encoderModel.tokenEncodingSize,

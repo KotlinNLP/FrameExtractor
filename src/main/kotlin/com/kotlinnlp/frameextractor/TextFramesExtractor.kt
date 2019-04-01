@@ -33,7 +33,7 @@ class TextFramesExtractor(val model: TextFramesExtractorModel) {
   /**
    * A frame extractor built with the given [model].
    */
-  internal val extractor = FrameExtractor(this.model.frameExtractor)
+  internal val extractor = FramesExtractor(this.model.frameExtractor)
 
   /**
    * The encoder of the input tokens.
@@ -48,7 +48,7 @@ class TextFramesExtractor(val model: TextFramesExtractorModel) {
    *
    * @return the frame extracted
    */
-  fun extractFrames(sentence: Sentence<FormToken>): FrameExtractor.Output {
+  fun extractFrames(sentence: Sentence<FormToken>): FramesExtractor.Output {
 
     val tokensEncodings: List<DenseNDArray> = this.encoder.forward(sentence)
 

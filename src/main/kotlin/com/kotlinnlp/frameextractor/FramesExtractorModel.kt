@@ -23,12 +23,12 @@ import java.io.OutputStream
 import java.io.Serializable
 
 /**
- * The [FrameExtractor] parameters.
+ * The [FramesExtractor] parameters.
  *
  * @property name the name of this model (it should be unique, used to distinguish it among more models)
  * @property intentsConfiguration the list of all the possible intents managed by this frame extractor
  */
-class FrameExtractorModel(
+class FramesExtractorModel(
   val name: String,
   val intentsConfiguration: List<Intent.Configuration>,
   internal val tokenEncodingSize: Int,
@@ -46,13 +46,13 @@ class FrameExtractorModel(
     private const val serialVersionUID: Long = 1L
 
     /**
-     * Read a [FrameExtractorModel] (serialized) from an input stream and decode it.
+     * Read a [FramesExtractorModel] (serialized) from an input stream and decode it.
      *
-     * @param inputStream the [InputStream] from which to read the serialized [FrameExtractorModel]
+     * @param inputStream the [InputStream] from which to read the serialized [FramesExtractorModel]
      *
-     * @return the [FrameExtractorModel] read from [inputStream] and decoded
+     * @return the [FramesExtractorModel] read from [inputStream] and decoded
      */
-    fun load(inputStream: InputStream): FrameExtractorModel = Serializer.deserialize(inputStream)
+    fun load(inputStream: InputStream): FramesExtractorModel = Serializer.deserialize(inputStream)
   }
 
   /**
@@ -150,9 +150,9 @@ class FrameExtractorModel(
   }
 
   /**
-   * Serialize this [FrameExtractorModel] and write it to an output stream.
+   * Serialize this [FramesExtractorModel] and write it to an output stream.
    *
-   * @param outputStream the [OutputStream] in which to write this serialized [FrameExtractorModel]
+   * @param outputStream the [OutputStream] in which to write this serialized [FramesExtractorModel]
    */
   fun dump(outputStream: OutputStream) = Serializer.serialize(this, outputStream)
 

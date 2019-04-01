@@ -7,7 +7,7 @@
 
 package evaluation.separatemodels
 
-import com.kotlinnlp.frameextractor.FrameExtractorModel
+import com.kotlinnlp.frameextractor.FramesExtractorModel
 import com.kotlinnlp.frameextractor.helpers.Validator
 import com.xenomachina.argparser.mainBody
 import com.kotlinnlp.frameextractor.TextFramesExtractorModel
@@ -22,7 +22,7 @@ import java.io.File
 import java.io.FileInputStream
 
 /**
- * Evaluate a [FrameExtractorModel] with a transient embeddings encoder, loading the embeddings separately.
+ * Evaluate a [FramesExtractorModel] with a transient embeddings encoder, loading the embeddings separately.
  *
  * Launch with the '-h' option for help about the command line arguments.
  */

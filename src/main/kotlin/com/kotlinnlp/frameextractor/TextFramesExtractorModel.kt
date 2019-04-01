@@ -23,7 +23,7 @@ import java.io.Serializable
  * @property tokensEncoder the model of a tokens encoder to encode the input
  */
 class TextFramesExtractorModel(
-  val frameExtractor: FrameExtractorModel,
+  val frameExtractor: FramesExtractorModel,
   val tokensEncoder: TokensEncoderModel<FormToken, Sentence<FormToken>>
 ) : Serializable {
 
