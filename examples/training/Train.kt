@@ -12,7 +12,7 @@ import com.kotlinnlp.frameextractor.helpers.Trainer
 import com.kotlinnlp.frameextractor.helpers.Validator
 import com.kotlinnlp.frameextractor.helpers.dataset.Dataset
 import com.xenomachina.argparser.mainBody
-import com.kotlinnlp.frameextractor.TextFrameExtractorModel
+import com.kotlinnlp.frameextractor.TextFramesExtractorModel
 import com.kotlinnlp.linguisticdescription.sentence.Sentence
 import com.kotlinnlp.linguisticdescription.sentence.token.FormToken
 import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsMap
@@ -54,7 +54,7 @@ fun main(args: Array<String>) = mainBody {
     tokenEncodingSize = encoderModel.tokenEncodingSize,
     hiddenSize = 200)
 
-  val model = TextFrameExtractorModel(frameExtractor = extractorModel, tokensEncoder = encoderModel)
+  val model = TextFramesExtractorModel(frameExtractor = extractorModel, tokensEncoder = encoderModel)
 
   require(trainingDataset.configuration == validationDataset.configuration) {
     "The training dataset and the validation dataset must have the same configuration."

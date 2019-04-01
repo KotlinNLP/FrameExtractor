@@ -11,7 +11,7 @@ import com.kotlinnlp.frameextractor.helpers.dataset.IOBTag
 import com.kotlinnlp.frameextractor.objects.Intent
 import com.kotlinnlp.frameextractor.FrameExtractor
 import com.kotlinnlp.frameextractor.FrameExtractorModel
-import com.kotlinnlp.frameextractor.TextFrameExtractorModel
+import com.kotlinnlp.frameextractor.TextFramesExtractorModel
 import com.kotlinnlp.frameextractor.helpers.dataset.Dataset
 import com.kotlinnlp.linguisticdescription.sentence.Sentence
 import com.kotlinnlp.linguisticdescription.sentence.token.FormToken
@@ -41,7 +41,7 @@ import java.io.FileOutputStream
  * @param verbose whether to print info about the training progress and timing (default = true)
  */
 class Trainer(
-  private val model: TextFrameExtractorModel,
+  private val model: TextFramesExtractorModel,
   private val modelFilename: String,
   private val epochs: Int,
   extractorUpdateMethod: UpdateMethod<*> = ADAMMethod(stepSize = 0.001, beta1 = 0.9, beta2 = 0.999),

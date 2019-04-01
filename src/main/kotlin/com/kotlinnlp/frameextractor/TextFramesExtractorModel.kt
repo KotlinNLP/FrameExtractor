@@ -22,7 +22,7 @@ import java.io.Serializable
  * @property frameExtractor the model of the frame extractor
  * @property tokensEncoder the model of a tokens encoder to encode the input
  */
-class TextFrameExtractorModel(
+class TextFramesExtractorModel(
   val frameExtractor: FrameExtractorModel,
   val tokensEncoder: TokensEncoderModel<FormToken, Sentence<FormToken>>
 ) : Serializable {
@@ -36,13 +36,13 @@ class TextFrameExtractorModel(
     private const val serialVersionUID: Long = 1L
 
     /**
-     * Read a [TextFrameExtractorModel] (serialized) from an input stream and decode it.
+     * Read a [TextFramesExtractorModel] (serialized) from an input stream and decode it.
      *
-     * @param inputStream the [InputStream] from which to read the serialized [TextFrameExtractorModel]
+     * @param inputStream the [InputStream] from which to read the serialized [TextFramesExtractorModel]
      *
-     * @return the [TextFrameExtractorModel] read from [inputStream] and decoded
+     * @return the [TextFramesExtractorModel] read from [inputStream] and decoded
      */
-    fun load(inputStream: InputStream): TextFrameExtractorModel = Serializer.deserialize(inputStream)
+    fun load(inputStream: InputStream): TextFramesExtractorModel = Serializer.deserialize(inputStream)
   }
 
   /**
@@ -65,9 +65,9 @@ class TextFrameExtractorModel(
   }
 
   /**
-   * Serialize this [TextFrameExtractorModel] and write it to an output stream.
+   * Serialize this [TextFramesExtractorModel] and write it to an output stream.
    *
-   * @param outputStream the [OutputStream] in which to write this serialized [TextFrameExtractorModel]
+   * @param outputStream the [OutputStream] in which to write this serialized [TextFramesExtractorModel]
    */
   fun dump(outputStream: OutputStream) = Serializer.serialize(this, outputStream)
 }

@@ -10,7 +10,7 @@ package evaluation.separatemodels
 import com.kotlinnlp.frameextractor.FrameExtractorModel
 import com.kotlinnlp.frameextractor.helpers.Validator
 import com.xenomachina.argparser.mainBody
-import com.kotlinnlp.frameextractor.TextFrameExtractorModel
+import com.kotlinnlp.frameextractor.TextFramesExtractorModel
 import com.kotlinnlp.frameextractor.helpers.Statistics
 import com.kotlinnlp.frameextractor.helpers.dataset.Dataset
 import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsMap
@@ -32,7 +32,7 @@ fun main(args: Array<String>) = mainBody {
 
   val model = parsedArgs.modelPath.let {
     println("Loading text frames extractor model from '$it'...")
-    TextFrameExtractorModel.load(FileInputStream(File(it)))
+    TextFramesExtractorModel.load(FileInputStream(File(it)))
   }
 
   val embeddingsMap: EmbeddingsMap<String> = parsedArgs.embeddingsPath.let {

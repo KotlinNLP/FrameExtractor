@@ -10,7 +10,7 @@ package com.kotlinnlp.frameextractor.helpers
 import com.kotlinnlp.frameextractor.objects.Intent
 import com.kotlinnlp.frameextractor.FrameExtractor
 import com.kotlinnlp.frameextractor.FrameExtractorModel
-import com.kotlinnlp.frameextractor.TextFrameExtractorModel
+import com.kotlinnlp.frameextractor.TextFramesExtractorModel
 import com.kotlinnlp.frameextractor.TextFramesExtractor
 import com.kotlinnlp.frameextractor.helpers.dataset.Dataset
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
@@ -25,7 +25,7 @@ import com.kotlinnlp.utils.stats.MetricCounter
  * @param verbose whether to print info about the validation progress (default = true)
  */
 class Validator(
-  private val model: TextFrameExtractorModel,
+  private val model: TextFramesExtractorModel,
   private val dataset: Dataset,
   private val verbose: Boolean = true
 ) {

@@ -8,7 +8,7 @@
 package extract
 
 import com.kotlinnlp.frameextractor.FrameExtractor
-import com.kotlinnlp.frameextractor.TextFrameExtractorModel
+import com.kotlinnlp.frameextractor.TextFramesExtractorModel
 import com.kotlinnlp.frameextractor.TextFramesExtractor
 import com.kotlinnlp.linguisticdescription.sentence.Sentence
 import com.kotlinnlp.linguisticdescription.sentence.token.FormToken
@@ -32,9 +32,9 @@ fun main(args: Array<String>) = mainBody {
     NeuralTokenizer(NeuralTokenizerModel.load(FileInputStream(File(it))))
   }
 
-  val model: TextFrameExtractorModel = parsedArgs.modelPath.let {
+  val model: TextFramesExtractorModel = parsedArgs.modelPath.let {
     println("Loading text frames extractor model from '$it'...")
-    TextFrameExtractorModel.load(FileInputStream(File(it)))
+    TextFramesExtractorModel.load(FileInputStream(File(it)))
   }
 
   val textFramesExtractor = TextFramesExtractor(model)

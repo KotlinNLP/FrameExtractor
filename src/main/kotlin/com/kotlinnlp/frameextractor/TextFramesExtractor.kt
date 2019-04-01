@@ -20,7 +20,7 @@ import com.kotlinnlp.tokensencoder.TokensEncoder
  *
  * @param model the text frames extractor model
  */
-class TextFramesExtractor(val model: TextFrameExtractorModel) {
+class TextFramesExtractor(val model: TextFramesExtractorModel) {
 
   /**
    * A frame extracted.
