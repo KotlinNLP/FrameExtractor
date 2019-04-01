@@ -22,7 +22,7 @@
         <morphologicalanalyzer.version>0.4.3</morphologicalanalyzer.version>
         <neuralparser.version>0.6.2</neuralparser.version>
         <lssencoder.version>0.2.0</lssencoder.version>
-        <neuraltokenizer.version>0.4.6</neuraltokenizer.version>
+        <neuraltokenizer.version>0.4.5</neuraltokenizer.version>
         <simplednn.version>0.13.0</simplednn.version>
         <tokensencoder.version>0.5.1</tokensencoder.version>
     </properties>
