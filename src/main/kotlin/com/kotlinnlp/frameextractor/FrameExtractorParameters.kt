@@ -7,7 +7,7 @@
 
 package com.kotlinnlp.frameextractor
 
-import com.kotlinnlp.simplednn.core.arrays.UpdatableArray
+import com.kotlinnlp.simplednn.core.arrays.ParamsArray
 import com.kotlinnlp.simplednn.core.layers.StackedLayersParameters
 import com.kotlinnlp.simplednn.core.optimizer.IterableParams
 import com.kotlinnlp.simplednn.deeplearning.birnn.BiRNNParameters
@@ -39,7 +39,7 @@ class FrameExtractorParameters(
   /**
    * The list of all the parameters of a [FrameExtractorModel].
    */
-  override val paramsList: List<UpdatableArray<*>> =
+  override val paramsList: List<ParamsArray> =
     this.biRNN1Params.paramsList +
       this.biRNN2Params.paramsList +
       this.intentNetworkParams.paramsList +

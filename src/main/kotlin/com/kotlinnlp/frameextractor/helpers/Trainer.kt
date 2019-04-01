@@ -21,7 +21,6 @@ import com.kotlinnlp.simplednn.core.optimizer.ParamsOptimizer
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArrayFactory
 import com.kotlinnlp.tokensencoder.TokensEncoder
-import com.kotlinnlp.tokensencoder.TokensEncoderOptimizer
 import com.kotlinnlp.utils.ExamplesIndices
 import com.kotlinnlp.utils.Shuffler
 import com.kotlinnlp.utils.Timer
@@ -83,15 +82,13 @@ class Trainer(
   /**
    * The optimizer of the [model] parameters.
    */
-  private val extractorOptimizer =
-    ParamsOptimizer(params = this.model.frameExtractor.params, updateMethod = extractorUpdateMethod)
+  private val extractorOptimizer = ParamsOptimizer(extractorUpdateMethod)
 
   /**
    * The optimizer of the tokens encoder.
    * It is null if it must not be trained.
    */
-  private val encoderOptimizer: TokensEncoderOptimizer? =
-    encoderUpdateMethod?.let { this.model.tokensEncoder.buildOptimizer(updateMethod = it) }
+  private val encoderOptimizer: ParamsOptimizer? = encoderUpdateMethod?.let { ParamsOptimizer(it) }
 
   /**
    * Check requirements.

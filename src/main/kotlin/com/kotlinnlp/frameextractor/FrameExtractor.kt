@@ -13,6 +13,7 @@ import com.kotlinnlp.frameextractor.objects.Slot
 import com.kotlinnlp.simplednn.core.neuralprocessor.NeuralProcessor
 import com.kotlinnlp.simplednn.core.neuralprocessor.batchfeedforward.BatchFeedforwardProcessor
 import com.kotlinnlp.simplednn.core.neuralprocessor.feedforward.FeedforwardNeuralProcessor
+import com.kotlinnlp.simplednn.core.optimizer.ParamsErrorsList
 import com.kotlinnlp.simplednn.deeplearning.birnn.BiRNNEncoder
 import com.kotlinnlp.simplednn.simplemath.ndarray.Shape
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
@@ -36,8 +37,7 @@ class FrameExtractor(
   List<DenseNDArray>, // InputType
   FrameExtractor.Output, // OutputType
   FrameExtractor.Output, // ErrorsType
-  List<DenseNDArray>, // InputErrorsType
-  FrameExtractorParameters // ParamsErrorsType
+  List<DenseNDArray> // InputErrorsType
   > {
 
   /**
@@ -238,12 +238,11 @@ class FrameExtractor(
    *
    * @return the errors of this frame extractor parameters
    */
-  override fun getParamsErrors(copy: Boolean) = FrameExtractorParameters(
-    biRNN1Params = this.biRNNEncoder1.getParamsErrors(copy),
-    biRNN2Params = this.biRNNEncoder2.getParamsErrors(copy),
-    intentNetworkParams = this.intentProcessor.getParamsErrors(copy),
-    slotsNetworkParams = this.slotsProcessor.getParamsErrors(copy)
-  )
+  override fun getParamsErrors(copy: Boolean): ParamsErrorsList =
+    this.biRNNEncoder1.getParamsErrors(copy) +
+      this.biRNNEncoder2.getParamsErrors(copy) +
+      this.intentProcessor.getParamsErrors(copy) +
+      this.slotsProcessor.getParamsErrors(copy)
 
   /**
    * Sum a smaller dense array to a bigger dense array element-wise in-place, aligning them to the first or the last
