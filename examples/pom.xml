@@ -18,7 +18,7 @@
         <argparser.version>2.0.7</argparser.version>
         <klaxon.version>3.0.5</klaxon.version>
         <frameextractor.version>0.4.5</frameextractor.version>
-        <linguisticdescription.version>0.11.0</linguisticdescription.version>
+        <linguisticdescription.version>0.12.0</linguisticdescription.version>
         <morphologicalanalyzer.version>0.4.4</morphologicalanalyzer.version>
         <neuralparser.version>0.6.3</neuralparser.version>
         <lssencoder.version>0.2.1</lssencoder.version>
