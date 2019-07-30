@@ -56,7 +56,9 @@ data class Dataset(
   data class Example(val intent: String, val sentence: Sentence) {
 
     /**
-     * The sentence of the example
+     * The sentence of the example.
+     *
+     * @param tokens the tokens that compose the sentence
      */
     data class Sentence(override val tokens: List<Token>) : LDSentence<FormToken>
 

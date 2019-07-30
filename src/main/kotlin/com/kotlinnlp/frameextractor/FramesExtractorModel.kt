@@ -27,6 +27,10 @@ import java.io.Serializable
  *
  * @property name the name of this model (it should be unique, used to distinguish it among more models)
  * @property intentsConfiguration the list of all the possible intents managed by this frame extractor
+ * @param tokenEncodingSize the size of the tokens encodings
+ * @param hiddenSize the size of the hidden layer of the BiRNNs
+ * @param hiddenActivation the activation of the hidden layer of the BiRNNs
+ * @param recurrentConnectionType the connection type of the recurrent layer of the BiRNNs
  */
 class FramesExtractorModel(
   val name: String,
@@ -77,7 +81,7 @@ class FramesExtractorModel(
   }
 
   /**
-   *
+   * A BiRNN model.
    */
   val biRNN1 = BiRNN(
     inputType = LayerType.Input.Dense,
@@ -89,7 +93,7 @@ class FramesExtractorModel(
     outputMergeConfiguration = ConcatMerge())
 
   /**
-   *
+   * A BiRNN model.
    */
   val biRNN2 = BiRNN(
     inputType = LayerType.Input.Dense,
@@ -101,7 +105,7 @@ class FramesExtractorModel(
     outputMergeConfiguration = ConcatMerge())
 
   /**
-   *
+   * The output network for the intent prediction.
    */
   val intentNetwork = StackedLayersParameters(
     layersConfiguration = listOf(
@@ -116,12 +120,12 @@ class FramesExtractorModel(
   )
 
   /**
-   *
+   * The output network for the slots prediction.
    */
   val slotsNetwork: StackedLayersParameters
 
   /**
-   *
+   * The parameters of this model.
    */
   val params: FrameExtractorParameters
 
