@@ -7,10 +7,9 @@
 
 package com.kotlinnlp.frameextractor
 
-import com.kotlinnlp.simplednn.core.arrays.ParamsArray
 import com.kotlinnlp.simplednn.core.layers.StackedLayersParameters
-import com.kotlinnlp.simplednn.core.optimizer.IterableParams
 import com.kotlinnlp.simplednn.deeplearning.birnn.BiRNNParameters
+import java.io.Serializable
 
 /**
  * The [FramesExtractorModel] parameters.
@@ -25,7 +24,7 @@ class FrameExtractorParameters(
   val biRNN2Params: BiRNNParameters,
   val intentNetworkParams: StackedLayersParameters,
   val slotsNetworkParams: StackedLayersParameters
-) : IterableParams<FrameExtractorParameters>() {
+) : Serializable {
 
   companion object {
 
@@ -35,23 +34,4 @@ class FrameExtractorParameters(
     @Suppress("unused")
     private const val serialVersionUID: Long = 1L
   }
-
-  /**
-   * The list of all the parameters of a [FramesExtractorModel].
-   */
-  override val paramsList: List<ParamsArray> =
-    this.biRNN1Params.paramsList +
-      this.biRNN2Params.paramsList +
-      this.intentNetworkParams.paramsList +
-      this.slotsNetworkParams.paramsList
-
-  /**
-   * @return new [FrameExtractorParameters] containing a copy of all the values of this
-   */
-  override fun copy() = FrameExtractorParameters(
-    biRNN1Params = this.biRNN1Params.copy(),
-    biRNN2Params = this.biRNN2Params.copy(),
-    intentNetworkParams = this.intentNetworkParams.copy(),
-    slotsNetworkParams = this.slotsNetworkParams.copy()
-  )
 }
