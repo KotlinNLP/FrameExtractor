@@ -8,9 +8,10 @@
 package com.kotlinnlp.frameextractor.helpers.dataset
 
 import com.beust.klaxon.JsonObject
-import com.beust.klaxon.Parser
+import com.beust.klaxon.Klaxon
 import com.kotlinnlp.frameextractor.objects.Intent
 import com.kotlinnlp.linguisticdescription.sentence.token.FormToken
+import java.io.File
 import com.kotlinnlp.linguisticdescription.sentence.Sentence as LDSentence
 import com.kotlinnlp.frameextractor.objects.Slot as IntentSlot
 
@@ -129,7 +130,7 @@ data class Dataset(
      */
     fun fromFile(filePath: String): Dataset {
 
-      val jsonDataset: JsonObject = Parser().parse(filePath) as JsonObject
+      val jsonDataset: JsonObject = Klaxon().parseJsonObject(File(filePath).reader())
 
       return Dataset(
         configuration = jsonDataset.array<JsonObject>("intents")!!.map { intent ->
