@@ -21,7 +21,7 @@ import com.kotlinnlp.simplednn.core.optimizer.ParamsOptimizer
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArrayFactory
 import com.kotlinnlp.tokensencoder.TokensEncoder
-import com.kotlinnlp.utils.ExamplesIndices
+import com.kotlinnlp.utils.ShuffledIndices
 import com.kotlinnlp.utils.Shuffler
 import com.kotlinnlp.utils.Timer
 import com.kotlinnlp.utils.progressindicator.ProgressIndicatorBar
@@ -128,7 +128,7 @@ class Trainer(
 
     val progress = ProgressIndicatorBar(dataset.examples.size)
 
-    ExamplesIndices(dataset.examples.size, shuffler = shuffler).forEach { i ->
+    ShuffledIndices(dataset.examples.size, shuffler = shuffler).forEach { i ->
 
       val example: Dataset.Example = dataset.examples[i]
       val intentIndex: Int = dataset.configuration.indexOfFirst { it.name == example.intent }
