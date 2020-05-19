@@ -37,7 +37,7 @@ class FramesExtractorModel(
   val intentsConfiguration: List<Intent.Configuration>,
   internal val tokenEncodingSize: Int,
   hiddenSize: Int,
-  hiddenActivation: ActivationFunction? = Tanh(),
+  hiddenActivation: ActivationFunction? = Tanh,
   recurrentConnectionType: LayerType.Connection = LayerType.Connection.LSTM
 ) : Serializable {
 
