@@ -17,7 +17,7 @@ import com.kotlinnlp.linguisticdescription.sentence.Sentence
 import com.kotlinnlp.linguisticdescription.sentence.token.FormToken
 import com.kotlinnlp.simplednn.core.embeddings.EmbeddingsMap
 import com.kotlinnlp.simplednn.core.functionalities.updatemethods.adagrad.AdaGradMethod
-import com.kotlinnlp.simplednn.core.functionalities.updatemethods.adam.ADAMMethod
+import com.kotlinnlp.simplednn.core.functionalities.updatemethods.radam.RADAMMethod
 import com.kotlinnlp.tokensencoder.TokensEncoderModel
 
 /**
@@ -72,7 +72,7 @@ fun main(args: Array<String>) = mainBody {
     modelFilename = parsedArgs.modelPath,
     epochs = parsedArgs.epochs,
     encoderUpdateMethod = AdaGradMethod(learningRate = 0.1),
-    extractorUpdateMethod = ADAMMethod(stepSize = 0.001, beta1 = 0.9, beta2 = 0.999),
+    extractorUpdateMethod = RADAMMethod(stepSize = 0.001, beta1 = 0.9, beta2 = 0.999),
     validator = Validator(model = model, dataset = validationDataset),
     useDropout = false
   ).train(trainingDataset)
