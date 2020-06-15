@@ -36,7 +36,6 @@ import java.io.FileOutputStream
  * @param epochs the number of training epochs
  * @param extractorUpdateMethod the update method to optimize the frame extractor model parameters
  * @param encoderUpdateMethod the update method for the parameters of the tokens encoder (null if must not be trained)
- * @param useDropout whether to apply the dropout of the input
  * @param validator a helper for the validation of the model
  * @param verbose whether to print info about the training progress and timing (default = true)
  */
@@ -46,7 +45,6 @@ class Trainer(
   private val epochs: Int,
   extractorUpdateMethod: UpdateMethod<*> = RADAMMethod(stepSize = 0.001, beta1 = 0.9, beta2 = 0.999),
   encoderUpdateMethod: UpdateMethod<*>? = null,
-  useDropout: Boolean,
   private val validator: Validator,
   private val verbose: Boolean = true
 ) {
@@ -76,8 +74,7 @@ class Trainer(
   /**
    * The encoder of the input tokens.
    */
-  private val encoder: TokensEncoder<FormToken, Sentence<FormToken>> =
-    this.model.tokensEncoder.buildEncoder(useDropout)
+  private val encoder: TokensEncoder<FormToken, Sentence<FormToken>> = this.model.tokensEncoder.buildEncoder()
 
   /**
    * The optimizer of the [model] parameters.

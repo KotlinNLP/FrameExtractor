@@ -129,42 +129,28 @@ class FramesExtractor(
   }
 
   /**
-   * The dropout is not useful for this processor because it has encodings as input and they make sense if used in
-   * their original form.
-   */
-  override val useDropout: Boolean = false
-
-  /**
    * The BiRNN1 encoder.
    */
-  private val biRNNEncoder1 = BiRNNEncoder<DenseNDArray>(
-    network = this.model.biRNN1,
-    propagateToInput = this.propagateToInput,
-    useDropout = false)
+  private val biRNNEncoder1 =
+    BiRNNEncoder<DenseNDArray>(network = this.model.biRNN1, propagateToInput = this.propagateToInput)
 
   /**
    * The BiRNN2 encoder.
    */
-  private val biRNNEncoder2 = BiRNNEncoder<DenseNDArray>(
-    network = this.model.biRNN2,
-    propagateToInput = this.propagateToInput,
-    useDropout = false)
+  private val biRNNEncoder2 =
+    BiRNNEncoder<DenseNDArray>(network = this.model.biRNN2, propagateToInput = this.propagateToInput)
 
   /**
    * The FF neural processor that decodes the intent.
    */
-  private val intentProcessor = FeedforwardNeuralProcessor<DenseNDArray>(
-    model = this.model.intentNetwork,
-    propagateToInput = true,
-    useDropout = false)
+  private val intentProcessor =
+    FeedforwardNeuralProcessor<DenseNDArray>(model = this.model.intentNetwork, propagateToInput = true)
 
   /**
    * The FF batch processor that decodes the slots of an intent.
    */
-  private val slotsProcessor = BatchFeedforwardProcessor<DenseNDArray>(
-    model = this.model.slotsNetwork,
-    propagateToInput = true,
-    useDropout = false)
+  private val slotsProcessor =
+    BatchFeedforwardProcessor<DenseNDArray>(model = this.model.slotsNetwork, propagateToInput = true)
 
   /**
    * Calculate the distribution scores of the intents and the slots.
@@ -331,7 +317,7 @@ class FramesExtractor(
                                   prevSlotIndices: List<Int>,
                                   slotsRange: IntRange): IndexedValue<Double> {
 
-    val slotsClassificationRange: IntRange = 2 * slotsRange.start until 2 * (slotsRange.endInclusive + 1)
+    val slotsClassificationRange: IntRange = 2 * slotsRange.first until 2 * (slotsRange.last + 1)
     val classificationIndicesNotInRange: Set<Int> = ((0 until classification.length) - slotsClassificationRange).toSet()
     val invalidClassificationIndices: Set<Int> = classificationIndicesNotInRange +
       prevSlotIndices.toSet().filter { it !in this.model.noSlotIndices }.map { 2 * it }

@@ -73,7 +73,6 @@ fun main(args: Array<String>) = mainBody {
     epochs = parsedArgs.epochs,
     encoderUpdateMethod = AdaGradMethod(learningRate = 0.1),
     extractorUpdateMethod = RADAMMethod(stepSize = 0.001, beta1 = 0.9, beta2 = 0.999),
-    validator = Validator(model = model, dataset = validationDataset),
-    useDropout = false
+    validator = Validator(model = model, dataset = validationDataset)
   ).train(trainingDataset)
 }

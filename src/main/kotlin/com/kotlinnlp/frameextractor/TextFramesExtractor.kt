@@ -11,7 +11,6 @@ import com.kotlinnlp.frameextractor.objects.Distribution
 import com.kotlinnlp.frameextractor.objects.Intent
 import com.kotlinnlp.linguisticdescription.sentence.Sentence
 import com.kotlinnlp.linguisticdescription.sentence.token.FormToken
-import com.kotlinnlp.neuraltokenizer.Sentence as TokenizerSentence
 import com.kotlinnlp.simplednn.simplemath.ndarray.dense.DenseNDArray
 import com.kotlinnlp.tokensencoder.TokensEncoder
 
@@ -38,8 +37,7 @@ class TextFramesExtractor(val model: TextFramesExtractorModel) {
   /**
    * The encoder of the input tokens.
    */
-  private val encoder: TokensEncoder<FormToken, Sentence<FormToken>> =
-    this.model.tokensEncoder.buildEncoder(useDropout = false)
+  private val encoder: TokensEncoder<FormToken, Sentence<FormToken>> = this.model.tokensEncoder.buildEncoder()
 
   /**
    * Extract intent frames from a sentence of form tokens.
