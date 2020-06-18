@@ -17,9 +17,9 @@
         <xenocom.version>0.0.5</xenocom.version>
         <argparser.version>2.0.7</argparser.version>
         <klaxon.version>5.2</klaxon.version>
-        <frameextractor.version>0.4.7</frameextractor.version>
-        <neuralparser.version>0.6.5</neuralparser.version>
-        <neuraltokenizer.version>0.4.8</neuraltokenizer.version>
+        <frameextractor.version>0.4.8</frameextractor.version>
+        <neuralparser.version>0.6.6</neuralparser.version>
+        <neuraltokenizer.version>0.4.9</neuraltokenizer.version>
     </properties>
 
     <repositories>
