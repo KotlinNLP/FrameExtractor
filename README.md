@@ -13,7 +13,7 @@ FrameExtractor is part of [KotlinNLP](http://kotlinnlp.com/ "KotlinNLP").
 <dependency>
     <groupId>com.kotlinnlp</groupId>
     <artifactId>frameextractor</artifactId>
-    <version>0.4.7</version>
+    <version>0.4.8</version>
 </dependency>
 ```
 
